@@ -7,12 +7,11 @@ SRAM-only.
 
 2\. Create a virtualenv and activate/install the required packages:
 ```
-source $POPLAR_SDK_DIR/enable
+source <path to poplar installation>/enable.sh
+source <path to popart installation>/enable.sh
 python3.8 -m venv .venv
 source .venv/bin/activate
 pip install $POPLAR_SDK_DIR/poptorch_x.x.x.whl
-source <path to poplar installation>/enable.sh
-source <path to popart installation>/enable.sh
 pip install -r requirements.txt 
 ```
 
