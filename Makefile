@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
 all: custom_ops.so
 
 custom_ops.so: custom_ops/*.cpp custom_ops/*.hpp
