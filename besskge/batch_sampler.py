@@ -331,7 +331,7 @@ class RandomShardedBatchSampler(ShardedBatchSampler):
     """
 
     # docstr-coverage: inherited
-    def sample_triples(self, idx):
+    def sample_triples(self, idx: List[int]) -> Dict[str, np.ndarray]:
         sample_idx = (
             self.shardpair_offsets[None, :, :, None]
             + self.rng.randint(
@@ -351,5 +351,5 @@ class RandomShardedBatchSampler(ShardedBatchSampler):
         return int(np.ceil(self.shardpair_counts.max() / self.shardpair_sample_size))
 
     # docstr-coverage: inherited
-    def get_dataloader_sampler(self, shuffle) -> torch.utils.data.Sampler:
+    def get_dataloader_sampler(self, shuffle=False) -> torch.utils.data.Sampler:
         return torch.utils.data.SequentialSampler(self)
