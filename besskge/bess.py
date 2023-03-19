@@ -1,15 +1,23 @@
-from typing import List, Dict
-import torch
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
+from typing import Any, Dict, Tuple
+
 import poptorch
+import torch
 
 from besskge.dataset import Sharding
 from besskge.loss import BaseLossFunction
-from besskge.scoring import BaseScoreFunction
 from besskge.negative_sampler import RandomShardedNegativeSampler
+from besskge.scoring import BaseScoreFunction
 from besskge.utils import all_to_all
 
 
 class BessKGE(torch.nn.Module):
+    """
+    A module for distributed training and inference of KGE models, using
+    the distribution framework BESS [...].
+    """
+
     def __init__(
         self,
         sharding: Sharding,
@@ -20,6 +28,24 @@ class BessKGE(torch.nn.Module):
         negative_sampler: RandomShardedNegativeSampler,
         initializer: str = "margin_based",
     ) -> None:
+        """
+        Initialize BESS-KGE module.
+
+        :param sharding:
+            The entity sharding.
+        :param n_relation_type:
+            Number of relation types in the KG.
+        :param embedding_size:
+            Size of entities and relation embeddings.
+        :param score_fn:
+            Scoring function.
+        :param loss_fn:
+            Loss function.
+        :param negative_sampler:
+            Sampler of negative entities.
+        :param initializer:
+            Initialization scheme for embedding tables.
+        """
         super().__init__()
         self.embedding_size = embedding_size
         self.sharding = sharding
@@ -43,7 +69,29 @@ class BessKGE(torch.nn.Module):
         tail: torch.LongTensor,
         negative: torch.LongTensor,
         triple_weight: torch.FloatTensor,
-    ) -> Dict[str, torch.FloatTensor]:
+    ) -> Dict[str, Any]:
+        """
+        Forward step, comprising of three phases:
+        1) Gather relevant embeddings from local memory;
+        2) Share embeddings with other devices through collective operators;
+        3) Score positive and negative triples and compute loss.
+        Each device scores n_shard * positive_per_shardpair positive triples.
+
+        :param head: shape: (n_shard, positive_per_shardpair)
+            Head indices.
+        :param relation: shape: (n_shard, positive_per_shardpair)
+            Relation indices.
+        :param tail: shape: (n_shard, positive_per_shardpair)
+            Tail indices.
+        :param negative: shape: (n_shard, B, n_negative)
+            Indices of negative entities,
+            with B = 1 or n_shard * positive_per_shardpair.
+        :param triple_weight: shape: (n_shard * positive_per_shardpair,) or ()
+            Weights of positive triples.
+
+        :return:
+            Microbatch loss and scores (positive and negatives).
+        """
         head, relation, tail, negative, triple_weight = (
             head.squeeze(0),
             relation.squeeze(0),
@@ -51,6 +99,7 @@ class BessKGE(torch.nn.Module):
             negative.squeeze(0),
             triple_weight.squeeze(0),
         )
+        # Gather embeddings
         relation_embedding = self.relation_embedding[relation]
         negative_flat = negative.flatten(start_dim=1)
         gather_idx = torch.concat([head, tail, negative_flat], dim=1)
@@ -59,6 +108,8 @@ class BessKGE(torch.nn.Module):
             [head.shape[1], tail.shape[1] + negative_flat.shape[1]],
             dim=1,
         )
+
+        # Share embeddings
         if self.negative_sampler.local_sampling:
             tail_embedding, negative_embedding = torch.split(
                 tail_and_negative_embedding,
@@ -84,6 +135,7 @@ class BessKGE(torch.nn.Module):
             relation_embedding.flatten(end_dim=1),
             tail_embedding.flatten(end_dim=1),
         )
+
         if self.negative_sampler.corruption_scheme == "h":
             negative_score = self.score_fn.score_heads(
                 negative_embedding,
@@ -128,24 +180,42 @@ class BessKGE(torch.nn.Module):
                 dim=1,
             ).flatten(end_dim=1)
 
-        loss = self.loss_fn.compute_loss(positive_score, negative_score, triple_weight)
+        loss = self.loss_fn.compute_loss(
+            positive_score,
+            negative_score,
+            triple_weight,
+        )
+
         return dict(
             loss=poptorch.identity_loss(loss, reduction="none"),
             positive_score=positive_score,
             negative_score=negative_score,
         )
 
-    def initialize_embeddings(self, initializer: str) -> List[torch.nn.Parameter]:
+    def initialize_embeddings(self, initializer: str) -> Tuple[torch.nn.Parameter]:
+        """
+        Initialize embedding tables.
+
+        :param initializer:
+            Initialization scheme.
+
+        :return:
+            Entity and relation embedding tables.
+        """
         entity_embedding = torch.nn.Parameter(
-            torch.FloatTensor(
-                self.sharding.n_shard,
-                self.sharding.max_entity_per_shard,
-                self.embedding_size,
+            torch.empty(
+                size=(
+                    self.sharding.n_shard,
+                    self.sharding.max_entity_per_shard,
+                    self.embedding_size,
+                ),
+                dtype=torch.float32,
             )
         )
-        # entity_embedding = torch.nn.Parameter(torch.FloatTensor(self.sharding.max_entity_per_shard, self.embedding_size))
         relation_embedding = torch.nn.Parameter(
-            torch.FloatTensor(self.n_relation_type, self.embedding_size)
+            torch.empty(
+                size=(self.n_relation_type, self.embedding_size), dtype=torch.float32
+            )
         )
         if initializer == "margin_based":
             embedding_range = self.loss_fn.margin / self.embedding_size
