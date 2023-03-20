@@ -15,7 +15,7 @@ source <path to poplar installation>/enable.sh
 source <path to popart installation>/enable.sh
 python3.8 -m venv .venv
 source .venv/bin/activate
-pip install $POPLAR_SDK_DIR/poptorch_*.whl
+pip install $POPLAR_SDK_ENABLED/../poptorch-*.whl
 pip install -r requirements.txt 
 ```
 
