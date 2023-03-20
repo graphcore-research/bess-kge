@@ -7,8 +7,8 @@ import einops
 import numpy as np
 import torch
 
-from besskge.dataset import KGDataset, Sharding
 from besskge.negative_sampler import ShardedNegativeSampler
+from besskge.sharding import ShardedTripleSet
 
 
 class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
@@ -18,9 +18,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
 
     def __init__(
         self,
-        part: str,
-        dataset: KGDataset,
-        sharding: Sharding,
+        sharded_triple_set: ShardedTripleSet,
         negative_sampler: ShardedNegativeSampler,
         shard_bs: int,
         batches_per_step: int,
@@ -58,7 +56,11 @@ class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
             The batch sampled from each shardpair has two identical halves;
             to be used with "ht" corruption scheme. Defaults to False.
         """
-        self.n_shard = sharding.n_shard
+        self.n_shard = sharded_triple_set.sharding.n_shard
+        self.triples = sharded_triple_set.sharded_triples
+        self.shardpair_counts = sharded_triple_set.shardpair_counts
+        self.shardpair_offsets = sharded_triple_set.shardpair_offsets
+
         self.shard_bs = shard_bs
         self.duplicate_batch = duplicate_batch
         # Each microbatch is formed of n_shard blocks, based on tail location
@@ -72,29 +74,16 @@ class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
         self.seed = seed
         self.rng = np.random.RandomState(self.seed)
 
-        (
-            self.triples,
-            self.shardpair_counts,
-            self.shardpair_offsets,
-            self.sort_idx,
-        ) = ShardedBatchSampler.shard_triples(dataset, part, sharding)
-
-        # Apply same reordering to triple-specific properties in neg_sampler
-        for attribute_to_sort in self.negative_sampler.triple_properties:
-            setattr(
-                self.negative_sampler,
-                attribute_to_sort,
-                getattr(self.negative_sampler, attribute_to_sort)[self.sort_idx],
-            )
-
         if self.hrt_freq_weighting:
             _, hr_idx, hr_count = np.unique(
-                self.triples[..., 0] + dataset.n_entity * self.triples[..., 1],
+                self.triples[..., 0]
+                + sharded_triple_set.sharding.n_entity * self.triples[..., 1],
                 return_counts=True,
                 return_inverse=True,
             )
             _, rt_idx, rt_count = np.unique(
-                self.triples[..., 2] + dataset.n_entity * self.triples[..., 1],
+                self.triples[..., 2]
+                + sharded_triple_set.sharding.n_entity * self.triples[..., 1],
                 return_counts=True,
                 return_inverse=True,
             )
@@ -180,14 +169,14 @@ class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
         """
         raise NotImplementedError
 
-    def get_dataloader_sampler(self, shuffle=True) -> torch.utils.data.Sampler:
+    def get_dataloader_sampler(self, shuffle: bool) -> torch.utils.data.Sampler:
         """
-        Instantiate approprate :class:`torch.data.Sampler` for the
+        Instantiate appropriate :class:`torch.data.Sampler` for the
         :class:`torch.utils.data.DataLoader` to be used with the
         sharded batch sampler.
 
         :param shuffle:
-            Shuffle triples at each new epoch, defaults to True.
+            Shuffle triples at each new epoch.
         :return:
             The dataloader sampler.
         """
@@ -200,45 +189,34 @@ class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
             sampler, batch_size=self.shardpair_sample_size, drop_last=False
         )
 
-    @staticmethod
-    def shard_triples(
-        dataset: KGDataset, part: str, sharding: Sharding
-    ) -> Tuple[np.ndarray]:
+    def get_dataloader(
+        self,
+        shuffle: bool = True,
+        num_workers: int = 0,
+        persistent_workers: bool = False,
+    ) -> torch.utils.data.DataLoader:
         """
-        Divide triples in n_shard**2 buckets, based on head and tail shards.
+        Instantiate  appropriate :class:`torch.utils.data.DataLoader`
+        to iterate over the batch sampler.
 
-        :param dataset:
-            KG dataset.
-        :param part:
-            The dataset part to shard.
-        :param sharding:
-            The entity sharding to use.
-
-        :return sharded_triples: shape: (n_triple, 3)
-            HRT indices (local for entities) of triples,
-            after sorting by shardpair.
-        :return shardpair_counts: shape: (n_shard, n_shard)
-            Number of triples for each shardpair.
-        :return shardpair_offsets: shape: (n_shard, n_shard)
-            Offsets of shardpairs.
-        :return sort_idx: shape: (n_triple,)
-            Sorting indices to cluster triples by shardpair.
+        :param shuffle:
+            Shuffle triples at each new epoch, defaults to True.
+        :param num_workers:
+            see :meth:`torch.utils.data.DataLoader.__init__`, defaults to 0.
+        :param persistent_workers:
+            see :meth:`torch.utils.data.DataLoader.__init__`, defaults to False.
+        :return:
+            The dataloader.
         """
-
-        triples = dataset.triples[part]
-        n_shard = sharding.n_shard
-        shard_h, shard_t = sharding.entity_to_shard[triples[:, [0, 2]].T]
-        shardpair_idx = shard_h * n_shard + shard_t
-        shardpair_counts = np.bincount(
-            shardpair_idx, minlength=n_shard * n_shard
-        ).reshape(n_shard, n_shard)
-        shardpair_offsets = np.concatenate(
-            [[0], np.cumsum(shardpair_counts)[:-1]]
-        ).reshape(n_shard, n_shard)
-        sort_idx = np.argsort(shardpair_idx)
-        sharded_triples = triples[sort_idx]
-        sharded_triples[:, [0, 2]] = sharding.entity_to_idx[sharded_triples[:, [0, 2]]]
-        return sharded_triples, shardpair_counts, shardpair_offsets, sort_idx
+        dl_sampler = self.get_dataloader_sampler(shuffle=shuffle)
+        return torch.utils.data.DataLoader(
+            self,
+            batch_size=None,
+            num_workers=num_workers,
+            persistent_workers=persistent_workers,
+            worker_init_fn=self.worker_init_fn,
+            sampler=dl_sampler,
+        )
 
     @staticmethod
     def worker_init_fn(worker_id: int) -> None:
@@ -266,9 +244,7 @@ class RigidShardedBatchSampler(ShardedBatchSampler):
     # docstr-coverage: inherited
     def __init__(
         self,
-        part: str,
-        dataset: KGDataset,
-        sharding: Sharding,
+        sharded_triples: ShardedTripleSet,
         negative_sampler: ShardedNegativeSampler,
         shard_bs: int,
         batches_per_step: int,
@@ -280,9 +256,7 @@ class RigidShardedBatchSampler(ShardedBatchSampler):
         **kwargs,
     ) -> None:
         super(RigidShardedBatchSampler, self).__init__(
-            part,
-            dataset,
-            sharding,
+            sharded_triples,
             negative_sampler,
             shard_bs,
             batches_per_step,

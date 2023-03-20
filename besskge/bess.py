@@ -5,10 +5,10 @@ from typing import Any, Dict, Tuple
 import poptorch
 import torch
 
-from besskge.dataset import Sharding
 from besskge.loss import BaseLossFunction
 from besskge.negative_sampler import RandomShardedNegativeSampler
 from besskge.scoring import BaseScoreFunction
+from besskge.sharding import Sharding
 from besskge.utils import all_to_all
 
 

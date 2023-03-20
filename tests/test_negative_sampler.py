@@ -2,15 +2,15 @@
 
 import einops
 import numpy as np
-from numpy.testing import assert_equal
 import pytest
+from numpy.testing import assert_equal
 
-from besskge.dataset import Sharding
 from besskge.negative_sampler import (
     RandomShardedNegativeSampler,
     TripleBasedShardedNegativeSampler,
     TypeBasedShardedNegativeSampler,
 )
+from besskge.sharding import Sharding
 
 seed = 1234
 n_entity = 500

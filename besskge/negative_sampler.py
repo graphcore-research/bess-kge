@@ -6,7 +6,7 @@ from typing import Dict, Tuple
 import einops
 import numpy as np
 
-from besskge.dataset import Sharding
+from besskge.sharding import Sharding
 
 
 class ShardedNegativeSampler(ABC):
@@ -81,8 +81,6 @@ class RandomShardedNegativeSampler(ShardedNegativeSampler):
         self.seed = seed
         self.rng = np.random.RandomState(seed=self.seed)
         self.flat_negative_format = flat_negative_format
-        # Triple-specific properties indexed by global triple ID
-        self.triple_properties = []
 
     # docstr-coverage: inherited
     def get_negative_batch(
@@ -151,7 +149,6 @@ class TypeBasedShardedNegativeSampler(RandomShardedNegativeSampler):
         self.triple_types = triple_types
         self.type_offsets = sharding.entity_type_offsets
         self.type_counts = sharding.entity_type_counts
-        self.triple_properties = ["triple_types"]
 
     # docstr-coverage: inherited
     def get_negative_batch(
@@ -278,7 +275,6 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
                 shard_neg_offsets,
                 self.padded_shard_length,
             )
-            self.triple_properties = ["padded_negatives", "mask", "sort_neg_idx"]
         elif self.corruption_scheme == "ht":
             (
                 shard_neg_h_counts,
@@ -309,14 +305,6 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
                 shard_neg_t_offsets,
                 self.padded_shard_length,
             )
-            self.triple_properties = [
-                "padded_negatives_h",
-                "mask_h",
-                "padded_negatives_t",
-                "mask_t",
-                "sort_neg_h_idx",
-                "sort_neg_t_idx",
-            ]
         else:
             raise ValueError(
                 f"Corruption scheme {self.corruption_scheme} not supported by {self.__class__}"
