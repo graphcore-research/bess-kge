@@ -27,6 +27,7 @@ class BessKGE(torch.nn.Module):
         loss_fn: BaseLossFunction,
         negative_sampler: RandomShardedNegativeSampler,
         initializer: str = "margin_based",
+        return_scores: bool = False,
     ) -> None:
         """
         Initialize BESS-KGE module.
@@ -52,6 +53,7 @@ class BessKGE(torch.nn.Module):
         self.n_relation_type = n_relation_type
         self.score_fn = score_fn
         self.loss_fn = loss_fn
+        self.return_scores = return_scores
         self.negative_sampler = negative_sampler
         if negative_sampler.flat_negative_format:
             assert (
@@ -186,11 +188,16 @@ class BessKGE(torch.nn.Module):
             triple_weight,
         )
 
-        return dict(
+        out_dict = dict(
             loss=poptorch.identity_loss(loss, reduction="none"),
-            positive_score=positive_score,
-            negative_score=negative_score,
         )
+
+        if self.return_scores:
+            out_dict.update(
+                positive_score=positive_score, negative_score=negative_score
+            )
+
+        return out_dict
 
     def initialize_embeddings(self, initializer: str) -> Tuple[torch.nn.Parameter]:
         """
