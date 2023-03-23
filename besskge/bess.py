@@ -182,7 +182,7 @@ class BessKGE(torch.nn.Module):
                 dim=1,
             ).flatten(end_dim=1)
 
-        loss = self.loss_fn.compute_loss(
+        loss = self.loss_fn(
             positive_score,
             negative_score,
             triple_weight,

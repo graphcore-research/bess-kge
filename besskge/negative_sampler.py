@@ -15,7 +15,7 @@ class ShardedNegativeSampler(ABC):
     """
 
     @abstractmethod
-    def get_negative_batch(
+    def __call__(
         self,
         sample_idx: np.ndarray,
     ) -> np.ndarray:
@@ -83,7 +83,7 @@ class RandomShardedNegativeSampler(ShardedNegativeSampler):
         self.flat_negative_format = flat_negative_format
 
     # docstr-coverage: inherited
-    def get_negative_batch(
+    def __call__(
         self,
         sample_idx: np.ndarray,
     ) -> Dict[str, np.ndarray]:
@@ -151,7 +151,7 @@ class TypeBasedShardedNegativeSampler(RandomShardedNegativeSampler):
         self.type_counts = sharding.entity_type_counts
 
     # docstr-coverage: inherited
-    def get_negative_batch(
+    def __call__(
         self,
         sample_idx: np.ndarray,
     ) -> Dict[str, np.ndarray]:
@@ -189,7 +189,7 @@ class TypeBasedShardedNegativeSampler(RandomShardedNegativeSampler):
             repeat=n_shard,
         )
 
-        rvs = super(TypeBasedShardedNegativeSampler, self).get_negative_batch(
+        rvs = super(TypeBasedShardedNegativeSampler, self).__call__(
             sample_idx,
         )["negative_entities"]
 
@@ -311,7 +311,7 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
             )
 
     # docstr-coverage: inherited
-    def get_negative_batch(
+    def __call__(
         self,
         sample_idx: np.ndarray,
     ) -> Dict[str, np.ndarray]:

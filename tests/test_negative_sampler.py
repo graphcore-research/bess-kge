@@ -37,7 +37,7 @@ def test_random_sharded_ns(flat_negative_format: bool) -> None:
 
     # Negative batch is independent on sample_idx, corruption_scheme and local_sampling
     sample_idx = np.ones((batches_per_step, n_shard, n_shard, positive_per_shardpair))
-    neg_batch = ns.get_negative_batch(sample_idx)["negative_entities"]
+    neg_batch = ns(sample_idx)["negative_entities"]
 
     # Check sampled entities idx are smaller than number of actual entitites in the shard
     for processing_shard in range(n_shard):
@@ -77,7 +77,7 @@ def test_type_based_sharded_ns(local_sampling: bool, corruption_scheme: str) -> 
     sample_idx = np.random.randint(
         n_triple, size=(batches_per_step, n_shard, n_shard, positive_per_shardpair)
     )
-    neg_batch = ns.get_negative_batch(sample_idx)["negative_entities"]
+    neg_batch = ns(sample_idx)["negative_entities"]
 
     for processing_shard in range(n_shard):
         # Check sampled entities idx are smaller than number of actual entitites in the shard
@@ -157,7 +157,7 @@ def test_triple_based_sharded_ns(corruption_scheme: str) -> None:
     sample_idx = np.random.randint(
         n_triple, size=(batches_per_step, n_shard, n_shard, positive_per_shardpair)
     )
-    neg_batch = ns.get_negative_batch(sample_idx)
+    neg_batch = ns(sample_idx)
     neg_batch_ent = neg_batch["negative_entities"]
     neg_batch_mask = neg_batch["negative_mask"]
     neg_sort_idx = neg_batch["negative_sort_idx"]

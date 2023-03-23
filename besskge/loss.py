@@ -52,7 +52,7 @@ class BaseLossFunction(ABC):
         return negative_weights
 
     @abstractmethod
-    def compute_loss(
+    def __call__(
         self,
         positive_score: torch.FloatTensor,
         negative_score: torch.FloatTensor,
@@ -109,7 +109,7 @@ class LogSigmoidLoss(MarginBasedLossFunction):
     """
 
     # docstr-coverage: inherited
-    def compute_loss(
+    def __call__(
         self,
         positive_score: torch.FloatTensor,
         negative_score: torch.FloatTensor,
@@ -171,7 +171,7 @@ class MarginRankingLoss(MarginBasedLossFunction):
             )
 
     # docstr-coverage: inherited
-    def compute_loss(
+    def __call__(
         self,
         positive_score: torch.FloatTensor,
         negative_score: torch.FloatTensor,

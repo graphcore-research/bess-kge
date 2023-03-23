@@ -1,7 +1,47 @@
 import re
-from typing import Dict, List
+from typing import Dict, List, Callable
+from functools import partial
 
 import torch
+
+
+def reciprocal_rank(
+    prediction_rank: torch.tensor, reduction: Callable[[torch.tensor], torch.tensor]
+) -> torch.tensor:
+    """
+    Reciprocal rank (e.g. used to compute MRR)
+
+    :param prediction_rank: shape: (batch_size,)
+        Rank of ground truth among ordered predictions.
+    :param reduction:
+        Reduction function to apply along the batch dimension.
+    :return:
+        Reduced reciprocal rank.
+    """
+    return reduction(1.0 / prediction_rank)
+
+
+def hits_at_k(
+    prediction_rank: torch.tensor,
+    k: int,
+    reduction: Callable[[torch.tensor], torch.tensor],
+) -> torch.tensor:
+    """
+    Hits@K metric.
+
+    :param prediction_rank: shape: (batch_size,)
+        Rank of ground truth among ordered predictions.
+    :param k:
+        Maximum acceptable rank.
+    :param reduction:
+        Reduction function to apply along the batch dimension.
+    :return:
+        Reduced count of predictions with rank at most k.
+    """
+    return reduction((prediction_rank <= k).to(torch.float))
+
+
+METRICS_DICT = {"mrr": reciprocal_rank, "hits@k": (lambda k: partial(hits_at_k, k=k))}
 
 
 class Evaluation:
@@ -34,11 +74,18 @@ class Evaluation:
             self.reduction = lambda x: torch.mean(x, dim=0)
         else:
             raise ValueError(f"Reduction {reduction} not supported for evaluation")
-        hits_filter = [re.search(r"hits@(\d+)", a) for a in metric_list]
-        self.hits_K_list = [int(a[1]) for a in hits_filter if a]
-        self.compute_mrr = "mrr" in metric_list
+        hits_k_filter = [re.search(r"hits@(\d+)", a) for a in metric_list]
+        self.metrics = {
+            a[0]: METRICS_DICT["hits@k"](int(a[1])) for a in hits_k_filter if a
+        }
+        self.metrics.update(
+            {
+                m: METRICS_DICT[m]
+                for m in list(set(metric_list) - set(self.metrics.keys()))
+            }
+        )
 
-    def compute_metrics(
+    def __call__(
         self, pos_score: torch.tensor, neg_score: torch.tensor
     ) -> Dict[str, torch.tensor]:
         """
@@ -52,7 +99,6 @@ class Evaluation:
         :return:
             The batch metrics.
         """
-        out_dict = {}
 
         batch_size, _ = neg_score.shape
         pos_score = pos_score.reshape(-1, 1)
@@ -69,13 +115,7 @@ class Evaluation:
             rank_pess = 1 + torch.sum(neg_score >= pos_score, dim=-1)
             batch_rank = (rank_opt + rank_pess) / 2
 
-        for k in self.hits_K_list:
-            out_dict.update(
-                {f"hits@{k}": self.reduction((batch_rank <= k).to(torch.float))}
-            )
-
-        if self.compute_mrr:
-            batch_mrr = 1.0 / batch_rank
-            out_dict.update(mrr=self.reduction(batch_mrr))
-
-        return out_dict
+        return {
+            m_name: m(prediction_rank=batch_rank, reduction=self.reduction)
+            for m_name, m in self.metrics.items()
+        }
