@@ -135,7 +135,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
             tail, "step shard_h shard_t triple -> step shard_t shard_h triple"
         )
 
-        sample_negative_dict = self.negative_sampler.get_negative_batch(sample_idx)
+        sample_negative_dict = self.negative_sampler(sample_idx)
         negative_entities = sample_negative_dict.pop("negative_entities")
 
         if self.hrt_freq_weighting:

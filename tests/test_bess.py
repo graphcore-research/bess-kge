@@ -105,6 +105,7 @@ def test_inference(corruption_scheme: str, duplicate_batch: bool) -> None:
         score_fn=score_fn,
         loss_fn=loss_fn,
         negative_sampler=test_ns,
+        return_scores=True,
     )
     # Load embedding tables
     inf_model.entity_embedding = torch.nn.Parameter(entity_table)

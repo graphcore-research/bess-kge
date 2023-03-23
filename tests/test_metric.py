@@ -16,13 +16,13 @@ def test_evaluation() -> None:
     )
 
     evaluator_pess = Evaluation(metric_list, mode="pessimistic", reduction="none")
-    results = evaluator_pess.compute_metrics(pos_score, neg_score)
+    results = evaluator_pess(pos_score, neg_score)
     assert_close(results["hits@1"], torch.tensor([0.0, 0.0, 0.0]))
     assert_close(results["hits@5"], torch.tensor([0.0, 1.0, 1.0]))
     assert_close(results["mrr"], torch.tensor([1.0 / 6, 1.0 / 4, 1.0 / 2]))
 
     evaluator_opt = Evaluation(metric_list, mode="optimistic", reduction="none")
-    results = evaluator_opt.compute_metrics(pos_score, neg_score)
+    results = evaluator_opt(pos_score, neg_score)
     assert_close(results["hits@1"], torch.tensor([0.0, 0.0, 1.0]))
     assert_close(results["hits@5"], torch.tensor([1.0, 1.0, 1.0]))
     assert_close(results["mrr"], torch.tensor([1.0 / 4, 1.0 / 2, 1.0 / 1]))
