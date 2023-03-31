@@ -2,7 +2,7 @@
 
 all: custom_ops.so
 
-custom_ops.so: custom_ops/*.cpp custom_ops/*.hpp
+custom_ops.so: custom_ops/*.cpp
 	g++ -std=c++14 -fPIC \
 		-DONNX_NAMESPACE=onnx \
 		custom_ops/remove_all_reduce_pattern.cpp \
