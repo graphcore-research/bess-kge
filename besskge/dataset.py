@@ -1,6 +1,7 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
 import dataclasses
+import pickle
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -34,17 +35,30 @@ class KGDataset:
     # {entity_type: int}
     type_offsets: Optional[Dict[str, int]]
 
-    #: Type IDs of head/tail entities;
-    # {part: int64[n_triple, {h_type,t_type}]}
-    types: Optional[Dict[str, np.ndarray]]
-
-    #: IDs of triple-specific negative heads;
-    # {part: int64[n_triple, n_neg_heads]}
+    #: IDs of (possibly triple-specific) negative heads;
+    # {part: int64[n_triple or 1, n_neg_heads]}
     neg_heads: Optional[Dict[str, np.ndarray]]
 
-    #: IDs of triple-specific negative heads;
-    # {part: int64[n_triple, n_neg_tails]}
+    #: IDs of (possibly triple-specific) negative heads;
+    # {part: int64[n_triple or 1, n_neg_tails]}
     neg_tails: Optional[Dict[str, np.ndarray]]
+
+    @property
+    def ht_types(self) -> Optional[Dict[str, np.ndarray]]:
+        # If entities have types, type IDs of triples' heads/tails
+        # {part: int64[n_triple, {h_type, t_type}]}
+        if self.type_offsets:
+            type_offsets = np.fromiter(self.type_offsets.values(), dtype=np.int32)
+            types = {}
+            for part, triple in self.triples.items():
+                types[part] = (
+                    np.digitize(
+                        triple[:, [0, 2]],
+                        type_offsets,
+                    )
+                    - 1
+                )
+            return types
 
     @classmethod
     def build_biokg(cls, root: Path) -> "KGDataset":
@@ -66,13 +80,11 @@ class KGDataset:
         n_entity = type_offsets[-1]
         type_offsets = dict(zip(type_counts.keys(), type_offsets))
         triples = {}
-        types = {}
         neg_heads = {}
         neg_tails = {}
         for part, hrt in split_edge.items():
             h_label, h_type_idx = np.unique(hrt["head_type"], return_inverse=True)
             t_label, t_type_idx = np.unique(hrt["tail_type"], return_inverse=True)
-            types[part] = np.stack([h_type_idx, t_type_idx], axis=-1)
             h_type_offsets = np.array([type_offsets[lab] for lab in h_label])
             t_type_offsets = np.array([type_offsets[lab] for lab in t_label])
             hrt["head"] += h_type_offsets[h_type_idx]
@@ -91,14 +103,31 @@ class KGDataset:
             relation_dict=None,
             type_offsets=type_offsets,
             triples=triples,
-            types=types,
             neg_heads=neg_heads,
             neg_tails=neg_tails,
         )
 
+    def save(self, out_file: Path) -> None:
+        """
+        Save dataset to .pkl.
+
+        :param path:
+            Path to output file.
+        """
+        with open(out_file, "wb") as f:
+            pickle.dump(self, f)
+
     @classmethod
     def load(cls, path: Path) -> "KGDataset":
-        raise NotImplementedError
+        """
+        Load a :class:`KGDataset` saved with :func:`KGDataset.save`.
 
-    def save(self, path: Path) -> None:
-        raise NotImplementedError
+        :param path:
+            Path to saved :class:`KGDataset`.
+
+        :return:
+            The saved :class:`KGDataset`.
+        """
+        with open(path, "rb") as f:
+            kg_dataset = pickle.load(f)
+        return kg_dataset

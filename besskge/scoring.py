@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 
 import poptorch
 import torch
+import poptorch_experimental_addons as pea
 
 
 class BaseScoreFunction(ABC):
@@ -141,16 +142,13 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
         :return: shape: (outer1, outer2)
             Broadcasted pairwise p-distance.
         """
-        if poptorch.isRunningOnIpu() and self.scoring_norm in [1, 2]:
-            distance_matrix = poptorch.custom_op(
-                name=f"L{self.scoring_norm}Distance",
-                domain_version=1,
-                domain="custom.ops",
-                inputs=[v1, v2],
-                example_outputs=[
-                    torch.zeros(dtype=v1.dtype, size=[v1.shape[0], v2.shape[0]])
-                ],
-            )[0]
+        if poptorch.isRunningOnIpu():
+            if self.scoring_norm in [1, 2]:
+                distance_matrix = pea.distance_matrix(v1, v2, p=self.scoring_norm)
+            else:
+                raise NotImplementedError(
+                    "Only 1- and 2-norm supported by distance_matrix on IPU"
+                )
         else:
             distance_matrix = torch.cdist(v1, v2, p=self.scoring_norm)
         return distance_matrix

@@ -8,12 +8,12 @@ import torch
 from torch.testing import assert_close
 
 from besskge.batch_sampler import RigidShardedBatchSampler
-from besskge.bess import BessKGE
+from besskge.bess import BessKGE, ScoreMovingBessKGE, EmbeddingMovingBessKGE
 from besskge.dataset import KGDataset
 from besskge.loss import LogSigmoidLoss
 from besskge.negative_sampler import TripleBasedShardedNegativeSampler
 from besskge.scoring import TransE
-from besskge.sharding import ShardedTripleSet, Sharding
+from besskge.sharding import PartitionedTripleSet, Sharding
 
 seed = 1234
 n_entity = 500
@@ -26,10 +26,17 @@ n_negative = 250
 embedding_size = 128
 
 
+@pytest.mark.parametrize("model", [ScoreMovingBessKGE, EmbeddingMovingBessKGE])
 @pytest.mark.parametrize(
     "corruption_scheme, duplicate_batch", [("h", False), ("t", False), ("ht", True)]
 )
-def test_inference(corruption_scheme: str, duplicate_batch: bool) -> None:
+@pytest.mark.parametrize("flat_negative_format", [True, False])
+def test_inference(
+    model: BessKGE,
+    corruption_scheme: str,
+    duplicate_batch: bool,
+    flat_negative_format: bool,
+) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
 
@@ -47,8 +54,13 @@ def test_inference(corruption_scheme: str, duplicate_batch: bool) -> None:
         "test": np.stack([test_triples_h, test_triples_r, test_triples_t], axis=1)
     }
 
-    test_negative_heads = np.random.randint(n_entity, size=(n_test_triple, n_negative))
-    test_negative_tails = np.random.randint(n_entity, size=(n_test_triple, n_negative))
+    neg_outer_shape = 1 if flat_negative_format else n_test_triple
+    test_negative_heads = np.random.randint(
+        n_entity, size=(neg_outer_shape, n_negative)
+    )
+    test_negative_tails = np.random.randint(
+        n_entity, size=(neg_outer_shape, n_negative)
+    )
     neg_heads = {"test": test_negative_heads}
     neg_tails = {"test": test_negative_tails}
 
@@ -59,36 +71,36 @@ def test_inference(corruption_scheme: str, duplicate_batch: bool) -> None:
         relation_dict=None,
         type_offsets=None,
         triples=triples,
-        types=None,
         neg_heads=neg_heads,
         neg_tails=neg_tails,
     )
 
-    sharded_triple_set = ShardedTripleSet.create(ds, "test", sharding)
+    partitioned_triple_set = PartitionedTripleSet.create_from_dataset(
+        ds, "test", sharding, partition_mode="ht_shardpair"
+    )
 
-    score_fn = TransE(negative_sample_sharing=False, scoring_norm=1)
-    loss_fn = LogSigmoidLoss(margin=12.0, negative_adversarial_sampling=False)
+    score_fn = TransE(negative_sample_sharing=flat_negative_format, scoring_norm=1)
 
     test_ns = TripleBasedShardedNegativeSampler(
-        sharded_triple_set.neg_heads,
-        sharded_triple_set.neg_tails,
+        partitioned_triple_set.neg_heads,
+        partitioned_triple_set.neg_tails,
         sharding,
         corruption_scheme=corruption_scheme,
         seed=seed,
-        get_sort_idx=True,
+        return_sort_idx=True,
     )
 
     test_bs = RigidShardedBatchSampler(
-        sharded_triples=sharded_triple_set,
+        partitioned_triple_set=partitioned_triple_set,
         negative_sampler=test_ns,
         shard_bs=shard_bs,
         batches_per_step=batches_per_step,
         seed=seed,
         hrt_freq_weighting=False,
         duplicate_batch=duplicate_batch,
+        return_triple_idx=True,
     )
 
-    dl_sampler = test_bs.get_dataloader_sampler(shuffle=False)
     test_dl = test_bs.get_dataloader(shuffle=False)
 
     ctypes.cdll.LoadLibrary("./custom_ops.so")
@@ -98,13 +110,15 @@ def test_inference(corruption_scheme: str, duplicate_batch: bool) -> None:
     options.useIpuModel(True)
     options.outputMode(poptorch.OutputMode.All)
 
-    inf_model = BessKGE(
+    # Define model with custom embedding tables
+    inf_model = model(
         sharding=sharding,
         n_relation_type=ds.n_relation_type,
         embedding_size=embedding_size,
-        score_fn=score_fn,
-        loss_fn=loss_fn,
         negative_sampler=test_ns,
+        entity_intializer=entity_table,
+        relation_intializer=relation_table,
+        score_fn=score_fn,
         return_scores=True,
     )
     # Load embedding tables
@@ -119,7 +133,7 @@ def test_inference(corruption_scheme: str, duplicate_batch: bool) -> None:
         poptorch.VariableRetrievalMode.OnePerGroup,
     )
 
-    # Compute True positive/negative scores
+    # Compute true positive/negative scores
     test_h_embs = entity_table[
         sharding.entity_to_shard[test_triples_h], sharding.entity_to_idx[test_triples_h]
     ]
@@ -153,41 +167,43 @@ def test_inference(corruption_scheme: str, duplicate_batch: bool) -> None:
     )
 
     # Check BESS inference results
-    for idx, batch in zip(dl_sampler, test_dl):
-        sample_idx = test_bs.sample_triples(idx)["sample_idx"]
+    for batch in test_dl:
+        triple_idx = batch.pop("triple_idx")
         triple_mask = batch.pop("triple_mask")
-        negative_mask = batch.pop("negative_mask")
         negative_sort_idx = batch.pop("negative_sort_idx")
         res = ipu_inf_model(**{k: v.flatten(end_dim=1) for k, v in batch.items()})
 
         positive_score = res["positive_score"].reshape(
             batches_per_step, n_shard, n_shard, -1
         )
-        # Discard padding negatives
-        negative_score = res["negative_score"][
-            negative_mask.flatten(end_dim=-2)
-        ].reshape(batches_per_step, n_shard, n_shard, -1, n_negative)
+
+        negative_score = res["negative_score"].reshape(
+            batches_per_step, n_shard, n_shard, -1, n_negative
+        )
+
         negative_sort_idx = negative_sort_idx.reshape(
             batches_per_step, n_shard, n_shard, -1, n_negative
         ).type(torch.LongTensor)
 
         if test_bs.duplicate_batch:
-            positive_score = positive_score[:, :, :, : positive_score.shape[-1] // 2]
-            triple_mask = triple_mask[:, :, :, : triple_mask.shape[-1] // 2]
+            cutpoint = positive_score.shape[-1] // 2
+            triple_idx = triple_idx[:, :, :, :cutpoint]
+            positive_score = positive_score[:, :, :, :cutpoint]
+            triple_mask = triple_mask[:, :, :, :cutpoint]
             negative_score_1, negative_score_2 = torch.split(
                 negative_score, negative_score.shape[-2] // 2, dim=-2
             )
             negative_sort_idx_1, negative_sort_idx_2 = torch.split(
-                negative_sort_idx, negative_score.shape[-2] // 2, dim=-2
+                negative_sort_idx, cutpoint, dim=-2
             )
 
         # Indices of triples in test_bs.triples accessed by the dataloader
-        global_idx = sample_idx[triple_mask]
+        global_idx = triple_idx[triple_mask]
         # Discard padding triples
         positive_filtered = positive_score[triple_mask]
-        # Use sharded_triple_set.sort_idx to pass from indices in ds.triples to test_bs.triples
+        # Use partitioned_triple_set.sort_idx to pass from indices in ds.triples to test_bs.triples
         assert_close(
-            true_positive_score[sharded_triple_set.sort_idx][global_idx],
+            true_positive_score[partitioned_triple_set.triple_sort_idx][global_idx],
             positive_filtered,
         )
 
@@ -201,7 +217,9 @@ def test_inference(corruption_scheme: str, duplicate_batch: bool) -> None:
             # in ds.neg_heads/tails to test_ns.padded_negatives
             assert_close(
                 torch.take_along_dim(
-                    true_neg_h_score[sharded_triple_set.sort_idx][global_idx],
+                    true_neg_h_score[partitioned_triple_set.triple_sort_idx][
+                        global_idx
+                    ],
                     negative_sort_idx_h,
                     dim=-1,
                 ),
@@ -209,7 +227,9 @@ def test_inference(corruption_scheme: str, duplicate_batch: bool) -> None:
             )
             assert_close(
                 torch.take_along_dim(
-                    true_neg_t_score[sharded_triple_set.sort_idx][global_idx],
+                    true_neg_t_score[partitioned_triple_set.triple_sort_idx][
+                        global_idx
+                    ],
                     negative_sort_idx_t,
                     dim=-1,
                 ),
@@ -225,7 +245,7 @@ def test_inference(corruption_scheme: str, duplicate_batch: bool) -> None:
             )
             assert_close(
                 torch.take_along_dim(
-                    true_neg_score[sharded_triple_set.sort_idx][global_idx],
+                    true_neg_score[partitioned_triple_set.triple_sort_idx][global_idx],
                     negative_sort_idx,
                     dim=-1,
                 ),

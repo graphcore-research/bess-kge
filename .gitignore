@@ -1,11 +1,12 @@
 __pycache__/
 .pytest_cache/
 .ipynb_checkpoints/
-.venv/
+.venv*/
 .vscode/
 third_party/
 *.ipynb
 *.so
 *.npz
+*.pkl
 *.log
 train.py

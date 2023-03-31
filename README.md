@@ -4,7 +4,7 @@ SRAM-only distributed framework for Knowledge Graph Embedding models on IPUs.
 
 ## Usage
 
-Tested on Poplar SDK 3.1.0+1205, Ubuntu 20.04, Python 3.8
+Tested on Poplar SDK 3.2.0+1277, Ubuntu 20.04, Python 3.8
 
 
 1\. Install Poplar SDK following the instructions in the Getting Started guide for your IPU system.
@@ -15,6 +15,7 @@ source <path to poplar installation>/enable.sh
 source <path to popart installation>/enable.sh
 python3.8 -m venv .venv
 source .venv/bin/activate
+pip install wheel
 pip install $POPLAR_SDK_ENABLED/../poptorch-*.whl
 pip install -r requirements.txt 
 ```
