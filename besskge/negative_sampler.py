@@ -1,7 +1,7 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
 from abc import ABC, abstractmethod
-from typing import Dict, Tuple, Optional
+from typing import Dict, Optional, Tuple
 
 import einops
 import numpy as np
@@ -51,8 +51,6 @@ class RandomShardedNegativeSampler(ShardedNegativeSampler):
         corruption_scheme: str,
         local_sampling: bool,
         flat_negative_format: bool = False,
-        *args,
-        **kwargs,
     ) -> None:
         """
         Initialize random negative sampler.
@@ -156,8 +154,6 @@ class TypeBasedShardedNegativeSampler(RandomShardedNegativeSampler):
             corruption_scheme,
             local_sampling,
             flat_negative_format=False,
-            *args,
-            **kwargs,
         )
         self.triple_types = triple_types
         self.type_offsets = sharding.entity_type_offsets
@@ -186,7 +182,8 @@ class TypeBasedShardedNegativeSampler(RandomShardedNegativeSampler):
             )
         else:
             raise ValueError(
-                f"Corruption scheme {self.corruption_scheme} not supported by {self.__class__}"
+                f"Corruption scheme {self.corruption_scheme}"
+                " not supported by {self.__class__}"
             )
 
         if self.local_sampling:
@@ -229,8 +226,6 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
         corruption_scheme: str,
         seed: int,
         return_sort_idx: bool = False,
-        *args,
-        **kwargs,
     ):
         """
         Initialize triple-based negative sampler.
@@ -260,14 +255,16 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
         elif negative_heads is None:
             assert (
                 corruption_scheme == "t"
-            ), f"Corruption scheme '{corruption_scheme}' requires providing negative_heads"
+            ), f"Corruption scheme '{corruption_scheme}' requires"
+            " providing negative_heads"
             negative_tails = negative_tails.reshape(-1, negative_tails.shape[-1])
             self.N, self.n_negative = negative_tails.shape
             self.flat_negative_format = self.N == 1
         elif negative_tails is None:
             assert (
                 corruption_scheme == "h"
-            ), f"Corruption scheme '{corruption_scheme}' requires providing negative_tails"
+            ), f"Corruption scheme '{corruption_scheme}' requires"
+            " providing negative_tails"
             negative_heads = negative_heads.reshape(-1, negative_heads.shape[-1])
             self.N, self.n_negative = negative_heads.shape
             self.flat_negative_format = self.N == 1
@@ -331,7 +328,8 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
             )
         else:
             raise ValueError(
-                f"Corruption scheme {self.corruption_scheme} not supported by {self.__class__}"
+                f"Corruption scheme {self.corruption_scheme}"
+                " not supported by {self.__class__}"
             )
 
     # docstr-coverage: inherited
@@ -349,7 +347,8 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
                 sample_idx = np.full(fill_value=0, shape=(*sample_idx.shape[:-1], 1))
             negative_entities = einops.rearrange(
                 self.padded_negatives[sample_idx],
-                "step shard triple shard_neg idx_neg -> step shard_neg shard triple idx_neg",
+                "step shard triple shard_neg idx_neg ->"
+                " step shard_neg shard triple idx_neg",
             )
             negative_mask = self.mask[sample_idx]
             if self.return_sort_idx:
@@ -396,7 +395,8 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
                         ],
                         axis=-3,
                     ),
-                    "step shard ... triple shard_neg idx_neg -> step shard_neg shard (... triple) idx_neg",
+                    "step shard ... triple shard_neg idx_neg ->"
+                    " step shard_neg shard (... triple) idx_neg",
                 )
                 negative_mask = einops.rearrange(
                     np.concatenate(

@@ -3,6 +3,7 @@ __pycache__/
 .ipynb_checkpoints/
 .venv*/
 .vscode/
+docs/
 third_party/
 *.ipynb
 *.so

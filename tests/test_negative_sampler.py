@@ -93,21 +93,24 @@ def test_type_based_sharded_ns(
     neg_batch = ns(sample_idx)["negative_entities"]
 
     for processing_shard in range(n_shard):
-        # Check sampled entities idx are smaller than number of actual entitites in the shard
+        # Check sampled entities idx are smaller than
+        # number of actual entitites in the shard
         assert (
             neg_batch[:, processing_shard].max()
             < sharding.shard_counts[processing_shard]
         )
 
         if ns.local_sampling:
-            # All negative entities for a triple are sampled from processing_shard; no all_to_all
+            # All negative entities for a triple are sampled from processing_shard;
+            # no all_to_all
             negative_types = entity_types[
                 sharding.shard_and_idx_to_entity[
                     processing_shard, neg_batch[:, processing_shard, :, :, :]
                 ]
             ]
         else:
-            # Negative entities for a triple are sampled from all shards; all_to_all (permuting neg_batch.shape[1] and neg_batch.shape[2])
+            # Negative entities for a triple are sampledfrom all shards;
+            # all_to_all (permuting neg_batch.shape[1] and neg_batch.shape[2])
             negative_types = entity_types[
                 sharding.shard_and_idx_to_entity[
                     np.arange(n_shard)[None, :, None, None],
@@ -116,12 +119,14 @@ def test_type_based_sharded_ns(
             ]
 
         per_triple_unique_types = np.unique(negative_types, axis=-1)
-        # Check that all negative entities sampled for a triple on a specific shard have same type
+        # Check that all negative entities sampled for a triple
+        # on a specific shard have same type
         assert per_triple_unique_types.shape[-1] == 1
         negative_types = per_triple_unique_types.squeeze(-1)
 
         per_shard_unique_types = np.unique(negative_types, axis=1)
-        # Check that negative entities sampled for a triple on all shards have sampe type
+        # Check that negative entities sampled for a triple
+        # on all shards have sampe type
         assert per_shard_unique_types.shape[1] == 1
         negative_types = per_shard_unique_types.squeeze(1)
 
@@ -134,7 +139,8 @@ def test_type_based_sharded_ns(
                 )
             ][..., 0 if ns.corruption_scheme == "h" else 1]
         elif ns.corruption_scheme == "ht":
-            # Each shardpair is split into two halves: corrupt heads in one, tails in the other
+            # Each shardpair is split into two halves: corrupt heads in one,
+            # tails in the other
             cutpoint = positive_per_partition // 2
             head_types = triple_types[sample_idx[:, processing_shard, ..., :cutpoint]][
                 ..., 0
@@ -232,7 +238,8 @@ def test_triple_based_sharded_ns(
             )
 
     for processing_shard in range(n_shard):
-        # Check sampled entities idx are smaller than number of actual entitites in the shard
+        # Check sampled entities idx are smaller than number of
+        # actual entitites in the shard
         assert (
             neg_batch_ent[:, processing_shard].max()
             < sharding.shard_counts[processing_shard]

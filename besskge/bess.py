@@ -3,7 +3,6 @@
 from abc import abstractmethod
 from typing import Any, Dict, Optional, Tuple, Union
 
-import numpy as np
 import poptorch
 import torch
 from poptorch_experimental_addons.collectives import (
@@ -43,8 +42,8 @@ class BessKGE(torch.nn.Module):
         n_relation_type: int,
         embedding_size: Optional[int],
         negative_sampler: ShardedNegativeSampler,
-        entity_intializer: Union[torch.tensor, EmbeddingInitializer],
-        relation_intializer: Union[torch.tensor, EmbeddingInitializer],
+        entity_intializer: Union[torch.Tensor, EmbeddingInitializer],
+        relation_intializer: Union[torch.Tensor, EmbeddingInitializer],
         score_fn: BaseScoreFunction,
         loss_fn: Optional[BaseLossFunction] = None,
         evaluation: Optional[Evaluation] = None,
@@ -206,7 +205,7 @@ class BessKGE(torch.nn.Module):
         relation: torch.IntTensor,
         tail: torch.IntTensor,
         negative: torch.IntTensor,
-    ) -> Tuple[torch.tensor]:
+    ) -> Tuple[torch.Tensor]:
         """
         Compute positive and negative scores for the microbatch.
 
@@ -247,7 +246,7 @@ class EmbeddingMovingBessKGE(BessKGE):
         relation: torch.IntTensor,
         tail: torch.IntTensor,
         negative: torch.IntTensor,
-    ) -> Tuple[torch.tensor]:
+    ) -> Tuple[torch.Tensor]:
         # Gather embeddings
         n_shard = relation.shape[0]
         relation_embedding = self.relation_embedding[relation]
@@ -362,7 +361,7 @@ class ScoreMovingBessKGE(BessKGE):
         relation: torch.IntTensor,
         tail: torch.IntTensor,
         negative: torch.IntTensor,
-    ) -> Tuple[torch.tensor]:
+    ) -> Tuple[torch.Tensor]:
         n_shard = self.sharding.n_shard
 
         # Gather embeddings

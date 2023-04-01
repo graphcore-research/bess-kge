@@ -28,7 +28,7 @@ class EmbeddingInitializer:
 
 
 class MarginBasedInitializer(EmbeddingInitializer):
-    def __init__(self, margin):
+    def __init__(self, margin: float):
         """
         Margin-based initialization scheme.
 
@@ -44,7 +44,7 @@ class MarginBasedInitializer(EmbeddingInitializer):
 
 
 def initialize_entity_embedding(
-    initializer: Union[torch.tensor, EmbeddingInitializer],
+    initializer: Union[torch.Tensor, EmbeddingInitializer],
     sharding: Sharding,
     embedding_size: Optional[int] = None,
 ) -> torch.nn.Parameter:
@@ -66,7 +66,7 @@ def initialize_entity_embedding(
         Entity embedding table.
     """
 
-    if torch.is_tensor(initializer):
+    if isinstance(initializer, torch.Tensor):
         if initializer.dim() == 3:
             if initializer.size()[:2] != torch.Size(
                 [sharding.n_shard, sharding.max_entity_per_shard]
@@ -111,7 +111,7 @@ def initialize_entity_embedding(
 
 
 def initialize_relation_embedding(
-    initializer: Union[torch.tensor, EmbeddingInitializer],
+    initializer: Union[torch.Tensor, EmbeddingInitializer],
     n_relation_type: int,
     embedding_size: int,
 ) -> torch.nn.Parameter:
@@ -130,7 +130,7 @@ def initialize_relation_embedding(
         Relation embedding table.
     """
 
-    if torch.is_tensor(initializer):
+    if isinstance(initializer, torch.Tensor):
         if initializer.dim() != 2:
             raise ValueError("Table for initialization needs to be 2-dimensional")
         relation_embedding = torch.nn.Parameter(initializer.to(torch.float32))

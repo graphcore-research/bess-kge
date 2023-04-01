@@ -2,7 +2,7 @@
 
 import warnings
 from abc import ABC, abstractmethod
-from typing import Dict, List, Tuple
+from typing import Dict, List
 
 import einops
 import numpy as np

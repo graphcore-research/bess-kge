@@ -6,8 +6,8 @@ import torch
 
 
 def reciprocal_rank(
-    prediction_rank: torch.tensor, reduction: Callable[[torch.tensor], torch.tensor]
-) -> torch.tensor:
+    prediction_rank: torch.Tensor, reduction: Callable[[torch.Tensor], torch.Tensor]
+) -> torch.Tensor:
     """
     Reciprocal rank (e.g. to compute MRR).
 
@@ -22,10 +22,10 @@ def reciprocal_rank(
 
 
 def hits_at_k(
-    prediction_rank: torch.tensor,
+    prediction_rank: torch.Tensor,
     k: int,
-    reduction: Callable[[torch.tensor], torch.tensor],
-) -> torch.tensor:
+    reduction: Callable[[torch.Tensor], torch.Tensor],
+) -> torch.Tensor:
     """
     Hits@K metric.
 
@@ -41,7 +41,8 @@ def hits_at_k(
     return reduction((prediction_rank <= k).to(torch.float))
 
 
-METRICS_DICT = {"mrr": reciprocal_rank, "hits@k": (lambda k: partial(hits_at_k, k=k))}
+# Metrics dictionary - excluding hits@k
+METRICS_DICT = {"mrr": reciprocal_rank}
 
 
 class Evaluation:
@@ -85,7 +86,7 @@ class Evaluation:
         self.worst_rank_infty = worst_rank_infty
         hits_k_filter = [re.search(r"hits@(\d+)", a) for a in metric_list]
         self.metrics = {
-            a[0]: METRICS_DICT["hits@k"](int(a[1])) for a in hits_k_filter if a
+            a[0]: partial(hits_at_k, k=int(a[1])) for a in hits_k_filter if a
         }
         self.metrics.update(
             {
@@ -95,8 +96,8 @@ class Evaluation:
         )
 
     def metrics_from_scores(
-        self, pos_score: torch.tensor, neg_score: torch.tensor
-    ) -> Dict[str, torch.tensor]:
+        self, pos_score: torch.Tensor, neg_score: torch.Tensor
+    ) -> Dict[str, torch.Tensor]:
         """
         Compute the required metrics on a batch of scores.
 
@@ -143,8 +144,8 @@ class Evaluation:
         }
 
     def metrics_from_indices(
-        self, ground_truth: torch.tensor, neg_indices: torch.tensor
-    ) -> Dict[str, torch.tensor]:
+        self, ground_truth: torch.Tensor, neg_indices: torch.Tensor
+    ) -> Dict[str, torch.Tensor]:
         """
         Compute the required metrics from the ground truth and
         ORDERED negative indices.

@@ -3,10 +3,11 @@
 import dataclasses
 import pickle
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import numpy as np
 import ogb.linkproppred
+from numpy.typing import NDArray
 
 
 @dataclasses.dataclass
@@ -22,31 +23,31 @@ class KGDataset:
     n_relation_type: int
 
     #: List of (h_ID, r_ID, t_ID) triples, for each part of the dataset;
-    # {part: int64[n_triple, {h,r,t}]}
-    triples: Dict[str, np.ndarray]
+    # {part: int32[n_triple, {h,r,t}]}
+    triples: Dict[str, NDArray[np.int32]]
 
     #: Entity labels by ID; str[n_entity]
-    entity_dict: Optional[np.ndarray]
+    entity_dict: Optional[List[str]]
 
     #: Relation type labels by ID; str[n_relation_type]
-    relation_dict: Optional[np.ndarray]
+    relation_dict: Optional[List[str]]
 
     #: If entities have types, IDs are assumed to be clustered by type;
     # {entity_type: int}
     type_offsets: Optional[Dict[str, int]]
 
     #: IDs of (possibly triple-specific) negative heads;
-    # {part: int64[n_triple or 1, n_neg_heads]}
-    neg_heads: Optional[Dict[str, np.ndarray]]
+    # {part: int32[n_triple or 1, n_neg_heads]}
+    neg_heads: Optional[Dict[str, NDArray[np.int32]]]
 
     #: IDs of (possibly triple-specific) negative heads;
-    # {part: int64[n_triple or 1, n_neg_tails]}
-    neg_tails: Optional[Dict[str, np.ndarray]]
+    # {part: int32[n_triple or 1, n_neg_tails]}
+    neg_tails: Optional[Dict[str, NDArray[np.int32]]]
 
     @property
-    def ht_types(self) -> Optional[Dict[str, np.ndarray]]:
+    def ht_types(self) -> Optional[Dict[str, NDArray[np.int32]]]:
         # If entities have types, type IDs of triples' heads/tails
-        # {part: int64[n_triple, {h_type, t_type}]}
+        # {part: int32[n_triple, {h_type, t_type}]}
         if self.type_offsets:
             type_offsets = np.fromiter(self.type_offsets.values(), dtype=np.int32)
             types = {}
@@ -59,6 +60,8 @@ class KGDataset:
                     - 1
                 )
             return types
+        else:
+            return None
 
     @classmethod
     def build_biokg(cls, root: Path) -> "KGDataset":
@@ -128,6 +131,10 @@ class KGDataset:
         :return:
             The saved :class:`KGDataset`.
         """
+        kg_dataset: KGDataset
         with open(path, "rb") as f:
             kg_dataset = pickle.load(f)
+            if not isinstance(kg_dataset, KGDataset):
+                raise ValueError(f"File at path {path} is not a KGDataset")
+
         return kg_dataset

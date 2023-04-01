@@ -3,8 +3,8 @@
 from abc import ABC, abstractmethod
 
 import poptorch
-import torch
 import poptorch_experimental_addons as pea
+import torch
 
 
 class BaseScoreFunction(ABC):
@@ -12,22 +12,16 @@ class BaseScoreFunction(ABC):
     Base class for scoring functions.
     """
 
-    def __init__(self, negative_sample_sharing: bool, *args, **kwargs) -> None:
-        """
-        Initialize scoring function.
-
-        :param negative_sample_sharing:
-            Share negative entities among all triples in the batch.
-        """
-        self.negative_sample_sharing = negative_sample_sharing
+    # Share negative entities to construct negative samples
+    negative_sample_sharing: bool
 
     @abstractmethod
     def score_triple(
         self,
-        head: torch.FloatTensor,
-        relation: torch.FloatTensor,
-        tail: torch.FloatTensor,
-    ) -> torch.FloatTensor:
+        head: torch.Tensor,
+        relation: torch.Tensor,
+        tail: torch.Tensor,
+    ) -> torch.Tensor:
         """
         Score (h,r,t) triples.
 
@@ -46,10 +40,10 @@ class BaseScoreFunction(ABC):
     @abstractmethod
     def score_heads(
         self,
-        head: torch.FloatTensor,
-        relation: torch.FloatTensor,
-        tail: torch.FloatTensor,
-    ) -> torch.FloatTensor:
+        head: torch.Tensor,
+        relation: torch.Tensor,
+        tail: torch.Tensor,
+    ) -> torch.Tensor:
         """
         Score sets of head entities against fixed (r,t) queries.
 
@@ -70,10 +64,10 @@ class BaseScoreFunction(ABC):
     @abstractmethod
     def score_tails(
         self,
-        head: torch.FloatTensor,
-        relation: torch.FloatTensor,
-        tail: torch.FloatTensor,
-    ) -> torch.FloatTensor:
+        head: torch.Tensor,
+        relation: torch.Tensor,
+        tail: torch.Tensor,
+    ) -> torch.Tensor:
         """
         Score sets of tail entities against fixed (h,r) queries.
 
@@ -97,23 +91,19 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
     Base class for distance-based scoring functions.
     """
 
-    def __init__(
-        self, negative_sample_sharing: bool, scoring_norm: int, *args, **kwargs
-    ) -> None:
+    def __init__(self, negative_sample_sharing: bool, scoring_norm: int) -> None:
         """
         Initialize distance-based scoring function.
 
         :param negative_sample_sharing:
-            see :meth:`BaseScoreFunction.__init__`
+            see :class:`BaseScoreFunction`
         :param scoring_norm:
             p for p-norm to use in distance computation.
         """
-        super(DistanceBasedScoreFunction, self).__init__(
-            negative_sample_sharing, *args, **kwargs
-        )
+        self.negative_sample_sharing = negative_sample_sharing
         self.scoring_norm = scoring_norm
 
-    def reduce_norm(self, v: torch.FloatTensor) -> torch.FloatTensor:
+    def reduce_norm(self, v: torch.Tensor) -> torch.Tensor:
         """
         p-norm reduction along embedding dimension.
 
@@ -125,9 +115,7 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
         """
         return torch.norm(v, p=self.scoring_norm, dim=-1)
 
-    def distance_matrix(
-        self, v1: torch.FloatTensor, v2: torch.FloatTensor
-    ) -> torch.FloatTensor:
+    def distance_matrix(self, v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
         """
         Broadcasted pairwise distance between two collections of vectors.
         Computes p-norm reduction along trailing dimension of
@@ -142,6 +130,7 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
         :return: shape: (outer1, outer2)
             Broadcasted pairwise p-distance.
         """
+        distance_matrix: torch.Tensor
         if poptorch.isRunningOnIpu():
             if self.scoring_norm in [1, 2]:
                 distance_matrix = pea.distance_matrix(v1, v2, p=self.scoring_norm)
@@ -153,9 +142,7 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
             distance_matrix = torch.cdist(v1, v2, p=self.scoring_norm)
         return distance_matrix
 
-    def broadcasted_score(
-        self, v1: torch.FloatTensor, v2: torch.FloatTensor
-    ) -> torch.FloatTensor:
+    def broadcasted_score(self, v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
         """
         Broadcasted scores of queries against sets of negative entities.
 
@@ -185,26 +172,26 @@ class TransE(DistanceBasedScoreFunction):
     # docstr-coverage: inherited
     def score_triple(
         self,
-        head: torch.FloatTensor,
-        relation: torch.FloatTensor,
-        tail: torch.FloatTensor,
-    ) -> torch.FloatTensor:
+        head: torch.Tensor,
+        relation: torch.Tensor,
+        tail: torch.Tensor,
+    ) -> torch.Tensor:
         return -self.reduce_norm(head + relation - tail)
 
     # docstr-coverage: inherited
     def score_heads(
         self,
-        head: torch.FloatTensor,
-        relation: torch.FloatTensor,
-        tail: torch.FloatTensor,
-    ) -> torch.FloatTensor:
+        head: torch.Tensor,
+        relation: torch.Tensor,
+        tail: torch.Tensor,
+    ) -> torch.Tensor:
         return -self.broadcasted_score(tail - relation, head)
 
     # docstr-coverage: inherited
     def score_tails(
         self,
-        head: torch.FloatTensor,
-        relation: torch.FloatTensor,
-        tail: torch.FloatTensor,
-    ) -> torch.FloatTensor:
+        head: torch.Tensor,
+        relation: torch.Tensor,
+        tail: torch.Tensor,
+    ) -> torch.Tensor:
         return -self.broadcasted_score(head + relation, tail)

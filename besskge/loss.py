@@ -10,27 +10,12 @@ class BaseLossFunction(ABC):
     Base class for a loss function.
     """
 
-    def __init__(
-        self,
-        negative_adversarial_sampling: bool,
-        negative_adversarial_scale: float = 1.0,
-        *args,
-        **kwargs,
-    ) -> None:
-        """
-        Initialize loss function.
+    # Use self-adversarial weighting of negative samples.
+    negative_adversarial_sampling: bool
+    # Reciprocal temperature of self-adversarial weighting
+    negative_adversarial_scale: float
 
-        :param negative_adversarial_sampling:
-            Use self-adversarial weighting of negative samples.
-        :param negative_adversarial_scale:
-            Reciprocal temperature of self-adversarial weighting, defaults to 1.0.
-        """
-        self.negative_adversarial_sampling = negative_adversarial_sampling
-        self.negative_adversarial_scale = negative_adversarial_scale
-
-    def get_negative_weights(
-        self, negative_score: torch.FloatTensor
-    ) -> torch.FloatTensor:
+    def get_negative_weights(self, negative_score: torch.Tensor) -> torch.Tensor:
         """
         Construct weights of negative samples, based on their score.
 
@@ -54,10 +39,10 @@ class BaseLossFunction(ABC):
     @abstractmethod
     def __call__(
         self,
-        positive_score: torch.FloatTensor,
-        negative_score: torch.FloatTensor,
-        triple_weight: torch.FloatTensor,
-    ) -> torch.FloatTensor:
+        positive_score: torch.Tensor,
+        negative_score: torch.Tensor,
+        triple_weight: torch.Tensor,
+    ) -> torch.Tensor:
         """
         Compute batch loss.
 
@@ -84,8 +69,6 @@ class MarginBasedLossFunction(BaseLossFunction):
         margin: float,
         negative_adversarial_sampling: bool,
         negative_adversarial_scale: float = 1.0,
-        *args,
-        **kwargs,
     ) -> None:
         """
         Initialize margin-based loss function.
@@ -93,13 +76,12 @@ class MarginBasedLossFunction(BaseLossFunction):
         :param margin:
             Margin to be used in the loss computation.
         :param negative_adversarial_sampling:
-            see :meth:`BaseLossFunction.__init__`
+            see :class:`BaseLossFunction`
         :param negative_adversarial_scale:
-            see :meth:`BaseLossFunction.__init__`
+            see :class:`BaseLossFunction`
         """
-        super(MarginBasedLossFunction, self).__init__(
-            negative_adversarial_sampling, negative_adversarial_scale, *args, **kwargs
-        )
+        self.negative_adversarial_sampling = negative_adversarial_sampling
+        self.negative_adversarial_scale = negative_adversarial_scale
         self.margin = margin
 
 
@@ -111,10 +93,10 @@ class LogSigmoidLoss(MarginBasedLossFunction):
     # docstr-coverage: inherited
     def __call__(
         self,
-        positive_score: torch.FloatTensor,
-        negative_score: torch.FloatTensor,
-        triple_weight: torch.FloatTensor,
-    ) -> torch.FloatTensor:
+        positive_score: torch.Tensor,
+        negative_score: torch.Tensor,
+        triple_weight: torch.Tensor,
+    ) -> torch.Tensor:
         negative_score_weights = self.get_negative_weights(negative_score)
         positive_score_logs = torch.nn.functional.logsigmoid(
             positive_score + self.margin
@@ -141,8 +123,6 @@ class MarginRankingLoss(MarginBasedLossFunction):
         negative_adversarial_sampling: bool,
         negative_adversarial_scale: float = 1.0,
         activation_function: str = "relu",
-        *args,
-        **kwargs,
     ) -> None:
         """
         Initialize margin ranking loss function.
@@ -160,23 +140,22 @@ class MarginRankingLoss(MarginBasedLossFunction):
             margin,
             negative_adversarial_sampling,
             negative_adversarial_scale,
-            *args,
-            **kwargs,
         )
         if activation_function == "relu":
             self.activation = torch.nn.functional.relu
         else:
             raise ValueError(
-                f"Activation function {activation_function} not supported for MarginRankingLoss"
+                f"Activation function {activation_function} not supported"
+                " for MarginRankingLoss"
             )
 
     # docstr-coverage: inherited
     def __call__(
         self,
-        positive_score: torch.FloatTensor,
-        negative_score: torch.FloatTensor,
-        triple_weight: torch.FloatTensor,
-    ) -> torch.FloatTensor:
+        positive_score: torch.Tensor,
+        negative_score: torch.Tensor,
+        triple_weight: torch.Tensor,
+    ) -> torch.Tensor:
         negative_score_weights = self.get_negative_weights(negative_score)
         combined_score = self.activation(
             negative_score - positive_score.unsqueeze(1) + self.margin
