@@ -5,6 +5,7 @@ __pycache__/
 .vscode/
 docs/
 third_party/
+.coverage
 *.ipynb
 *.so
 *.npz

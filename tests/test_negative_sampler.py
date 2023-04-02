@@ -45,7 +45,7 @@ def test_random_sharded_ns(
     )
 
     # Negative batch is independent on sample_idx, corruption_scheme and local_sampling
-    sample_idx = np.ones(sample_idx_size[triple_partition_mode])
+    sample_idx = np.ones(sample_idx_size[triple_partition_mode], dtype=np.int64)
     neg_batch = ns(sample_idx)["negative_entities"]
 
     # Check sampled entities idx are smaller than number of actual entitites in the shard
@@ -76,7 +76,7 @@ def test_type_based_sharded_ns(
     sharding = Sharding.create(n_entity, n_shard, seed=seed, type_offsets=type_offsets)
 
     # Types of head and tail entitites
-    triple_types = np.random.randint(n_type, size=(n_triple, 2))
+    triple_types = np.random.randint(n_type, size=(n_triple, 2)).astype(np.int32)
 
     ns = TypeBasedShardedNegativeSampler(
         triple_types=triple_types,
@@ -167,10 +167,10 @@ def test_triple_based_sharded_ns(
 
     negative_heads = np.random.randint(
         n_entity, size=(1 if flat_negative_format else n_triple, n_negative)
-    )
+    ).astype(np.int32)
     negative_tails = np.random.randint(
         n_entity, size=(1 if flat_negative_format else n_triple, n_negative)
-    )
+    ).astype(np.int32)
 
     ns = TripleBasedShardedNegativeSampler(
         negative_heads,

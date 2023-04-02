@@ -70,6 +70,7 @@ def tests(filter: Optional[str], gdb: bool) -> None:
             "-m",
             "pytest",
             "tests",
+            None if filter else "--cov=besskge",
             *(["-k", filter] if filter else []),
         ],
         gdb=gdb,
@@ -154,14 +155,15 @@ def copyright() -> None:
 @cli("--skip", nargs="*", default=[], help="commands to skip")
 def ci(skip: List[str] = []) -> None:
     """run all continuous integration tests & checks"""
-    if "tests" not in skip:
-        tests(filter=None, gdb=False)
+    build()
     if "lint" not in skip:
         lint()
     if "format" not in skip:
         format(check=True)
     if "copyright" not in skip:
         copyright()
+    if "tests" not in skip:
+        tests(filter=None, gdb=False)
     # if "doc" not in skip:
     #     doc()
 
