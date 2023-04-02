@@ -29,4 +29,4 @@ jobs:
       uses: Cecilapp/GitHub-Pages-deploy@3.2.1
       env: { GITHUB_TOKEN: "${{ github.token }}" }
       with:
-        build_dir: docs/build/
+        build_dir: docs/build/html/
