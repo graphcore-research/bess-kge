@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
 import dataclasses
 import warnings
 from pathlib import Path
@@ -354,6 +356,7 @@ class PartitionedTripleSet:
                     f"{negative_type} is not the label of"
                     " a type of entity in the KGDataset"
                 )
+            ds_type_offsets = dataset.type_offsets
             type_range = {
                 k: (a, b - 1)
                 for ((k, a), b) in zip(
@@ -381,12 +384,18 @@ class PartitionedTripleSet:
             partition_mode = "h_shard"
             dummy = "tail"
             neg_heads = None
-            neg_tails = negative.reshape(-1, negative.shape[-1])
+            if negative is not None:
+                neg_tails = negative.reshape(-1, negative.shape[-1])
+            else:
+                neg_tails = np.arange(sharding.n_entity).squeeze(0)
         elif query_mode == "rt":
             triples = np.concatenate([dummy_entities, queries], axis=-1)
             partition_mode = "t_shard"
             dummy = "head"
-            neg_heads = negative.reshape(-1, negative.shape[-1])
+            if negative is not None:
+                neg_heads = negative.reshape(-1, negative.shape[-1])
+            else:
+                neg_heads = np.arange(sharding.n_entity).squeeze(0)
             neg_tails = None
         else:
             raise ValueError(f"Query mode {query_mode} not supported")
@@ -402,7 +411,7 @@ class PartitionedTripleSet:
             types = (
                 np.digitize(
                     sorted_triples[:, [0, 2]],
-                    np.fromiter(dataset.type_offsets.values(), dtype=np.int32),
+                    np.fromiter(ds_type_offsets.values(), dtype=np.int32),
                 )
                 - 1
             )

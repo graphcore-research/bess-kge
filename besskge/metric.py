@@ -1,48 +1,72 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
 import re
-from functools import partial
+from abc import ABC, abstractmethod
 from typing import Callable, Dict, List
 
 import torch
 
 
-def reciprocal_rank(
-    prediction_rank: torch.Tensor, reduction: Callable[[torch.Tensor], torch.Tensor]
-) -> torch.Tensor:
+class BaseMetric(ABC):
+    # Reduction function to apply along the batch dimension.
+    reduction: Callable[[torch.Tensor], torch.Tensor]
+
+    @abstractmethod
+    def __call__(self, prediction_rank: torch.Tensor) -> torch.Tensor:
+        """
+        :param prediction_rank: shape: (batch_size,)
+            Rank of ground truth among ordered predictions.
+
+        :return:
+            Reduced batch metric.
+        """
+        raise NotImplementedError
+
+
+class ReciprocalRank(BaseMetric):
     """
     Reciprocal rank (e.g. to compute MRR).
-
-    :param prediction_rank: shape: (batch_size,)
-        Rank of ground truth among ordered predictions.
-    :param reduction:
-        Reduction function to apply along the batch dimension.
-    :return:
-        Reduced reciprocal rank.
+    Returns (reduced) reciprocal rank of ground truth among predictions.
     """
-    return reduction(1.0 / prediction_rank)
+
+    def __init__(self, reduction: Callable[[torch.Tensor], torch.Tensor]) -> None:
+        """
+        :param reduction:
+            see :class:`BaseMetric`
+        """
+        self.reduction = reduction
+
+    # docstr-coverage: inherited
+    def __call__(self, prediction_rank: torch.Tensor) -> torch.Tensor:
+        return self.reduction(1.0 / prediction_rank)
 
 
-def hits_at_k(
-    prediction_rank: torch.Tensor,
-    k: int,
-    reduction: Callable[[torch.Tensor], torch.Tensor],
-) -> torch.Tensor:
+class HitsAtK(BaseMetric):
     """
     Hits@K metric.
-
-    :param prediction_rank: shape: (batch_size,)
-        Rank of ground truth among ordered predictions.
-    :param k:
-        Maximum acceptable rank.
-    :param reduction:
-        Reduction function to apply along the batch dimension.
-    :return:
-        Reduced count of predictions with rank at most k.
+    Returns (reduced) count of triples where the ground truth
+    is among the K most likely predicted entities.
     """
-    return reduction((prediction_rank <= k).to(torch.float))
+
+    def __init__(
+        self, k: int, reduction: Callable[[torch.Tensor], torch.Tensor]
+    ) -> None:
+        """
+        :param k:
+            Maximum acceptable rank.
+        :param reduction:
+            see :class:`BaseMetric`
+        """
+        self.reduction = reduction
+        self.K = k
+
+    # docstr-coverage: inherited
+    def __call__(self, prediction_rank: torch.Tensor) -> torch.Tensor:
+        return self.reduction((prediction_rank <= self.K).to(torch.float))
 
 
-# Metrics dictionary - excluding hits@k
-METRICS_DICT = {"mrr": reciprocal_rank}
+# Metric str -> callable
+METRICS_DICT = {"mrr": ReciprocalRank, "hits@k": HitsAtK}
 
 
 class Evaluation:
@@ -84,13 +108,17 @@ class Evaluation:
         else:
             raise ValueError(f"Reduction {reduction} not supported for evaluation")
         self.worst_rank_infty = worst_rank_infty
+
+        self.metrics: Dict[str, Callable[[torch.Tensor], torch.Tensor]]
         hits_k_filter = [re.search(r"hits@(\d+)", a) for a in metric_list]
         self.metrics = {
-            a[0]: partial(hits_at_k, k=int(a[1])) for a in hits_k_filter if a
+            a[0]: METRICS_DICT["hits@k"](k=int(a[1]), reduction=self.reduction)
+            for a in hits_k_filter
+            if a
         }
         self.metrics.update(
             {
-                m_name: METRICS_DICT[m_name]
+                m_name: METRICS_DICT[m_name](reduction=self.reduction)
                 for m_name in list(set(metric_list) - set(self.metrics.keys()))
             }
         )
@@ -138,10 +166,7 @@ class Evaluation:
         if self.worst_rank_infty:
             batch_rank[mask] = torch.inf
 
-        return {
-            m_name: m_fn(prediction_rank=batch_rank, reduction=self.reduction)
-            for m_name, m_fn in self.metrics.items()
-        }
+        return {m_name: m_fn(batch_rank) for m_name, m_fn in self.metrics.items()}
 
     def metrics_from_indices(
         self, ground_truth: torch.Tensor, neg_indices: torch.Tensor
@@ -173,7 +198,4 @@ class Evaluation:
         match_idx = torch.where(neg_indices == ground_truth)
         batch_rank[match_idx[0]] = 1.0 + match_idx[1]
 
-        return {
-            m_name: m_fn(prediction_rank=batch_rank, reduction=self.reduction)
-            for m_name, m_fn in self.metrics.items()
-        }
+        return {m_name: m_fn(batch_rank) for m_name, m_fn in self.metrics.items()}

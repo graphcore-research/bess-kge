@@ -1,6 +1,7 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
 from abc import ABC, abstractmethod
+from typing import cast
 
 import poptorch
 import poptorch_experimental_addons as pea
@@ -113,7 +114,7 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
         :return: shape: (*,)
             p-norm reduction.
         """
-        return torch.norm(v, p=self.scoring_norm, dim=-1)
+        return cast(torch.Tensor, torch.norm(v, p=self.scoring_norm, dim=-1))
 
     def distance_matrix(self, v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
         """

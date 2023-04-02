@@ -150,7 +150,7 @@ def test_random_bs(triple_partition_mode: str, duplicate_batch: bool) -> None:
         return_triple_idx=True,
     )
 
-    b = bs[next(iter(bs.get_dataloader_sampler()))]
+    b = {k: v.numpy() for k, v in next(iter(bs.get_dataloader())).items()}
     rearrange_pattern = (
         "shard_h (step shard_t triple) hrt -> step shard_h shard_t triple hrt"
         if triple_partition_mode == "ht_shardpair"
@@ -206,7 +206,7 @@ def test_rigid_bs(
     # Reconstruct all triples seen in one epoch
     filtered_triples = []
     for idx in iter(sampler):
-        b = bs[idx]
+        b = {k: v.numpy() for k, v in bs[idx].items()}
         reconstructed_batch = reconstruct_batch(b, triple_partition_mode)
         # Discard padding triples
         mask = einops.rearrange(

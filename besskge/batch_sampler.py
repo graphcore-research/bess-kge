@@ -2,17 +2,18 @@
 
 import warnings
 from abc import ABC, abstractmethod
-from typing import Dict, List
+from typing import Dict, List, Union, cast
 
 import einops
 import numpy as np
 import torch
+from numpy.typing import NDArray
 
 from besskge.negative_sampler import ShardedNegativeSampler
 from besskge.sharding import PartitionedTripleSet
 
 
-class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
+class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC):
     """
     Base class for sharded batch sampler.
     """
@@ -28,8 +29,6 @@ class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
         weight_smoothing: float = 0.0,
         duplicate_batch: bool = False,
         return_triple_idx: bool = False,
-        *args,
-        **kwargs,
     ):
         """
         Initialize sharded batch sampler.
@@ -121,7 +120,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
             * self.partition_sample_size
         )
 
-    def __getitem__(self, idx: List[int]) -> Dict[str, np.ndarray]:
+    def __getitem__(self, idx: List[int]) -> Dict[str, torch.Tensor]:
         """
         Sample batch.
 
@@ -141,7 +140,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
                 )
                 for k, v in sample_triple_dict.items()
             }
-        sample_idx = sample_triple_dict.pop("sample_idx")
+        sample_idx = cast(NDArray[np.int64], sample_triple_dict.pop("sample_idx"))
         head, relation, tail = einops.rearrange(
             self.triples[sample_idx],
             "... hrt -> hrt ...",
@@ -178,10 +177,12 @@ class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
         if self.return_triple_idx:
             batch_dict.update(triple_idx=sample_idx)
 
-        return batch_dict
+        return {k: torch.from_numpy(v) for k, v in batch_dict.items()}
 
     @abstractmethod
-    def sample_triples(self, idx: List[int]) -> Dict[str, np.ndarray]:
+    def sample_triples(
+        self, idx: List[int]
+    ) -> Dict[str, Union[NDArray[np.int64], NDArray[np.bool_]]]:
         """
         Sample positive triples in the batch.
 
@@ -192,7 +193,9 @@ class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
         """
         raise NotImplementedError
 
-    def get_dataloader_sampler(self, shuffle: bool) -> torch.utils.data.Sampler:
+    def get_dataloader_sampler(
+        self, shuffle: bool
+    ) -> torch.utils.data.Sampler[List[int]]:
         """
         Instantiate appropriate :class:`torch.data.Sampler` for the
         :class:`torch.utils.data.DataLoader` to be used with the
@@ -217,7 +220,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset, ABC):
         shuffle: bool = True,
         num_workers: int = 0,
         persistent_workers: bool = False,
-    ) -> torch.utils.data.DataLoader:
+    ) -> torch.utils.data.DataLoader[Dict[str, torch.Tensor]]:
         """
         Instantiate appropriate :class:`torch.utils.data.DataLoader`
         to iterate over the batch sampler.
@@ -276,8 +279,6 @@ class RigidShardedBatchSampler(ShardedBatchSampler):
         weight_smoothing: float = 0.0,
         duplicate_batch: bool = False,
         return_triple_idx: bool = False,
-        *args,
-        **kwargs,
     ) -> None:
         super(RigidShardedBatchSampler, self).__init__(
             partitioned_triple_set,
@@ -289,18 +290,16 @@ class RigidShardedBatchSampler(ShardedBatchSampler):
             weight_smoothing,
             duplicate_batch,
             return_triple_idx,
-            *args,
-            **kwargs,
         )
 
         padded_partition_length = len(self)
-        expand_axes = (0, 1) if self.triple_partition_mode == "ht_shardpair" else (0)
+        expand_axes = (0, 1) if self.triple_partition_mode == "ht_shardpair" else (0,)
         self.triple_mask = (
-            np.expand_dims(np.arange(padded_partition_length), expand_axes)
+            np.expand_dims(np.arange(padded_partition_length), axis=expand_axes)
             < self.triple_counts[..., None]
         )  # shape (n_shard, [n_shard,] padded_partition_length)
         triple_padded_idx = (
-            np.expand_dims(np.arange(padded_partition_length), expand_axes)
+            np.expand_dims(np.arange(padded_partition_length), axis=expand_axes)
             % self.triple_counts[..., None]
         ) + self.triple_offsets[..., None]
         # Index safeguard for when the last partition is empty
@@ -310,7 +309,9 @@ class RigidShardedBatchSampler(ShardedBatchSampler):
         )  # shape (n_shard, [n_shard,] padded_partition_length)
 
     # docstr-coverage: inherited
-    def sample_triples(self, idx: List[int]) -> Dict[str, np.ndarray]:
+    def sample_triples(
+        self, idx: List[int]
+    ) -> Dict[str, Union[NDArray[np.int64], NDArray[np.bool_]]]:
         sample_idx = einops.rearrange(
             self.triple_padded_idx[..., idx],
             "shard ... (step triple) -> step shard ... triple",
@@ -332,7 +333,9 @@ class RandomShardedBatchSampler(ShardedBatchSampler):
     """
 
     # docstr-coverage: inherited
-    def sample_triples(self, idx: List[int]) -> Dict[str, np.ndarray]:
+    def sample_triples(
+        self, idx: List[int]
+    ) -> Dict[str, Union[NDArray[np.int64], NDArray[np.bool_]]]:
         sample_size = (
             (
                 self.batches_per_step,
@@ -362,5 +365,8 @@ class RandomShardedBatchSampler(ShardedBatchSampler):
         return int(np.ceil(self.triple_counts.max() / self.partition_sample_size))
 
     # docstr-coverage: inherited
-    def get_dataloader_sampler(self, shuffle=True) -> torch.utils.data.Sampler:
-        return torch.utils.data.SequentialSampler(self)
+    def get_dataloader_sampler(
+        self, shuffle: bool = True
+    ) -> torch.utils.data.Sampler[List[int]]:
+        sampler = torch.utils.data.SequentialSampler(self)
+        return torch.utils.data.BatchSampler(sampler, batch_size=1, drop_last=False)

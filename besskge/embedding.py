@@ -1,3 +1,5 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
 from abc import abstractmethod
 from typing import Optional, Union
 
@@ -113,7 +115,7 @@ def initialize_entity_embedding(
 def initialize_relation_embedding(
     initializer: Union[torch.Tensor, EmbeddingInitializer],
     n_relation_type: int,
-    embedding_size: int,
+    embedding_size: Optional[int] = None,
 ) -> torch.nn.Parameter:
     """
     Initialize relation embedding table.

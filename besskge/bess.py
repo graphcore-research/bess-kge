@@ -76,7 +76,6 @@ class BessKGE(torch.nn.Module):
             Defaults to False.
         """
         super().__init__()
-        self.embedding_size = embedding_size
         self.sharding = sharding
         self.n_relation_type = n_relation_type
         self.negative_sampler = negative_sampler
@@ -96,20 +95,21 @@ class BessKGE(torch.nn.Module):
             ), "Using flat negative format requires negative sample sharing"
 
         self.entity_embedding = initialize_entity_embedding(
-            entity_intializer, self.sharding, self.embedding_size
+            entity_intializer, self.sharding, embedding_size
         )
         self.relation_embedding = initialize_relation_embedding(
-            relation_intializer, self.n_relation_type, self.embedding_size
+            relation_intializer, self.n_relation_type, embedding_size
         )
+        self.embedding_size: int = self.entity_embedding.shape[-1]
 
     def forward(
         self,
-        head: torch.IntTensor,
-        relation: torch.IntTensor,
-        tail: torch.IntTensor,
-        negative: torch.IntTensor,
-        triple_weight: Optional[torch.FloatTensor] = None,
-        negative_mask: Optional[torch.IntTensor] = None,
+        head: torch.Tensor,
+        relation: torch.Tensor,
+        tail: torch.Tensor,
+        negative: torch.Tensor,
+        triple_weight: Optional[torch.Tensor] = None,
+        negative_mask: Optional[torch.Tensor] = None,
     ) -> Dict[str, Any]:
         """
         Forward step, comprising of four phases:
@@ -135,9 +135,7 @@ class BessKGE(torch.nn.Module):
             Microbatch loss, scores, metrics.
         """
         if triple_weight is None:
-            triple_weight = torch.tensor(
-                [1.0 / head.numel()], dtype=torch.float32, requires_grad=False
-            )
+            triple_weight = torch.FloatTensor([1.0 / head.numel()])
 
         head, relation, tail, negative, triple_weight = (
             head.squeeze(0),
@@ -151,7 +149,7 @@ class BessKGE(torch.nn.Module):
             head, relation, tail, negative
         )
 
-        if torch.is_tensor(negative_mask):
+        if negative_mask is not None:
             negative_mask = negative_mask.squeeze(0)
             if (
                 self.negative_sampler.flat_negative_format
@@ -170,7 +168,7 @@ class BessKGE(torch.nn.Module):
                 ).flatten(end_dim=1)
             negative_score = gather_indices(negative_score, negative_mask)
 
-        out_dict = {}
+        out_dict: Dict[str, Union[torch.Tensor, Dict[str, torch.Tensor]]] = dict()
 
         if self.return_scores:
             out_dict.update(
@@ -201,11 +199,11 @@ class BessKGE(torch.nn.Module):
     @abstractmethod
     def score_batch(
         self,
-        head: torch.IntTensor,
-        relation: torch.IntTensor,
-        tail: torch.IntTensor,
-        negative: torch.IntTensor,
-    ) -> Tuple[torch.Tensor]:
+        head: torch.Tensor,
+        relation: torch.Tensor,
+        tail: torch.Tensor,
+        negative: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Compute positive and negative scores for the microbatch.
 
@@ -242,11 +240,11 @@ class EmbeddingMovingBessKGE(BessKGE):
     # docstr-coverage: inherited
     def score_batch(
         self,
-        head: torch.IntTensor,
-        relation: torch.IntTensor,
-        tail: torch.IntTensor,
-        negative: torch.IntTensor,
-    ) -> Tuple[torch.Tensor]:
+        head: torch.Tensor,
+        relation: torch.Tensor,
+        tail: torch.Tensor,
+        negative: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         # Gather embeddings
         n_shard = relation.shape[0]
         relation_embedding = self.relation_embedding[relation]
@@ -357,11 +355,11 @@ class ScoreMovingBessKGE(BessKGE):
     # docstr-coverage: inherited
     def score_batch(
         self,
-        head: torch.IntTensor,
-        relation: torch.IntTensor,
-        tail: torch.IntTensor,
-        negative: torch.IntTensor,
-    ) -> Tuple[torch.Tensor]:
+        head: torch.Tensor,
+        relation: torch.Tensor,
+        tail: torch.Tensor,
+        negative: torch.Tensor,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         n_shard = self.sharding.n_shard
 
         # Gather embeddings
