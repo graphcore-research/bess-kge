@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>besskge.metric &mdash; BESS-KGE  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BESS-KGE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">besskge</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BESS-KGE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">besskge.metric</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for besskge.metric</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2023 Graphcore Ltd. All rights reserved.</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+
+
+<div class="viewcode-block" id="BaseMetric"><a class="viewcode-back" href="../../besskge.html#besskge.metric.BaseMetric">[docs]</a><span class="k">class</span> <span class="nc">BaseMetric</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="c1"># Reduction function to apply along the batch dimension.</span>
+    <span class="n">reduction</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction_rank</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param prediction_rank: shape: (batch_size,)</span>
+<span class="sd">            Rank of ground truth among ordered predictions.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">            Reduced batch metric.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="ReciprocalRank"><a class="viewcode-back" href="../../besskge.html#besskge.metric.ReciprocalRank">[docs]</a><span class="k">class</span> <span class="nc">ReciprocalRank</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reciprocal rank (e.g. to compute MRR).</span>
+<span class="sd">    Returns (reduced) reciprocal rank of ground truth among predictions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reduction</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param reduction:</span>
+<span class="sd">            see :class:`BaseMetric`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span> <span class="o">=</span> <span class="n">reduction</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction_rank</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">prediction_rank</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="HitsAtK"><a class="viewcode-back" href="../../besskge.html#besskge.metric.HitsAtK">[docs]</a><span class="k">class</span> <span class="nc">HitsAtK</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hits@K metric.</span>
+<span class="sd">    Returns (reduced) count of triples where the ground truth</span>
+<span class="sd">    is among the K most likely predicted entities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">reduction</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param k:</span>
+<span class="sd">            Maximum acceptable rank.</span>
+<span class="sd">        :param reduction:</span>
+<span class="sd">            see :class:`BaseMetric`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span> <span class="o">=</span> <span class="n">reduction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="n">k</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction_rank</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span><span class="p">((</span><span class="n">prediction_rank</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">))</span></div>
+
+
+<span class="c1"># Metric str -&gt; callable</span>
+<span class="n">METRICS_DICT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;mrr&quot;</span><span class="p">:</span> <span class="n">ReciprocalRank</span><span class="p">,</span> <span class="s2">&quot;hits@k&quot;</span><span class="p">:</span> <span class="n">HitsAtK</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="Evaluation"><a class="viewcode-back" href="../../besskge.html#besskge.metric.Evaluation">[docs]</a><span class="k">class</span> <span class="nc">Evaluation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A module for computing link prediction metrics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">metric_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;average&quot;</span><span class="p">,</span>
+        <span class="n">worst_rank_infty</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">reduction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize evaluation module.</span>
+
+<span class="sd">        :param metric_list:</span>
+<span class="sd">            List of metrics to compute. Currently supports &quot;mrr&quot; and &quot;hits@K&quot;.</span>
+<span class="sd">        :param mode:</span>
+<span class="sd">            &quot;Optimistic&quot;/&quot;pessimistic&quot;/&quot;average&quot; metrics from scores.</span>
+<span class="sd">            Defaults to &quot;average&quot;.</span>
+<span class="sd">        :param worst_rank_infty:</span>
+<span class="sd">            Assign a prediction rank of infinity as worst possible rank</span>
+<span class="sd">            (as opposed to n_negative + 1). Defaults to False.</span>
+<span class="sd">        :param reduction:</span>
+<span class="sd">            How to reduce metrics along the batch dimension.</span>
+<span class="sd">            Currently supports &quot;none&quot; (no reduction), &quot;mean&quot;, &quot;sum&quot;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;pessimistic&quot;</span><span class="p">,</span> <span class="s2">&quot;optimistic&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mode </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> not supported for evaluation&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
+        <span class="k">if</span> <span class="n">reduction</span> <span class="o">==</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span>
+        <span class="k">elif</span> <span class="n">reduction</span> <span class="o">==</span> <span class="s2">&quot;sum&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">reduction</span> <span class="o">==</span> <span class="s2">&quot;mean&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reduction </span><span class="si">{</span><span class="n">reduction</span><span class="si">}</span><span class="s2"> not supported for evaluation&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">worst_rank_infty</span> <span class="o">=</span> <span class="n">worst_rank_infty</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">],</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]</span>
+        <span class="n">hits_k_filter</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;hits@(\d+)&quot;</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">metric_list</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">METRICS_DICT</span><span class="p">[</span><span class="s2">&quot;hits@k&quot;</span><span class="p">](</span><span class="n">k</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">reduction</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reduction</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">hits_k_filter</span>
+            <span class="k">if</span> <span class="n">a</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="n">m_name</span><span class="p">:</span> <span class="n">METRICS_DICT</span><span class="p">[</span><span class="n">m_name</span><span class="p">](</span><span class="n">reduction</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reduction</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">m_name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">metric_list</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Evaluation.metrics_from_scores"><a class="viewcode-back" href="../../besskge.html#besskge.metric.Evaluation.metrics_from_scores">[docs]</a>    <span class="k">def</span> <span class="nf">metrics_from_scores</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">pos_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">neg_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the required metrics on a batch of scores.</span>
+
+<span class="sd">        :param pos_score: shape: (batch_size,)</span>
+<span class="sd">            Scores of positive triples.</span>
+<span class="sd">        :param neg_score: shape: (batch_size, n_negative)</span>
+<span class="sd">            Scores of negative triples.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">            The batch metrics.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">batch_size</span><span class="p">,</span> <span class="n">n_negative</span> <span class="o">=</span> <span class="n">neg_score</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">pos_score</span> <span class="o">=</span> <span class="n">pos_score</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pos_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">batch_size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;`pos_score` and `neg_score` need to have same size at dimension 0&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;optimistic&quot;</span><span class="p">:</span>
+            <span class="n">n_better</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">neg_score</span> <span class="o">&gt;</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worst_rank_infty</span><span class="p">:</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">n_better</span> <span class="o">==</span> <span class="n">n_negative</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;pessimistic&quot;</span><span class="p">:</span>
+            <span class="n">n_better</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">neg_score</span> <span class="o">&gt;=</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worst_rank_infty</span><span class="p">:</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">n_better</span> <span class="o">==</span> <span class="n">n_negative</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;average&quot;</span><span class="p">:</span>
+            <span class="n">n_better_opt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">neg_score</span> <span class="o">&gt;</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">n_better_pess</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">neg_score</span> <span class="o">&gt;=</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">n_better</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_better_opt</span> <span class="o">+</span> <span class="n">n_better_pess</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worst_rank_infty</span><span class="p">:</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span>
+                    <span class="n">n_better_opt</span> <span class="o">==</span> <span class="n">n_negative</span><span class="p">,</span> <span class="n">n_better_pess</span> <span class="o">==</span> <span class="n">n_negative</span>
+                <span class="p">)</span>
+
+        <span class="n">batch_rank</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">n_better</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worst_rank_infty</span><span class="p">:</span>
+            <span class="n">batch_rank</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">inf</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">m_name</span><span class="p">:</span> <span class="n">m_fn</span><span class="p">(</span><span class="n">batch_rank</span><span class="p">)</span> <span class="k">for</span> <span class="n">m_name</span><span class="p">,</span> <span class="n">m_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+<div class="viewcode-block" id="Evaluation.metrics_from_indices"><a class="viewcode-back" href="../../besskge.html#besskge.metric.Evaluation.metrics_from_indices">[docs]</a>    <span class="k">def</span> <span class="nf">metrics_from_indices</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ground_truth</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">neg_indices</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the required metrics from the ground truth and</span>
+<span class="sd">        ORDERED negative indices.</span>
+
+<span class="sd">        :param ground_truth: shape: (batch_size,)</span>
+<span class="sd">            Indices of ground truth entities for each query.</span>
+<span class="sd">        :param neg_indices: shape: (batch_size, n_negative)</span>
+<span class="sd">            Indices of top n_negative predicted entities,</span>
+<span class="sd">            ordered by decreasing likelihood. The indices</span>
+<span class="sd">            on each row are assumed to be distinct.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">            The batch metrics.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">batch_size</span><span class="p">,</span> <span class="n">n_negative</span> <span class="o">=</span> <span class="n">neg_indices</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">ground_truth</span> <span class="o">=</span> <span class="n">ground_truth</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ground_truth</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">batch_size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;`pos_score` and `neg_score` need to have same size at dimension 0&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">worst_rank</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">inf</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worst_rank_infty</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_negative</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">batch_rank</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">batch_size</span><span class="p">,),</span> <span class="n">worst_rank</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">match_idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">neg_indices</span> <span class="o">==</span> <span class="n">ground_truth</span><span class="p">)</span>
+        <span class="n">batch_rank</span><span class="p">[</span><span class="n">match_idx</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">match_idx</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">m_name</span><span class="p">:</span> <span class="n">m_fn</span><span class="p">(</span><span class="n">batch_rank</span><span class="p">)</span> <span class="k">for</span> <span class="n">m_name</span><span class="p">,</span> <span class="n">m_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Graphcore Research.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>besskge.batch_sampler &mdash; BESS-KGE  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BESS-KGE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">besskge</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BESS-KGE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">besskge.batch_sampler</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for besskge.batch_sampler</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2023 Graphcore Ltd. All rights reserved.</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">import</span> <span class="nn">einops</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">NDArray</span>
+
+<span class="kn">from</span> <span class="nn">besskge.negative_sampler</span> <span class="kn">import</span> <span class="n">ShardedNegativeSampler</span>
+<span class="kn">from</span> <span class="nn">besskge.sharding</span> <span class="kn">import</span> <span class="n">PartitionedTripleSet</span>
+
+
+<div class="viewcode-block" id="ShardedBatchSampler"><a class="viewcode-back" href="../../besskge.html#besskge.batch_sampler.ShardedBatchSampler">[docs]</a><span class="k">class</span> <span class="nc">ShardedBatchSampler</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]],</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for sharded batch sampler.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">partitioned_triple_set</span><span class="p">:</span> <span class="n">PartitionedTripleSet</span><span class="p">,</span>
+        <span class="n">negative_sampler</span><span class="p">:</span> <span class="n">ShardedNegativeSampler</span><span class="p">,</span>
+        <span class="n">shard_bs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">batches_per_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">hrt_freq_weighting</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">weight_smoothing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">duplicate_batch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">return_triple_idx</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize sharded batch sampler.</span>
+
+<span class="sd">        :param partitioned_triple_set:</span>
+<span class="sd">            The pre-processed collection of triples.</span>
+<span class="sd">        :param negative_sampler:</span>
+<span class="sd">            The sampler for negative entities.</span>
+<span class="sd">        :param shard_bs:</span>
+<span class="sd">            The microbatch size, i.e. the number of positive triples</span>
+<span class="sd">            processed on each shard.</span>
+<span class="sd">        :param batches_per_step:</span>
+<span class="sd">            The number of batches to sample at each call.</span>
+<span class="sd">        :param seed:</span>
+<span class="sd">            The RNG seed.</span>
+<span class="sd">        :param hrt_freq_weighting:</span>
+<span class="sd">            Use frequency-based triple weighting as in [...], defaults to False.</span>
+<span class="sd">        :param weight_smoothing:</span>
+<span class="sd">            Weight-smoothing parameter for frequency-based</span>
+<span class="sd">            triple weigthing, defaults to 0.0.</span>
+<span class="sd">        :param duplicate_batch:</span>
+<span class="sd">            The batch sampled from each triple partition has two identical halves;</span>
+<span class="sd">            to be used with &quot;ht&quot; corruption scheme at inference time. Defaults to False.</span>
+<span class="sd">        :param return_triple_idx:</span>
+<span class="sd">            Return the indices (wrt partitioned_triple_set.triples)</span>
+<span class="sd">            of the triples in the batch. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_shard</span> <span class="o">=</span> <span class="n">partitioned_triple_set</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">n_shard</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triples</span> <span class="o">=</span> <span class="n">partitioned_triple_set</span><span class="o">.</span><span class="n">triples</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dummy</span> <span class="o">=</span> <span class="n">partitioned_triple_set</span><span class="o">.</span><span class="n">dummy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triple_counts</span> <span class="o">=</span> <span class="n">partitioned_triple_set</span><span class="o">.</span><span class="n">triple_counts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triple_offsets</span> <span class="o">=</span> <span class="n">partitioned_triple_set</span><span class="o">.</span><span class="n">triple_offsets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triple_partition_mode</span> <span class="o">=</span> <span class="n">partitioned_triple_set</span><span class="o">.</span><span class="n">partition_mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span> <span class="o">=</span> <span class="n">negative_sampler</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">shard_bs</span> <span class="o">=</span> <span class="n">shard_bs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batches_per_step</span> <span class="o">=</span> <span class="n">batches_per_step</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">duplicate_batch</span> <span class="o">=</span> <span class="n">duplicate_batch</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">triple_partition_mode</span> <span class="o">==</span> <span class="s2">&quot;ht_shardpair&quot;</span><span class="p">:</span>
+            <span class="c1"># The microbatch on device N is formed of n_shard blocks,</span>
+            <span class="c1"># corresponding to triple partitions (h_shard, t_shard)</span>
+            <span class="c1"># with h_shard = N and t_shard = 0, ..., n_shard-1.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">positive_per_partition</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shard_bs</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_shard</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">positive_per_partition</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shard_bs</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">duplicate_batch</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">positive_per_partition</span> <span class="o">//=</span> <span class="mi">2</span>
+        <span class="c1"># Total number of triples sampled from each partition at each call</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition_sample_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">batches_per_step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">positive_per_partition</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">hrt_freq_weighting</span> <span class="o">=</span> <span class="n">hrt_freq_weighting</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_triple_idx</span> <span class="o">=</span> <span class="n">return_triple_idx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hrt_freq_weighting</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;hrt frequency weights are being computed on dummy entities&quot;</span>
+                <span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">hr_idx</span><span class="p">,</span> <span class="n">hr_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">partitioned_triple_set</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">n_entity</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">rt_idx</span><span class="p">,</span> <span class="n">rt_count</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+                <span class="o">+</span> <span class="n">partitioned_triple_set</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">n_entity</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hrt_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">hr_count</span><span class="p">[</span><span class="n">hr_idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">rt_count</span><span class="p">[</span><span class="n">rt_idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">weight_smoothing</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The length of the batch sampler is based on the length of</span>
+<span class="sd">        the largest triple partition.</span>
+<span class="sd">        At each call, :attr:`ShardedBatchSampler.partition_sample_size` triples</span>
+<span class="sd">        for each partition are returned.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">            The length of the batch sampler.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">triple_counts</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_sample_size</span><span class="p">))</span>
+            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_sample_size</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample batch.</span>
+
+<span class="sd">        :param idx:</span>
+<span class="sd">            The batch index.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">            Indices of head, relation, tail and negative entities in the batch,</span>
+<span class="sd">            and associated weights / masks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sample_triple_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_triples</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">duplicate_batch</span><span class="p">:</span>
+            <span class="n">sample_triple_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">k</span><span class="p">:</span> <span class="n">einops</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span>
+                    <span class="n">v</span><span class="p">,</span>
+                    <span class="s2">&quot;step shard ... triple -&gt; step shard ... (2 triple)&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">sample_triple_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span> <span class="n">sample_triple_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;sample_idx&quot;</span><span class="p">))</span>
+        <span class="n">head</span><span class="p">,</span> <span class="n">relation</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="p">[</span><span class="n">sample_idx</span><span class="p">],</span>
+            <span class="s2">&quot;... hrt -&gt; hrt ...&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">triple_partition_mode</span> <span class="o">==</span> <span class="s2">&quot;ht_shardpair&quot;</span><span class="p">:</span>
+            <span class="c1"># Prepare tail indices for AllToAll exchange</span>
+            <span class="n">tail</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span>
+                <span class="n">tail</span><span class="p">,</span> <span class="s2">&quot;step shard_h shard_t triple -&gt; step shard_t shard_h triple&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">sample_negative_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="p">(</span><span class="n">sample_idx</span><span class="p">)</span>
+        <span class="n">negative_entities</span> <span class="o">=</span> <span class="n">sample_negative_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;negative_entities&quot;</span><span class="p">)</span>
+
+        <span class="n">batch_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;head&quot;</span><span class="p">:</span> <span class="n">head</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="s2">&quot;relation&quot;</span><span class="p">:</span> <span class="n">relation</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="s2">&quot;tail&quot;</span><span class="p">:</span> <span class="n">tail</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="s2">&quot;negative&quot;</span><span class="p">:</span> <span class="n">negative_entities</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">),</span>
+            <span class="o">**</span><span class="n">sample_triple_dict</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">sample_negative_dict</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;head&quot;</span><span class="p">,</span> <span class="s2">&quot;tail&quot;</span><span class="p">]:</span>
+            <span class="n">batch_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dummy</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hrt_freq_weighting</span><span class="p">:</span>
+            <span class="n">triple_weight</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">hrt_weights</span><span class="p">[</span><span class="n">sample_idx</span><span class="p">],</span>
+                <span class="s2">&quot;step shard ... triple -&gt; step shard (... triple)&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">triple_weight</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">triple_weight</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">batch_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">triple_weight</span><span class="o">=</span><span class="n">triple_weight</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_triple_idx</span><span class="p">:</span>
+            <span class="n">batch_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">triple_idx</span><span class="o">=</span><span class="n">sample_idx</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">batch_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+<div class="viewcode-block" id="ShardedBatchSampler.sample_triples"><a class="viewcode-back" href="../../besskge.html#besskge.batch_sampler.ShardedBatchSampler.sample_triples">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">sample_triples</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample positive triples in the batch.</span>
+
+<span class="sd">        :param idx:</span>
+<span class="sd">            The batch index.</span>
+<span class="sd">        :return:</span>
+<span class="sd">            Per-partition indices of positive triples, and other relevant data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ShardedBatchSampler.get_dataloader_sampler"><a class="viewcode-back" href="../../besskge.html#besskge.batch_sampler.ShardedBatchSampler.get_dataloader_sampler">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataloader_sampler</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Sampler</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instantiate appropriate :class:`torch.data.Sampler` for the</span>
+<span class="sd">        :class:`torch.utils.data.DataLoader` to be used with the</span>
+<span class="sd">        sharded batch sampler.</span>
+
+<span class="sd">        :param shuffle:</span>
+<span class="sd">            Shuffle triples at each new epoch.</span>
+<span class="sd">        :return:</span>
+<span class="sd">            The dataloader sampler.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sampler</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">RandomSampler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">shuffle</span>
+            <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">SequentialSampler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">BatchSampler</span><span class="p">(</span>
+            <span class="n">sampler</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">partition_sample_size</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ShardedBatchSampler.get_dataloader"><a class="viewcode-back" href="../../besskge.html#besskge.batch_sampler.ShardedBatchSampler.get_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataloader</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">num_workers</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">persistent_workers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Instantiate appropriate :class:`torch.utils.data.DataLoader`</span>
+<span class="sd">        to iterate over the batch sampler.</span>
+
+<span class="sd">        :param shuffle:</span>
+<span class="sd">            Shuffle triples at each new epoch, defaults to True.</span>
+<span class="sd">        :param num_workers:</span>
+<span class="sd">            see :meth:`torch.utils.data.DataLoader.__init__`, defaults to 0.</span>
+<span class="sd">        :param persistent_workers:</span>
+<span class="sd">            see :meth:`torch.utils.data.DataLoader.__init__`, defaults to False.</span>
+<span class="sd">        :return:</span>
+<span class="sd">            The dataloader.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dl_sampler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataloader_sampler</span><span class="p">(</span><span class="n">shuffle</span><span class="o">=</span><span class="n">shuffle</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">num_workers</span><span class="o">=</span><span class="n">num_workers</span><span class="p">,</span>
+            <span class="n">persistent_workers</span><span class="o">=</span><span class="n">persistent_workers</span><span class="p">,</span>
+            <span class="n">worker_init_fn</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_init_fn</span><span class="p">,</span>
+            <span class="n">sampler</span><span class="o">=</span><span class="n">dl_sampler</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="ShardedBatchSampler.worker_init_fn"><a class="viewcode-back" href="../../besskge.html#besskge.batch_sampler.ShardedBatchSampler.worker_init_fn">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">worker_init_fn</span><span class="p">(</span><span class="n">worker_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Worker intialization function to be passed to</span>
+<span class="sd">        :class:`torch.utils.data.DataLoader`.</span>
+
+<span class="sd">        :param worker_id:</span>
+<span class="sd">            Worker ID.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">worker_info</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get_worker_info</span><span class="p">()</span>
+        <span class="n">dataset_unwrapped</span> <span class="o">=</span> <span class="n">worker_info</span><span class="o">.</span><span class="n">dataset</span>
+        <span class="n">worker_seed</span> <span class="o">=</span> <span class="n">dataset_unwrapped</span><span class="o">.</span><span class="n">seed</span> <span class="o">+</span> <span class="n">worker_id</span>
+        <span class="n">dataset_unwrapped</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">worker_seed</span><span class="p">)</span>
+        <span class="n">dataset_unwrapped</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">worker_seed</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RigidShardedBatchSampler"><a class="viewcode-back" href="../../besskge.html#besskge.batch_sampler.RigidShardedBatchSampler">[docs]</a><span class="k">class</span> <span class="nc">RigidShardedBatchSampler</span><span class="p">(</span><span class="n">ShardedBatchSampler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    At each call, sample triples with same specified indices from all triple partitions,</span>
+<span class="sd">    repeating triples in shorter ones to pad to same length.</span>
+<span class="sd">    Returns mask to identify padding triples.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">partitioned_triple_set</span><span class="p">:</span> <span class="n">PartitionedTripleSet</span><span class="p">,</span>
+        <span class="n">negative_sampler</span><span class="p">:</span> <span class="n">ShardedNegativeSampler</span><span class="p">,</span>
+        <span class="n">shard_bs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">batches_per_step</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">hrt_freq_weighting</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">weight_smoothing</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">duplicate_batch</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">return_triple_idx</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RigidShardedBatchSampler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">partitioned_triple_set</span><span class="p">,</span>
+            <span class="n">negative_sampler</span><span class="p">,</span>
+            <span class="n">shard_bs</span><span class="p">,</span>
+            <span class="n">batches_per_step</span><span class="p">,</span>
+            <span class="n">seed</span><span class="p">,</span>
+            <span class="n">hrt_freq_weighting</span><span class="p">,</span>
+            <span class="n">weight_smoothing</span><span class="p">,</span>
+            <span class="n">duplicate_batch</span><span class="p">,</span>
+            <span class="n">return_triple_idx</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">padded_partition_length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">expand_axes</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">triple_partition_mode</span> <span class="o">==</span> <span class="s2">&quot;ht_shardpair&quot;</span> <span class="k">else</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triple_mask</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">padded_partition_length</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="n">expand_axes</span><span class="p">)</span>
+            <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">triple_counts</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="p">)</span>  <span class="c1"># shape (n_shard, [n_shard,] padded_partition_length)</span>
+        <span class="n">triple_padded_idx</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">padded_partition_length</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="n">expand_axes</span><span class="p">)</span>
+            <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">triple_counts</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">triple_offsets</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="c1"># Index safeguard for when the last partition is empty</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triple_padded_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span>
+            <span class="n">triple_padded_idx</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>  <span class="c1"># shape (n_shard, [n_shard,] padded_partition_length)</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="RigidShardedBatchSampler.sample_triples"><a class="viewcode-back" href="../../besskge.html#besskge.batch_sampler.RigidShardedBatchSampler.sample_triples">[docs]</a>    <span class="k">def</span> <span class="nf">sample_triples</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">]]]:</span>
+        <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triple_padded_idx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">idx</span><span class="p">],</span>
+            <span class="s2">&quot;shard ... (step triple) -&gt; step shard ... triple&quot;</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batches_per_step</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">batch_mask</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triple_mask</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">idx</span><span class="p">],</span>
+            <span class="s2">&quot;shard ... (step triple) -&gt; step shard ... triple&quot;</span><span class="p">,</span>
+            <span class="n">step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">batches_per_step</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sample_idx</span><span class="o">=</span><span class="n">sample_idx</span><span class="p">,</span> <span class="n">triple_mask</span><span class="o">=</span><span class="n">batch_mask</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RandomShardedBatchSampler"><a class="viewcode-back" href="../../besskge.html#besskge.batch_sampler.RandomShardedBatchSampler">[docs]</a><span class="k">class</span> <span class="nc">RandomShardedBatchSampler</span><span class="p">(</span><span class="n">ShardedBatchSampler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sample random indices (with replacement) from all triple partitions.</span>
+<span class="sd">    No padding of triple partitions applied.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="RandomShardedBatchSampler.sample_triples"><a class="viewcode-back" href="../../besskge.html#besskge.batch_sampler.RandomShardedBatchSampler.sample_triples">[docs]</a>    <span class="k">def</span> <span class="nf">sample_triples</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">]]]:</span>
+        <span class="n">sample_size</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">batches_per_step</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">n_shard</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">n_shard</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">positive_per_partition</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">triple_partition_mode</span> <span class="o">==</span> <span class="s2">&quot;ht_shardpair&quot;</span>
+            <span class="k">else</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">batches_per_step</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">n_shard</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">positive_per_partition</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triple_offsets</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span>
+            <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">63</span><span class="p">,</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triple_counts</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sample_idx</span><span class="o">=</span><span class="n">sample_idx</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">triple_counts</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_sample_size</span><span class="p">))</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="RandomShardedBatchSampler.get_dataloader_sampler"><a class="viewcode-back" href="../../besskge.html#besskge.batch_sampler.RandomShardedBatchSampler.get_dataloader_sampler">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataloader_sampler</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Sampler</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+        <span class="n">sampler</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">SequentialSampler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">BatchSampler</span><span class="p">(</span><span class="n">sampler</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Graphcore Research.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>besskge.embedding &mdash; BESS-KGE  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BESS-KGE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">besskge</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BESS-KGE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">besskge.embedding</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for besskge.embedding</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2023 Graphcore Ltd. All rights reserved.</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">besskge.sharding</span> <span class="kn">import</span> <span class="n">Sharding</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities for entity/relation embeddings.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="EmbeddingInitializer"><a class="viewcode-back" href="../../besskge.html#besskge.embedding.EmbeddingInitializer">[docs]</a><span class="k">class</span> <span class="nc">EmbeddingInitializer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for custom embedding initialization scheme.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="EmbeddingInitializer.initialize"><a class="viewcode-back" href="../../besskge.html#besskge.embedding.EmbeddingInitializer.initialize">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize embedding table.</span>
+
+<span class="sd">        :param embedding_table:</span>
+<span class="sd">            The embedding table to initialize (in-place)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="MarginBasedInitializer"><a class="viewcode-back" href="../../besskge.html#besskge.embedding.MarginBasedInitializer">[docs]</a><span class="k">class</span> <span class="nc">MarginBasedInitializer</span><span class="p">(</span><span class="n">EmbeddingInitializer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">margin</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Margin-based initialization scheme.</span>
+
+<span class="sd">        :param margin:</span>
+<span class="sd">            The margin used in the loss function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">=</span> <span class="n">margin</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="MarginBasedInitializer.initialize"><a class="viewcode-back" href="../../besskge.html#besskge.embedding.MarginBasedInitializer.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">embedding_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">/</span> <span class="n">embedding_table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="n">embedding_table</span><span class="p">,</span> <span class="o">-</span><span class="n">embedding_range</span><span class="p">,</span> <span class="n">embedding_range</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="initialize_entity_embedding"><a class="viewcode-back" href="../../besskge.html#besskge.embedding.initialize_entity_embedding">[docs]</a><span class="k">def</span> <span class="nf">initialize_entity_embedding</span><span class="p">(</span>
+    <span class="n">initializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
+    <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
+    <span class="n">embedding_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialize entity embedding table.</span>
+
+<span class="sd">    :param initializer:</span>
+<span class="sd">        Embedding table or embedding intializer. If providing</span>
+<span class="sd">        embedding table, this can either be sharded</span>
+<span class="sd">        (shape: (n_shard, max_entity_per_shard, embedding_size))</span>
+<span class="sd">        or unsharded (shape: (n_entity, embedding_size)).</span>
+<span class="sd">    :param sharding:</span>
+<span class="sd">        Entity sharding.</span>
+<span class="sd">    :param embedding_size:</span>
+<span class="sd">        Entity embedding size. Can be omitted if passing</span>
+<span class="sd">        embedding table.</span>
+
+<span class="sd">    :return:</span>
+<span class="sd">        Entity embedding table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initializer</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">initializer</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">initializer</span><span class="o">.</span><span class="n">size</span><span class="p">()[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Size</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">sharding</span><span class="o">.</span><span class="n">n_shard</span><span class="p">,</span> <span class="n">sharding</span><span class="o">.</span><span class="n">max_entity_per_shard</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Shape of sharded table provided for initialization&quot;</span>
+                    <span class="s2">&quot; is not compatible with sharding&quot;</span>
+                <span class="p">)</span>
+            <span class="n">entity_embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">initializer</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">initializer</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">initializer</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">sharding</span><span class="o">.</span><span class="n">n_entity</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Number of rows of table provided for initialization&quot;</span>
+                    <span class="s2">&quot; different from number of entities.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">intializer_sharded</span> <span class="o">=</span> <span class="n">initializer</span><span class="p">[</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">sharding</span><span class="o">.</span><span class="n">shard_and_idx_to_entity</span><span class="p">,</span> <span class="n">sharding</span><span class="o">.</span><span class="n">n_entity</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
+            <span class="n">entity_embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">intializer_sharded</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Table for initialization needs to be 2- or 3-dimensional&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">embedding_size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;If not providing embedding table, embedding_size needs to be specified&quot;</span>
+            <span class="p">)</span>
+        <span class="n">entity_embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span>
+                <span class="n">size</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">sharding</span><span class="o">.</span><span class="n">n_shard</span><span class="p">,</span>
+                    <span class="n">sharding</span><span class="o">.</span><span class="n">max_entity_per_shard</span><span class="p">,</span>
+                    <span class="n">embedding_size</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">initializer</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">entity_embedding</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">entity_embedding</span></div>
+
+
+<div class="viewcode-block" id="initialize_relation_embedding"><a class="viewcode-back" href="../../besskge.html#besskge.embedding.initialize_relation_embedding">[docs]</a><span class="k">def</span> <span class="nf">initialize_relation_embedding</span><span class="p">(</span>
+    <span class="n">initializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
+    <span class="n">n_relation_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">embedding_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialize relation embedding table.</span>
+
+<span class="sd">    :param initializer:</span>
+<span class="sd">        Embedding table or embedding intializer.</span>
+<span class="sd">    :param n_relation_type:</span>
+<span class="sd">        Number of relation types.</span>
+<span class="sd">    :param embedding_size:</span>
+<span class="sd">        Relation embedding size. Can be omitted if passing</span>
+<span class="sd">        embedding table.</span>
+
+<span class="sd">    :return:</span>
+<span class="sd">        Relation embedding table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initializer</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">initializer</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Table for initialization needs to be 2-dimensional&quot;</span><span class="p">)</span>
+        <span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">initializer</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">embedding_size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;If not providing embedding table, embedding_size needs to be specified&quot;</span>
+            <span class="p">)</span>
+        <span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">n_relation_type</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">initializer</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">relation_embedding</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">relation_embedding</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Graphcore Research.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

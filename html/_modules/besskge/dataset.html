@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>besskge.dataset &mdash; BESS-KGE  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BESS-KGE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">besskge</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BESS-KGE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">besskge.dataset</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for besskge.dataset</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2023 Graphcore Ltd. All rights reserved.</span>
+
+<span class="kn">import</span> <span class="nn">dataclasses</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">ogb.linkproppred</span>
+<span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">NDArray</span>
+
+
+<div class="viewcode-block" id="KGDataset"><a class="viewcode-back" href="../../besskge.html#besskge.dataset.KGDataset">[docs]</a><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<span class="k">class</span> <span class="nc">KGDataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a complete knowledge graph dataset of (head, relation, tail) triples.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1">#: Number of entities (nodes) in the KG</span>
+    <span class="n">n_entity</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="c1">#: Number of relation types (edge labels) in the KG</span>
+    <span class="n">n_relation_type</span><span class="p">:</span> <span class="nb">int</span>
+
+    <span class="c1">#: List of (h_ID, r_ID, t_ID) triples, for each part of the dataset;</span>
+    <span class="c1"># {part: int32[n_triple, {h,r,t}]}</span>
+    <span class="n">triples</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]</span>
+
+    <span class="c1">#: Entity labels by ID; str[n_entity]</span>
+    <span class="n">entity_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+
+    <span class="c1">#: Relation type labels by ID; str[n_relation_type]</span>
+    <span class="n">relation_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+
+    <span class="c1">#: If entities have types, IDs are assumed to be clustered by type;</span>
+    <span class="c1"># {entity_type: int}</span>
+    <span class="n">type_offsets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
+
+    <span class="c1">#: IDs of (possibly triple-specific) negative heads;</span>
+    <span class="c1"># {part: int32[n_triple or 1, n_neg_heads]}</span>
+    <span class="n">neg_heads</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]]</span>
+
+    <span class="c1">#: IDs of (possibly triple-specific) negative heads;</span>
+    <span class="c1"># {part: int32[n_triple or 1, n_neg_tails]}</span>
+    <span class="n">neg_tails</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ht_types</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]]:</span>
+        <span class="c1"># If entities have types, type IDs of triples&#39; heads/tails</span>
+        <span class="c1"># {part: int32[n_triple, {h_type, t_type}]}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_offsets</span><span class="p">:</span>
+            <span class="n">type_offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromiter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type_offsets</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">types</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">part</span><span class="p">,</span> <span class="n">triple</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">triples</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">types</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span>
+                        <span class="n">triple</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span>
+                        <span class="n">type_offsets</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="o">-</span> <span class="mi">1</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">types</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="KGDataset.build_biokg"><a class="viewcode-back" href="../../besskge.html#besskge.dataset.KGDataset.build_biokg">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">build_biokg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the OGB-BioKG dataset.</span>
+
+<span class="sd">        :param root:</span>
+<span class="sd">            Path to dataset.</span>
+
+<span class="sd">        :return: OGB-BioKG KGDataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">ogb</span><span class="o">.</span><span class="n">linkproppred</span><span class="o">.</span><span class="n">LinkPropPredDataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ogbl-biokg&quot;</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
+        <span class="n">split_edge</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_edge_split</span><span class="p">()</span>
+        <span class="n">n_relation_type</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;edge_reltype&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">type_counts</span> <span class="o">=</span> <span class="n">dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;num_nodes_dict&quot;</span><span class="p">]</span>
+        <span class="n">type_offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">fromiter</span><span class="p">(</span><span class="n">type_counts</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)))</span>
+        <span class="p">)</span>
+        <span class="n">n_entity</span> <span class="o">=</span> <span class="n">type_offsets</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">type_offsets</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">type_counts</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span> <span class="n">type_offsets</span><span class="p">))</span>
+        <span class="n">triples</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">neg_heads</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">neg_tails</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">part</span><span class="p">,</span> <span class="n">hrt</span> <span class="ow">in</span> <span class="n">split_edge</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">h_label</span><span class="p">,</span> <span class="n">h_type_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;head_type&quot;</span><span class="p">],</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">t_label</span><span class="p">,</span> <span class="n">t_type_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;tail_type&quot;</span><span class="p">],</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">h_type_offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">type_offsets</span><span class="p">[</span><span class="n">lab</span><span class="p">]</span> <span class="k">for</span> <span class="n">lab</span> <span class="ow">in</span> <span class="n">h_label</span><span class="p">])</span>
+            <span class="n">t_type_offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">type_offsets</span><span class="p">[</span><span class="n">lab</span><span class="p">]</span> <span class="k">for</span> <span class="n">lab</span> <span class="ow">in</span> <span class="n">t_label</span><span class="p">])</span>
+            <span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;head&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">h_type_offsets</span><span class="p">[</span><span class="n">h_type_idx</span><span class="p">]</span>
+            <span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;tail&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">t_type_offsets</span><span class="p">[</span><span class="n">t_type_idx</span><span class="p">]</span>
+            <span class="n">triples</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;head&quot;</span><span class="p">],</span> <span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;relation&quot;</span><span class="p">],</span> <span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;tail&quot;</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">part</span> <span class="o">!=</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span>
+                <span class="n">neg_heads</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="o">=</span> <span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;head_neg&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">h_type_offsets</span><span class="p">[</span><span class="n">h_type_idx</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">]</span>
+                <span class="n">neg_tails</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="o">=</span> <span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;tail_neg&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">t_type_offsets</span><span class="p">[</span><span class="n">t_type_idx</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">n_entity</span><span class="o">=</span><span class="n">n_entity</span><span class="p">,</span>
+            <span class="n">n_relation_type</span><span class="o">=</span><span class="n">n_relation_type</span><span class="p">,</span>
+            <span class="n">entity_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">relation_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">type_offsets</span><span class="o">=</span><span class="n">type_offsets</span><span class="p">,</span>
+            <span class="n">triples</span><span class="o">=</span><span class="n">triples</span><span class="p">,</span>
+            <span class="n">neg_heads</span><span class="o">=</span><span class="n">neg_heads</span><span class="p">,</span>
+            <span class="n">neg_tails</span><span class="o">=</span><span class="n">neg_tails</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="KGDataset.save"><a class="viewcode-back" href="../../besskge.html#besskge.dataset.KGDataset.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save dataset to .pkl.</span>
+
+<span class="sd">        :param path:</span>
+<span class="sd">            Path to output file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="KGDataset.load"><a class="viewcode-back" href="../../besskge.html#besskge.dataset.KGDataset.load">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a :class:`KGDataset` saved with :func:`KGDataset.save`.</span>
+
+<span class="sd">        :param path:</span>
+<span class="sd">            Path to saved :class:`KGDataset`.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">            The saved :class:`KGDataset`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kg_dataset</span><span class="p">:</span> <span class="n">KGDataset</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">kg_dataset</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kg_dataset</span><span class="p">,</span> <span class="n">KGDataset</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File at path </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> is not a KGDataset&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">kg_dataset</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Graphcore Research.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

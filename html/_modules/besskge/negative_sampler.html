@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>besskge.negative_sampler &mdash; BESS-KGE  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BESS-KGE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">besskge</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BESS-KGE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">besskge.negative_sampler</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for besskge.negative_sampler</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (c) 2023 Graphcore Ltd. All rights reserved.</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">import</span> <span class="nn">einops</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">NDArray</span>
+
+<span class="kn">from</span> <span class="nn">besskge.sharding</span> <span class="kn">import</span> <span class="n">Sharding</span>
+
+
+<div class="viewcode-block" id="ShardedNegativeSampler"><a class="viewcode-back" href="../../besskge.html#besskge.negative_sampler.ShardedNegativeSampler">[docs]</a><span class="k">class</span> <span class="nc">ShardedNegativeSampler</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for sharded negative sampler.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Sample negatives per triple partition, instead of per triple</span>
+    <span class="n">flat_negative_format</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="c1"># Sample negatives only from processing device</span>
+    <span class="n">local_sampling</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="c1"># &quot;h&quot;, &quot;t&quot;, &quot;ht&quot;</span>
+    <span class="n">corruption_scheme</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sample_idx</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample negatives for batch.</span>
+
+<span class="sd">        :param sample_idx: shape: (bps, n_shard, [n_shard,] triple_per_partition)</span>
+<span class="sd">            Per-partition indices of triples in batch (for all bps batches in a step).</span>
+
+<span class="sd">        :return: &quot;negative_entities&quot; shape: (bps, n_shard, n_shard, B, n_negative)</span>
+<span class="sd">                B = 1 if :attr:`flat_negative_format`, :attr:`corruption_scheme`==&quot;h&quot;,&quot;t&quot;</span>
+<span class="sd">                B = 2 if :attr:`flat_negative_format`, :attr:`corruption_scheme`==&quot;ht&quot;</span>
+<span class="sd">                else B = shard_bs</span>
+<span class="sd">            Negative samples for triples in batch.</span>
+<span class="sd">            The elements in `(*, shard_source, shard_dest, *, *)`</span>
+<span class="sd">            are the negative samples to collect from `shard_source`</span>
+<span class="sd">            and use for the batch on `shard_dest` (if :attr:`local_sampling` = False,</span>
+<span class="sd">            otherwise on `shard_source`).</span>
+<span class="sd">            + other relevant data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="RandomShardedNegativeSampler"><a class="viewcode-back" href="../../besskge.html#besskge.negative_sampler.RandomShardedNegativeSampler">[docs]</a><span class="k">class</span> <span class="nc">RandomShardedNegativeSampler</span><span class="p">(</span><span class="n">ShardedNegativeSampler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sample random negative entities for each triple in batch.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">n_negative</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">corruption_scheme</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">local_sampling</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">flat_negative_format</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize random negative sampler.</span>
+
+<span class="sd">        :param n_negative:</span>
+<span class="sd">            Number of negative samples per shardpair</span>
+<span class="sd">            (if :attr:`flat_negative_format`) or per triple.</span>
+<span class="sd">        :param sharding:</span>
+<span class="sd">            Sharding of entities.</span>
+<span class="sd">        :param seed:</span>
+<span class="sd">            Seed of RNG.</span>
+<span class="sd">        :param corruption_scheme:</span>
+<span class="sd">            &quot;h&quot;: corrupt head entities;</span>
+<span class="sd">            &quot;t&quot;: corrupt tail entities;</span>
+<span class="sd">            &quot;ht&quot;: corrupt head entities for the first half of each triple partition,</span>
+<span class="sd">            tail entities for the second half.</span>
+<span class="sd">        :param local_sampling:</span>
+<span class="sd">            Sample negative entities only from the shard where the triple is processed.</span>
+<span class="sd">        :param flat_negative_format:</span>
+<span class="sd">            Sample :attr:`n_negative` negative entities for each shardpair,</span>
+<span class="sd">            instead of each triple. If True, requires use of negative sample</span>
+<span class="sd">            sharing. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_negative</span> <span class="o">=</span> <span class="n">n_negative</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span> <span class="o">=</span> <span class="n">sharding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shard_counts</span> <span class="o">=</span> <span class="n">sharding</span><span class="o">.</span><span class="n">shard_counts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">=</span> <span class="n">corruption_scheme</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_sampling</span> <span class="o">=</span> <span class="n">local_sampling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flat_negative_format</span> <span class="o">=</span> <span class="n">flat_negative_format</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sample_idx</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]:</span>
+        <span class="n">batches_per_step</span><span class="p">,</span> <span class="n">n_shard</span> <span class="o">=</span> <span class="n">sample_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+        <span class="n">positive_per_partition</span> <span class="o">=</span> <span class="n">sample_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">shard_bs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">positive_per_partition</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sample_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
+            <span class="k">else</span> <span class="n">n_shard</span> <span class="o">*</span> <span class="n">positive_per_partition</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flat_negative_format</span><span class="p">:</span>
+            <span class="n">B</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;ht&quot;</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">B</span> <span class="o">=</span> <span class="n">shard_bs</span>
+        <span class="n">negative_entities</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span>
+                <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">63</span><span class="p">,</span>
+                <span class="n">size</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">batches_per_step</span><span class="p">,</span>
+                    <span class="n">n_shard</span><span class="p">,</span>
+                    <span class="n">n_shard</span><span class="p">,</span>
+                    <span class="n">B</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">n_negative</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+            <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">shard_counts</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">negative_entities</span><span class="o">=</span><span class="n">negative_entities</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TypeBasedShardedNegativeSampler"><a class="viewcode-back" href="../../besskge.html#besskge.negative_sampler.TypeBasedShardedNegativeSampler">[docs]</a><span class="k">class</span> <span class="nc">TypeBasedShardedNegativeSampler</span><span class="p">(</span><span class="n">RandomShardedNegativeSampler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Corrupt entities with entities of the same type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">triple_types</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">],</span>
+        <span class="n">n_negative</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
+        <span class="n">corruption_scheme</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">local_sampling</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize type-based negative sampler.</span>
+
+<span class="sd">        :param triple_types: shape: (n_triple, 2)</span>
+<span class="sd">            Type IDs of head and tail entities for all triples.</span>
+<span class="sd">        :param n_negative:</span>
+<span class="sd">            see :meth:`RandomShardedNegativeSampler.__init__`</span>
+<span class="sd">        :param sharding:</span>
+<span class="sd">            see :meth:`RandomShardedNegativeSampler.__init__`</span>
+<span class="sd">        :param corruption_scheme:</span>
+<span class="sd">            see :meth:`RandomShardedNegativeSampler.__init__`</span>
+<span class="sd">        :param local_sampling:</span>
+<span class="sd">            see :meth:`RandomShardedNegativeSampler.__init__`</span>
+<span class="sd">        :param seed:</span>
+<span class="sd">            see :meth:`RandomShardedNegativeSampler.__init__`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TypeBasedShardedNegativeSampler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">n_negative</span><span class="p">,</span>
+            <span class="n">sharding</span><span class="p">,</span>
+            <span class="n">seed</span><span class="p">,</span>
+            <span class="n">corruption_scheme</span><span class="p">,</span>
+            <span class="n">local_sampling</span><span class="p">,</span>
+            <span class="n">flat_negative_format</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">triple_types</span> <span class="o">=</span> <span class="n">triple_types</span>
+        <span class="k">if</span> <span class="n">sharding</span><span class="o">.</span><span class="n">entity_type_counts</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">sharding</span><span class="o">.</span><span class="n">entity_type_offsets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The provided entity sharding does not have entity types&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type_offsets</span> <span class="o">=</span> <span class="n">sharding</span><span class="o">.</span><span class="n">entity_type_offsets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type_counts</span> <span class="o">=</span> <span class="n">sharding</span><span class="o">.</span><span class="n">entity_type_counts</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sample_idx</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]:</span>
+        <span class="n">n_shard</span> <span class="o">=</span> <span class="n">sample_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">positive_per_partition</span> <span class="o">=</span> <span class="n">sample_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">head_type</span><span class="p">,</span> <span class="n">tail_type</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triple_types</span><span class="p">[</span><span class="n">sample_idx</span><span class="p">],</span>
+            <span class="s2">&quot;... ht -&gt; ht ...&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
+            <span class="n">relevant_type</span> <span class="o">=</span> <span class="n">head_type</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
+            <span class="n">relevant_type</span> <span class="o">=</span> <span class="n">tail_type</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;ht&quot;</span><span class="p">:</span>
+            <span class="n">cut_point</span> <span class="o">=</span> <span class="n">positive_per_partition</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="n">relevant_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">head_type</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="n">cut_point</span><span class="p">],</span> <span class="n">tail_type</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">cut_point</span><span class="p">:]],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Corruption scheme </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">corruption_scheme</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">&quot; not supported by </span><span class="si">{self.__class__}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_sampling</span><span class="p">:</span>
+            <span class="n">repeat_pattern</span> <span class="o">=</span> <span class="s2">&quot;step shard ... triple -&gt; step shard r (... triple)&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">repeat_pattern</span> <span class="o">=</span> <span class="s2">&quot;step shard ... triple -&gt; step r shard (... triple)&quot;</span>
+        <span class="n">relevant_type</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span>
+            <span class="n">relevant_type</span><span class="p">,</span>
+            <span class="n">repeat_pattern</span><span class="p">,</span>
+            <span class="n">r</span><span class="o">=</span><span class="n">n_shard</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">rvs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">TypeBasedShardedNegativeSampler</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span>
+            <span class="n">sample_idx</span><span class="p">,</span>
+        <span class="p">)[</span><span class="s2">&quot;negative_entities&quot;</span><span class="p">]</span>
+
+        <span class="n">negative_entities</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">rvs</span>
+            <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_counts</span><span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_shard</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">relevant_type</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span>
+            <span class="p">]</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_offsets</span><span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_shard</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">relevant_type</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">negative_entities</span><span class="o">=</span><span class="n">negative_entities</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TripleBasedShardedNegativeSampler"><a class="viewcode-back" href="../../besskge.html#besskge.negative_sampler.TripleBasedShardedNegativeSampler">[docs]</a><span class="k">class</span> <span class="nc">TripleBasedShardedNegativeSampler</span><span class="p">(</span><span class="n">ShardedNegativeSampler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return (possibly triple-specific) predetermined negative entities.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">negative_heads</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]],</span>
+        <span class="n">negative_tails</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]],</span>
+        <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
+        <span class="n">corruption_scheme</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">return_sort_idx</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize triple-based negative sampler.</span>
+
+<span class="sd">        :param negative_heads: shape: (N, n_negative)</span>
+<span class="sd">            Global entity IDs of negative heads, specific</span>
+<span class="sd">            for each triple (N=n_triple) or for all of them (N=1).</span>
+<span class="sd">        :param negative_tails: shape: (N, n_negative)</span>
+<span class="sd">            Global entity IDs of negative tails, specific</span>
+<span class="sd">            for each triple (N=n_triple) or for all of them (N=1).</span>
+<span class="sd">        :param sharding:</span>
+<span class="sd">            see :meth:`RandomShardedNegativeSampler.__init__`</span>
+<span class="sd">        :param corruption_scheme:</span>
+<span class="sd">            see :meth:`RandomShardedNegativeSampler.__init__`</span>
+<span class="sd">        :param seed:</span>
+<span class="sd">            see :meth:`RandomShardedNegativeSampler.__init__`</span>
+<span class="sd">        :param return_sort_idx:</span>
+<span class="sd">            Return for each triple in batch the sorting indices</span>
+<span class="sd">            to recover same ordering of negatives as in :attr:`negative_heads`,</span>
+<span class="sd">            :attr:`negative_tails`. Defaults to False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_negative</span><span class="p">:</span> <span class="nb">int</span>
+        <span class="k">if</span> <span class="n">negative_heads</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">negative_tails</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">negative_heads</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">negative_tails</span><span class="o">.</span><span class="n">shape</span>
+            <span class="p">),</span> <span class="s2">&quot;negative_heads and negative_tails need to have same size&quot;</span>
+            <span class="n">negative_heads</span> <span class="o">=</span> <span class="n">negative_heads</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">negative_heads</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">negative_tails</span> <span class="o">=</span> <span class="n">negative_tails</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">negative_tails</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_negative</span> <span class="o">=</span> <span class="n">negative_heads</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">elif</span> <span class="n">negative_tails</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Corruption scheme &#39;</span><span class="si">{</span><span class="n">corruption_scheme</span><span class="si">}</span><span class="s2">&#39; requires&quot;</span>
+            <span class="s2">&quot; providing negative_heads&quot;</span>
+            <span class="n">negative_tails</span> <span class="o">=</span> <span class="n">negative_tails</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">negative_tails</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_negative</span> <span class="o">=</span> <span class="n">negative_tails</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">elif</span> <span class="n">negative_heads</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span>
+            <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Corruption scheme &#39;</span><span class="si">{</span><span class="n">corruption_scheme</span><span class="si">}</span><span class="s2">&#39; requires&quot;</span>
+            <span class="s2">&quot; providing negative_tails&quot;</span>
+            <span class="n">negative_heads</span> <span class="o">=</span> <span class="n">negative_heads</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">negative_heads</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_negative</span> <span class="o">=</span> <span class="n">negative_heads</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;At least one between negative_heads and negative_tails&quot;</span>
+                <span class="s2">&quot; needs to be provided&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span> <span class="o">=</span> <span class="n">sharding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shard_counts</span> <span class="o">=</span> <span class="n">sharding</span><span class="o">.</span><span class="n">shard_counts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">=</span> <span class="n">corruption_scheme</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local_sampling</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flat_negative_format</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_sort_idx</span> <span class="o">=</span> <span class="n">return_sort_idx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">]:</span>
+            <span class="n">negatives</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">],</span>
+                <span class="n">negative_heads</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span> <span class="k">else</span> <span class="n">negative_tails</span><span class="p">,</span>
+            <span class="p">)</span>  <span class="c1"># mypy check</span>
+            <span class="p">(</span>
+                <span class="n">shard_neg_counts</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sort_neg_idx</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shard_negatives</span><span class="p">(</span><span class="n">negatives</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">padded_shard_length</span> <span class="o">=</span> <span class="n">shard_neg_counts</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">padded_negatives</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pad_negatives</span><span class="p">(</span>
+                <span class="n">sharding</span><span class="o">.</span><span class="n">entity_to_idx</span><span class="p">[</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">take_along_axis</span><span class="p">(</span><span class="n">negatives</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_neg_idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="p">],</span>
+                <span class="n">shard_neg_counts</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">padded_shard_length</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;ht&quot;</span><span class="p">:</span>
+            <span class="n">negative_heads</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">],</span> <span class="n">negative_heads</span><span class="p">)</span>  <span class="c1"># mypy check</span>
+            <span class="n">negative_tails</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">],</span> <span class="n">negative_tails</span><span class="p">)</span>  <span class="c1"># mypy check</span>
+            <span class="p">(</span>
+                <span class="n">shard_neg_h_counts</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sort_neg_h_idx</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shard_negatives</span><span class="p">(</span><span class="n">negative_heads</span><span class="p">)</span>
+            <span class="p">(</span>
+                <span class="n">shard_neg_t_counts</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sort_neg_t_idx</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shard_negatives</span><span class="p">(</span><span class="n">negative_tails</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">padded_shard_length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">shard_neg_h_counts</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">shard_neg_t_counts</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">padded_negatives_h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_h</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pad_negatives</span><span class="p">(</span>
+                <span class="n">sharding</span><span class="o">.</span><span class="n">entity_to_idx</span><span class="p">[</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">take_along_axis</span><span class="p">(</span><span class="n">negative_heads</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_neg_h_idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="p">],</span>
+                <span class="n">shard_neg_h_counts</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">padded_shard_length</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">padded_negatives_t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pad_negatives</span><span class="p">(</span>
+                <span class="n">sharding</span><span class="o">.</span><span class="n">entity_to_idx</span><span class="p">[</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">take_along_axis</span><span class="p">(</span><span class="n">negative_tails</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_neg_t_idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="p">],</span>
+                <span class="n">shard_neg_t_counts</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">padded_shard_length</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Corruption scheme </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">corruption_scheme</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="s2">&quot; not supported by </span><span class="si">{self.__class__}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">sample_idx</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">]:</span>
+            <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span>
+                <span class="n">sample_idx</span><span class="p">,</span>
+                <span class="s2">&quot;step shard ... triple -&gt; step shard (... triple)&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flat_negative_format</span><span class="p">:</span>
+                <span class="n">sample_idx_orig_shape</span> <span class="o">=</span> <span class="n">sample_idx</span><span class="o">.</span><span class="n">shape</span>
+                <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="o">*</span><span class="n">sample_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">negative_entities</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">padded_negatives</span><span class="p">[</span><span class="n">sample_idx</span><span class="p">],</span>
+                <span class="s2">&quot;step shard triple shard_neg idx_neg -&gt;&quot;</span>
+                <span class="s2">&quot; step shard_neg shard triple idx_neg&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">negative_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask</span><span class="p">[</span><span class="n">sample_idx</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_sort_idx</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flat_negative_format</span><span class="p">:</span>
+                    <span class="n">negative_sort_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_neg_idx</span><span class="p">[</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">sample_idx_orig_shape</span><span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">negative_sort_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sort_neg_idx</span><span class="p">[</span><span class="n">sample_idx</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;ht&quot;</span><span class="p">:</span>
+            <span class="n">cutpoint</span> <span class="o">=</span> <span class="n">sample_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flat_negative_format</span><span class="p">:</span>
+                <span class="n">bps</span><span class="p">,</span> <span class="n">n_shard</span> <span class="o">=</span> <span class="n">sample_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+                <span class="n">negative_entities</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">padded_negatives_h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">padded_negatives_t</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;pad shard_neg idx_neg -&gt; step shard_neg shard pad idx_neg&quot;</span><span class="p">,</span>
+                    <span class="n">step</span><span class="o">=</span><span class="n">bps</span><span class="p">,</span>
+                    <span class="n">shard</span><span class="o">=</span><span class="n">n_shard</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">negative_mask</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">mask_h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mask_t</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                    <span class="s2">&quot;pad idx_neg -&gt; step shard pad idx_neg&quot;</span><span class="p">,</span>
+                    <span class="n">step</span><span class="o">=</span><span class="n">bps</span><span class="p">,</span>
+                    <span class="n">shard</span><span class="o">=</span><span class="n">n_shard</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_sort_idx</span><span class="p">:</span>
+                    <span class="n">sample_h_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+                        <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="o">*</span><span class="n">sample_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">cutpoint</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">sample_t_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+                        <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                        <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="o">*</span><span class="n">sample_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sample_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">cutpoint</span><span class="p">),</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sample_h_idx</span> <span class="o">=</span> <span class="n">sample_idx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="n">cutpoint</span><span class="p">]</span>
+                <span class="n">sample_t_idx</span> <span class="o">=</span> <span class="n">sample_idx</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">cutpoint</span><span class="p">:]</span>
+                <span class="n">negative_entities</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">padded_negatives_h</span><span class="p">[</span><span class="n">sample_h_idx</span><span class="p">],</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">padded_negatives_t</span><span class="p">[</span><span class="n">sample_t_idx</span><span class="p">],</span>
+                        <span class="p">],</span>
+                        <span class="n">axis</span><span class="o">=-</span><span class="mi">3</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;step shard ... triple shard_neg idx_neg -&gt;&quot;</span>
+                    <span class="s2">&quot; step shard_neg shard (... triple) idx_neg&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">negative_mask</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">mask_h</span><span class="p">[</span><span class="n">sample_h_idx</span><span class="p">],</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">mask_t</span><span class="p">[</span><span class="n">sample_t_idx</span><span class="p">],</span>
+                        <span class="p">],</span>
+                        <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;step shard ... triple idx_neg -&gt; step shard (... triple) idx_neg&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_sort_idx</span><span class="p">:</span>
+                <span class="n">negative_sort_idx</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">sort_neg_h_idx</span><span class="p">[</span><span class="n">sample_h_idx</span><span class="p">],</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">sort_neg_t_idx</span><span class="p">[</span><span class="n">sample_t_idx</span><span class="p">],</span>
+                        <span class="p">],</span>
+                        <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;step shard ... triple idx_neg -&gt; step shard (... triple) idx_neg&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="n">out_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+            <span class="n">negative_entities</span><span class="o">=</span><span class="n">negative_entities</span><span class="p">,</span>
+            <span class="n">negative_mask</span><span class="o">=</span><span class="n">negative_mask</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_sort_idx</span><span class="p">:</span>
+            <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">negative_sort_idx</span><span class="o">=</span><span class="n">negative_sort_idx</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">out_dict</span>
+
+<div class="viewcode-block" id="TripleBasedShardedNegativeSampler.shard_negatives"><a class="viewcode-back" href="../../besskge.html#besskge.negative_sampler.TripleBasedShardedNegativeSampler.shard_negatives">[docs]</a>    <span class="k">def</span> <span class="nf">shard_negatives</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">negatives</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Split negative entities into correpsonding shards.</span>
+
+<span class="sd">        :param negatives: shape: (N, n_negatives)</span>
+<span class="sd">            Negative entities to shard (N = 1, n_triple).</span>
+<span class="sd">        :return shard_neg_counts: shape: (N, n_shard)</span>
+<span class="sd">            Number of negative entities per shard.</span>
+<span class="sd">        :return sort_neg_idx: shape: (N, n_negatives)</span>
+<span class="sd">            Sorting index to cluster negatives in shard order.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n_shard</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">n_shard</span>
+        <span class="n">shard_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">entity_to_shard</span><span class="p">[</span><span class="n">negatives</span><span class="p">]</span>
+        <span class="n">shard_neg_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">shard_idx</span> <span class="o">+</span> <span class="n">n_shard</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+            <span class="n">minlength</span><span class="o">=</span><span class="n">n_shard</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
+        <span class="n">sort_neg_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">shard_idx</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">shard_neg_counts</span><span class="p">,</span> <span class="n">sort_neg_idx</span></div>
+
+<div class="viewcode-block" id="TripleBasedShardedNegativeSampler.pad_negatives"><a class="viewcode-back" href="../../besskge.html#besskge.negative_sampler.TripleBasedShardedNegativeSampler.pad_negatives">[docs]</a>    <span class="k">def</span> <span class="nf">pad_negatives</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">negatives</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">],</span>
+        <span class="n">shard_counts</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span>
+        <span class="n">padded_shard_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Divide negatives based on shard and pad lists to same length.</span>
+
+<span class="sd">        :param negatives: shape: (N, n_negative)</span>
+<span class="sd">            Negative entities, each row already sorted in shard order</span>
+<span class="sd">            (N = 1, n_triple).</span>
+<span class="sd">        :param shard_counts: shape: (N, n_shard)</span>
+<span class="sd">            Number of negatives per shard.</span>
+<span class="sd">        :param padded_shard_length:</span>
+<span class="sd">            The size to which each shard list is to be padded.</span>
+
+<span class="sd">        :return padded_negatives: shape: (N, n_shard, padded_shard_length)</span>
+<span class="sd">            The padded shard lists of negatives.</span>
+<span class="sd">        :return mask: shape: (N, n_negative)</span>
+<span class="sd">            Indices of true negatives in `padded_negatives.view(N,-1)`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mask_bool</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">padded_shard_length</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">&lt;</span> <span class="n">shard_counts</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="p">)</span>  <span class="c1"># shape(N, n_shard, padded_shard_length)</span>
+        <span class="n">mask_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask_bool</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># shape(N, n_negative)</span>
+
+        <span class="n">shard_offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">shard_counts</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+
+        <span class="n">shard_idx</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">padded_shard_length</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">%</span> <span class="n">shard_counts</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">global_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span>
+            <span class="n">shard_idx</span> <span class="o">+</span> <span class="n">shard_offsets</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_negative</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="n">padded_negatives</span> <span class="o">=</span> <span class="n">negatives</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">global_idx</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">padded_negatives</span><span class="p">,</span> <span class="n">mask_idx</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Graphcore Research.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
