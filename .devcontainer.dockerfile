@@ -4,6 +4,9 @@ RUN apt-get update \
     && apt-get install -y \
         clang-format \
         sudo \
+    && apt-get install \
+        git \
+        sudo \
     && apt-get clean
 
 # Snippet from https://code.visualstudio.com/remote/advancedcontainers/add-nonroot-user
