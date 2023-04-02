@@ -1,8 +1,10 @@
-import torch
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
 import pytest
+import torch
+from torch.testing import assert_close
 
 from besskge.metric import Evaluation
-from torch.testing import assert_close
 
 metric_list = ["mrr", "hits@1", "hits@5"]
 

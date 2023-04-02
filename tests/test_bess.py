@@ -1,5 +1,6 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+
 import ctypes
-from typing import Dict
 
 import numpy as np
 import poptorch
@@ -8,9 +9,8 @@ import torch
 from torch.testing import assert_close
 
 from besskge.batch_sampler import RigidShardedBatchSampler
-from besskge.bess import BessKGE, ScoreMovingBessKGE, EmbeddingMovingBessKGE
+from besskge.bess import BessKGE, EmbeddingMovingBessKGE, ScoreMovingBessKGE
 from besskge.dataset import KGDataset
-from besskge.loss import LogSigmoidLoss
 from besskge.negative_sampler import TripleBasedShardedNegativeSampler
 from besskge.scoring import TransE
 from besskge.sharding import PartitionedTripleSet, Sharding
@@ -56,10 +56,10 @@ def test_inference(
 
     neg_outer_shape = 1 if flat_negative_format else n_test_triple
     test_negative_heads = np.random.randint(
-        n_entity, size=(neg_outer_shape, n_negative)
+        n_entity, size=(neg_outer_shape, n_negative), dtype=np.int32
     )
     test_negative_tails = np.random.randint(
-        n_entity, size=(neg_outer_shape, n_negative)
+        n_entity, size=(neg_outer_shape, n_negative), dtype=np.int32
     )
     neg_heads = {"test": test_negative_heads}
     neg_tails = {"test": test_negative_tails}
@@ -137,7 +137,7 @@ def test_inference(
     test_h_embs = entity_table[
         sharding.entity_to_shard[test_triples_h], sharding.entity_to_idx[test_triples_h]
     ]
-    test_rel_embs = relation_table[test_triples_r]
+    test_rel_embs = relation_table[torch.from_numpy(test_triples_r)]
     test_t_embs = entity_table[
         sharding.entity_to_shard[test_triples_t], sharding.entity_to_idx[test_triples_t]
     ]
@@ -201,9 +201,11 @@ def test_inference(
         global_idx = triple_idx[triple_mask]
         # Discard padding triples
         positive_filtered = positive_score[triple_mask]
-        # Use partitioned_triple_set.sort_idx to pass from indices in ds.triples to test_bs.triples
+        # Use partitioned_triple_set.sort_idx to pass from indices
+        # in ds.triples to indices in test_bs.triples
+        triple_sort_idx = torch.from_numpy(partitioned_triple_set.triple_sort_idx)
         assert_close(
-            true_positive_score[partitioned_triple_set.triple_sort_idx][global_idx],
+            true_positive_score[triple_sort_idx][global_idx],
             positive_filtered,
         )
 
@@ -217,9 +219,7 @@ def test_inference(
             # in ds.neg_heads/tails to test_ns.padded_negatives
             assert_close(
                 torch.take_along_dim(
-                    true_neg_h_score[partitioned_triple_set.triple_sort_idx][
-                        global_idx
-                    ],
+                    true_neg_h_score[triple_sort_idx][global_idx],
                     negative_sort_idx_h,
                     dim=-1,
                 ),
@@ -227,9 +227,7 @@ def test_inference(
             )
             assert_close(
                 torch.take_along_dim(
-                    true_neg_t_score[partitioned_triple_set.triple_sort_idx][
-                        global_idx
-                    ],
+                    true_neg_t_score[triple_sort_idx][global_idx],
                     negative_sort_idx_t,
                     dim=-1,
                 ),
@@ -245,7 +243,7 @@ def test_inference(
             )
             assert_close(
                 torch.take_along_dim(
-                    true_neg_score[partitioned_triple_set.triple_sort_idx][global_idx],
+                    true_neg_score[triple_sort_idx][global_idx],
                     negative_sort_idx,
                     dim=-1,
                 ),

@@ -1,10 +1,9 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
-import poptorch
 import torch
 
 
-def gather_indices(x, index):
+def gather_indices(x: torch.Tensor, index: torch.Tensor) -> torch.Tensor:
     """
     IPU-friendly gather function like torch.take_along_dim
     for 2-dimensional tensors (indices along dim=1).
