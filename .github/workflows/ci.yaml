@@ -26,7 +26,7 @@ jobs:
       run: ./dev ci
     - name: Publish docs
         if: ${{github.ref == 'refs/heads/main'}}
-        uses: Cecilapp/GitHub-Pages-deploy@v3
+        uses: Cecilapp/GitHub-Pages-deploy@3.2.1
         env: { GITHUB_TOKEN: "${{ github.token }}" }
         with:
           build_dir: docs/build/html
