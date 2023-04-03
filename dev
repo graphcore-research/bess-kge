@@ -50,7 +50,7 @@ def cli(*args: Any, **kwargs: Any) -> Callable[[T], T]:
 
 # Commands
 
-PYTHON_ROOTS = ["besskge", "tests", "dev"]
+PYTHON_ROOTS = ["besskge", "custom_ops", "tests", "dev"]
 
 
 @cli()

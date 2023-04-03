@@ -31,7 +31,7 @@ embedding_size = 128
     "corruption_scheme, duplicate_batch", [("h", False), ("t", False), ("ht", True)]
 )
 @pytest.mark.parametrize("flat_negative_format", [True, False])
-def test_inference(
+def test_bess_inference(
     model: BessKGE,
     corruption_scheme: str,
     duplicate_batch: bool,

@@ -1,4 +1,4 @@
-Embedding utilitis
+Embedding utilities
 ==============
 .. automodule:: besskge.embedding
    :members:

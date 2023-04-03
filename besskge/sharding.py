@@ -387,7 +387,7 @@ class PartitionedTripleSet:
             if negative is not None:
                 neg_tails = negative.reshape(-1, negative.shape[-1])
             else:
-                neg_tails = np.arange(sharding.n_entity).squeeze(0)
+                neg_tails = np.expand_dims(np.arange(sharding.n_entity), 0)
         elif query_mode == "rt":
             triples = np.concatenate([dummy_entities, queries], axis=-1)
             partition_mode = "t_shard"
@@ -395,7 +395,7 @@ class PartitionedTripleSet:
             if negative is not None:
                 neg_heads = negative.reshape(-1, negative.shape[-1])
             else:
-                neg_heads = np.arange(sharding.n_entity).squeeze(0)
+                neg_heads = np.expand_dims(np.arange(sharding.n_entity), 0)
             neg_tails = None
         else:
             raise ValueError(f"Query mode {query_mode} not supported")

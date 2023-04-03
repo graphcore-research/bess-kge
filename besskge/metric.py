@@ -26,6 +26,7 @@ class BaseMetric(ABC):
 class ReciprocalRank(BaseMetric):
     """
     Reciprocal rank (e.g. to compute MRR).
+
     Returns (reduced) reciprocal rank of ground truth among predictions.
     """
 
@@ -44,6 +45,7 @@ class ReciprocalRank(BaseMetric):
 class HitsAtK(BaseMetric):
     """
     Hits@K metric.
+
     Returns (reduced) count of triples where the ground truth
     is among the K most likely predicted entities.
     """
