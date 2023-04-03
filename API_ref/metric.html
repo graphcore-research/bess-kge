@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Metrics &mdash; BESS-KGE  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Embedding utilitis" href="embedding.html" />
+    <link rel="prev" title="Loss functions" href="loss.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BESS-KGE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Sharding utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_sampler.html">Batch samplers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="negative_sampler.html">Negative samplers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bess.html">BESS models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scoring.html">Scoring functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="loss.html">Loss functions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Metrics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.metric.BaseMetric"><code class="docutils literal notranslate"><span class="pre">BaseMetric</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.metric.BaseMetric.reduction"><code class="docutils literal notranslate"><span class="pre">BaseMetric.reduction</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.metric.Evaluation"><code class="docutils literal notranslate"><span class="pre">Evaluation</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.metric.Evaluation.metrics_from_indices"><code class="docutils literal notranslate"><span class="pre">Evaluation.metrics_from_indices()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.metric.Evaluation.metrics_from_scores"><code class="docutils literal notranslate"><span class="pre">Evaluation.metrics_from_scores()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.metric.HitsAtK"><code class="docutils literal notranslate"><span class="pre">HitsAtK</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.metric.HitsAtK.reduction"><code class="docutils literal notranslate"><span class="pre">HitsAtK.reduction</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.metric.ReciprocalRank"><code class="docutils literal notranslate"><span class="pre">ReciprocalRank</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.metric.ReciprocalRank.reduction"><code class="docutils literal notranslate"><span class="pre">ReciprocalRank.reduction</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="embedding.html">Embedding utilitis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">General-purpose utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BESS-KGE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Metrics</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/API_ref/metric.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-besskge.metric">
+<span id="metrics"></span><h1>Metrics<a class="headerlink" href="#module-besskge.metric" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="besskge.metric.BaseMetric">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.metric.</span></span><span class="sig-name descname"><span class="pre">BaseMetric</span></span><a class="reference internal" href="../_modules/besskge/metric.html#BaseMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.metric.BaseMetric" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.metric.BaseMetric.reduction">
+<span class="sig-name descname"><span class="pre">reduction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code><span class="pre">[[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code><span class="pre">],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code><span class="pre">]</span></em><a class="headerlink" href="#besskge.metric.BaseMetric.reduction" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="besskge.metric.Evaluation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.metric.</span></span><span class="sig-name descname"><span class="pre">Evaluation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">metric_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'average'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">worst_rank_infty</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'none'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/metric.html#Evaluation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.metric.Evaluation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A module for computing link prediction metrics.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.metric.Evaluation.metrics_from_indices">
+<span class="sig-name descname"><span class="pre">metrics_from_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ground_truth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neg_indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/metric.html#Evaluation.metrics_from_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.metric.Evaluation.metrics_from_indices" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the required metrics from the ground truth and
+ORDERED negative indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ground_truth</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+Indices of ground truth entities for each query.</p></li>
+<li><p><strong>neg_indices</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, n_negative)
+Indices of top n_negative predicted entities,
+ordered by decreasing likelihood. The indices
+on each row are assumed to be distinct.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The batch metrics.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.metric.Evaluation.metrics_from_scores">
+<span class="sig-name descname"><span class="pre">metrics_from_scores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pos_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neg_score</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/metric.html#Evaluation.metrics_from_scores"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.metric.Evaluation.metrics_from_scores" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the required metrics on a batch of scores.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pos_score</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+Scores of positive triples.</p></li>
+<li><p><strong>neg_score</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, n_negative)
+Scores of negative triples.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The batch metrics.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="besskge.metric.HitsAtK">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.metric.</span></span><span class="sig-name descname"><span class="pre">HitsAtK</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/metric.html#HitsAtK"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.metric.HitsAtK" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../besskge.html#besskge.metric.BaseMetric" title="besskge.metric.BaseMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMetric</span></code></a></p>
+<p>Hits&#64;K metric.
+Returns (reduced) count of triples where the ground truth
+is among the K most likely predicted entities.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.metric.HitsAtK.reduction">
+<span class="sig-name descname"><span class="pre">reduction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code><span class="pre">[[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code><span class="pre">],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code><span class="pre">]</span></em><a class="headerlink" href="#besskge.metric.HitsAtK.reduction" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="besskge.metric.ReciprocalRank">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.metric.</span></span><span class="sig-name descname"><span class="pre">ReciprocalRank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reduction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/metric.html#ReciprocalRank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.metric.ReciprocalRank" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../besskge.html#besskge.metric.BaseMetric" title="besskge.metric.BaseMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMetric</span></code></a></p>
+<p>Reciprocal rank (e.g. to compute MRR).
+Returns (reduced) reciprocal rank of ground truth among predictions.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.metric.ReciprocalRank.reduction">
+<span class="sig-name descname"><span class="pre">reduction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code><span class="pre">[[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code><span class="pre">],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code><span class="pre">]</span></em><a class="headerlink" href="#besskge.metric.ReciprocalRank.reduction" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="loss.html" class="btn btn-neutral float-left" title="Loss functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="embedding.html" class="btn btn-neutral float-right" title="Embedding utilitis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Graphcore Research.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

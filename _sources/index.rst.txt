@@ -3,14 +3,26 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to BESS-KGE's documentation!
+BESS-KGE documentation
 ====================================
+
+.. automodule:: besskge
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: API reference:
+   :name: API_ref
 
-   modules
+   API_ref/dataset
+   API_ref/sharding
+   API_ref/batch_sampler
+   API_ref/negative_sampler
+   API_ref/bess
+   API_ref/scoring
+   API_ref/loss
+   API_ref/metric
+   API_ref/embedding
+   API_ref/utils
 
 Indices and tables
 ==================

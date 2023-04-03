@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scoring functions &mdash; BESS-KGE  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Loss functions" href="loss.html" />
+    <link rel="prev" title="BESS models" href="bess.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BESS-KGE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sharding.html">Sharding utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batch_sampler.html">Batch samplers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="negative_sampler.html">Negative samplers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bess.html">BESS models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Scoring functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.scoring.BaseScoreFunction"><code class="docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.scoring.BaseScoreFunction.negative_sample_sharing"><code class="docutils literal notranslate"><span class="pre">BaseScoreFunction.negative_sample_sharing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.scoring.BaseScoreFunction.score_heads"><code class="docutils literal notranslate"><span class="pre">BaseScoreFunction.score_heads()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.scoring.BaseScoreFunction.score_tails"><code class="docutils literal notranslate"><span class="pre">BaseScoreFunction.score_tails()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.scoring.BaseScoreFunction.score_triple"><code class="docutils literal notranslate"><span class="pre">BaseScoreFunction.score_triple()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.scoring.DistanceBasedScoreFunction"><code class="docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.scoring.DistanceBasedScoreFunction.broadcasted_score"><code class="docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.broadcasted_score()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.scoring.DistanceBasedScoreFunction.distance_matrix"><code class="docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.distance_matrix()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.scoring.DistanceBasedScoreFunction.negative_sample_sharing"><code class="docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.negative_sample_sharing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.scoring.DistanceBasedScoreFunction.reduce_norm"><code class="docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.reduce_norm()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.scoring.TransE"><code class="docutils literal notranslate"><span class="pre">TransE</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.scoring.TransE.negative_sample_sharing"><code class="docutils literal notranslate"><span class="pre">TransE.negative_sample_sharing</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.scoring.TransE.score_heads"><code class="docutils literal notranslate"><span class="pre">TransE.score_heads()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.scoring.TransE.score_tails"><code class="docutils literal notranslate"><span class="pre">TransE.score_tails()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.scoring.TransE.score_triple"><code class="docutils literal notranslate"><span class="pre">TransE.score_triple()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="loss.html">Loss functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="metric.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="embedding.html">Embedding utilitis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">General-purpose utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BESS-KGE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Scoring functions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/API_ref/scoring.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="scoring-functions">
+<h1>Scoring functions<a class="headerlink" href="#scoring-functions" title="Permalink to this heading"></a></h1>
+<span class="target" id="module-besskge.scoring"></span><dl class="py class">
+<dt class="sig sig-object py" id="besskge.scoring.BaseScoreFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">BaseScoreFunction</span></span><a class="reference internal" href="../_modules/besskge/scoring.html#BaseScoreFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.BaseScoreFunction" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for scoring functions.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.scoring.BaseScoreFunction.negative_sample_sharing">
+<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.scoring.BaseScoreFunction.negative_sample_sharing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.BaseScoreFunction.score_heads">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score_heads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#BaseScoreFunction.score_heads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.BaseScoreFunction.score_heads" title="Permalink to this definition"></a></dt>
+<dd><p>Score sets of head entities against fixed (r,t) queries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
+Embeddings of head entities.</p></li>
+<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embeddings of relation types in batch.</p></li>
+<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embedding of tail entities in batch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>shape: (batch_size, B * n_heads) if</dt><dd><p><a class="reference internal" href="../besskge.html#besskge.scoring.BaseScoreFunction.negative_sample_sharing" title="besskge.scoring.BaseScoreFunction.negative_sample_sharing"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaseScoreFunction.negative_sample_sharing</span></code></a>
+else (batch_size, n_heads)</p>
+</dd>
+</dl>
+<p>Scores of broadcasted triples.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.BaseScoreFunction.score_tails">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score_tails</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#BaseScoreFunction.score_tails"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.BaseScoreFunction.score_tails" title="Permalink to this definition"></a></dt>
+<dd><p>Score sets of tail entities against fixed (h,r) queries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embeddings of head entities in batch.</p></li>
+<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embeddings of relation types in batch.</p></li>
+<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
+Embedding of tail entities.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>shape: (batch_size, B * n_tails) if</dt><dd><p><a class="reference internal" href="../besskge.html#besskge.scoring.BaseScoreFunction.negative_sample_sharing" title="besskge.scoring.BaseScoreFunction.negative_sample_sharing"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaseScoreFunction.negative_sample_sharing</span></code></a>
+else (batch_size, n_tails)</p>
+</dd>
+</dl>
+<p>Scores of broadcasted triples.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.BaseScoreFunction.score_triple">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score_triple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#BaseScoreFunction.score_triple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.BaseScoreFunction.score_triple" title="Permalink to this definition"></a></dt>
+<dd><p>Score (h,r,t) triples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embeddings of head entities in batch.</p></li>
+<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embeddings of relation types in batch.</p></li>
+<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embedding of tail entities in batch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>shape (batch_size,)
+Scores of batch triples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="besskge.scoring.DistanceBasedScoreFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">DistanceBasedScoreFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">negative_sample_sharing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring_norm</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#DistanceBasedScoreFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.DistanceBasedScoreFunction" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../besskge.html#besskge.scoring.BaseScoreFunction" title="besskge.scoring.BaseScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for distance-based scoring functions.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.DistanceBasedScoreFunction.broadcasted_score">
+<span class="sig-name descname"><span class="pre">broadcasted_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#DistanceBasedScoreFunction.broadcasted_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.DistanceBasedScoreFunction.broadcasted_score" title="Permalink to this definition"></a></dt>
+<dd><p>Broadcasted scores of queries against sets of negative entities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Batch queries.</p></li>
+<li><p><strong>v2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_neg, embedding_size) with B = 1, batch_size
+Negative embeddings to score against queries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>shape: (batch_size, B * n_neg) if
+<a class="reference internal" href="../besskge.html#besskge.scoring.BaseScoreFunction.negative_sample_sharing" title="besskge.scoring.BaseScoreFunction.negative_sample_sharing"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaseScoreFunction.negative_sample_sharing</span></code></a>
+else (batch_size, n_neg)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.DistanceBasedScoreFunction.distance_matrix">
+<span class="sig-name descname"><span class="pre">distance_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#DistanceBasedScoreFunction.distance_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.DistanceBasedScoreFunction.distance_matrix" title="Permalink to this definition"></a></dt>
+<dd><p>Broadcasted pairwise distance between two collections of vectors.
+Computes p-norm reduction along trailing dimension of
+<cite>tensor1[:, None, :] - tensor2[None, :, :]</cite> without materializing the
+intermediate broadcasted difference, for memory optimization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (outer1, K)
+First collection.</p></li>
+<li><p><strong>v2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (outer2, K)
+Second collection.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>shape: (outer1, outer2)
+Broadcasted pairwise p-distance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.scoring.DistanceBasedScoreFunction.negative_sample_sharing">
+<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.scoring.DistanceBasedScoreFunction.negative_sample_sharing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.DistanceBasedScoreFunction.reduce_norm">
+<span class="sig-name descname"><span class="pre">reduce_norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#DistanceBasedScoreFunction.reduce_norm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.DistanceBasedScoreFunction.reduce_norm" title="Permalink to this definition"></a></dt>
+<dd><p>p-norm reduction along embedding dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (<a href="#id1"><span class="problematic" id="id2">*</span></a>, embedding_size)
+The tensor to reduce.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>shape: (<a href="#id3"><span class="problematic" id="id4">*</span></a>,)
+p-norm reduction.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="besskge.scoring.TransE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">TransE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">negative_sample_sharing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring_norm</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#TransE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.TransE" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../besskge.html#besskge.scoring.DistanceBasedScoreFunction" title="besskge.scoring.DistanceBasedScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction</span></code></a></p>
+<p>TransE scoring function (see […]).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.scoring.TransE.negative_sample_sharing">
+<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.scoring.TransE.negative_sample_sharing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.TransE.score_heads">
+<span class="sig-name descname"><span class="pre">score_heads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#TransE.score_heads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.TransE.score_heads" title="Permalink to this definition"></a></dt>
+<dd><p>Score sets of head entities against fixed (r,t) queries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
+Embeddings of head entities.</p></li>
+<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embeddings of relation types in batch.</p></li>
+<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embedding of tail entities in batch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>shape: (batch_size, B * n_heads) if</dt><dd><p><a class="reference internal" href="../besskge.html#besskge.scoring.BaseScoreFunction.negative_sample_sharing" title="besskge.scoring.BaseScoreFunction.negative_sample_sharing"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaseScoreFunction.negative_sample_sharing</span></code></a>
+else (batch_size, n_heads)</p>
+</dd>
+</dl>
+<p>Scores of broadcasted triples.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.TransE.score_tails">
+<span class="sig-name descname"><span class="pre">score_tails</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#TransE.score_tails"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.TransE.score_tails" title="Permalink to this definition"></a></dt>
+<dd><p>Score sets of tail entities against fixed (h,r) queries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embeddings of head entities in batch.</p></li>
+<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embeddings of relation types in batch.</p></li>
+<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
+Embedding of tail entities.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>shape: (batch_size, B * n_tails) if</dt><dd><p><a class="reference internal" href="../besskge.html#besskge.scoring.BaseScoreFunction.negative_sample_sharing" title="besskge.scoring.BaseScoreFunction.negative_sample_sharing"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaseScoreFunction.negative_sample_sharing</span></code></a>
+else (batch_size, n_tails)</p>
+</dd>
+</dl>
+<p>Scores of broadcasted triples.</p>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.TransE.score_triple">
+<span class="sig-name descname"><span class="pre">score_triple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#TransE.score_triple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.TransE.score_triple" title="Permalink to this definition"></a></dt>
+<dd><p>Score (h,r,t) triples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embeddings of head entities in batch.</p></li>
+<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embeddings of relation types in batch.</p></li>
+<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+Embedding of tail entities in batch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>shape (batch_size,)
+Scores of batch triples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="bess.html" class="btn btn-neutral float-left" title="BESS models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="loss.html" class="btn btn-neutral float-right" title="Loss functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Graphcore Research.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

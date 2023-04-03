@@ -7,6 +7,7 @@
   <title>besskge package &mdash; BESS-KGE  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="_static/js/html5shiv.min.js"></script>
   <![endif]-->
@@ -16,8 +17,7 @@
         <script src="_static/sphinx_highlight.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="besskge" href="modules.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -39,75 +39,18 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">besskge</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">besskge package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-besskge.batch_sampler">besskge.batch_sampler</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.batch_sampler.RandomShardedBatchSampler"><code class="docutils literal notranslate"><span class="pre">RandomShardedBatchSampler</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.batch_sampler.RigidShardedBatchSampler"><code class="docutils literal notranslate"><span class="pre">RigidShardedBatchSampler</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.batch_sampler.ShardedBatchSampler"><code class="docutils literal notranslate"><span class="pre">ShardedBatchSampler</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-besskge.bess">besskge.bess</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.bess.BessKGE"><code class="docutils literal notranslate"><span class="pre">BessKGE</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.bess.EmbeddingMovingBessKGE"><code class="docutils literal notranslate"><span class="pre">EmbeddingMovingBessKGE</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.bess.ScoreMovingBessKGE"><code class="docutils literal notranslate"><span class="pre">ScoreMovingBessKGE</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-besskge.dataset">besskge.dataset</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.dataset.KGDataset"><code class="docutils literal notranslate"><span class="pre">KGDataset</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-besskge.embedding">besskge.embedding</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.embedding.EmbeddingInitializer"><code class="docutils literal notranslate"><span class="pre">EmbeddingInitializer</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.embedding.MarginBasedInitializer"><code class="docutils literal notranslate"><span class="pre">MarginBasedInitializer</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.embedding.initialize_entity_embedding"><code class="docutils literal notranslate"><span class="pre">initialize_entity_embedding()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.embedding.initialize_relation_embedding"><code class="docutils literal notranslate"><span class="pre">initialize_relation_embedding()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-besskge.loss">besskge.loss</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.loss.BaseLossFunction"><code class="docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.loss.LogSigmoidLoss"><code class="docutils literal notranslate"><span class="pre">LogSigmoidLoss</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.loss.MarginBasedLossFunction"><code class="docutils literal notranslate"><span class="pre">MarginBasedLossFunction</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.loss.MarginRankingLoss"><code class="docutils literal notranslate"><span class="pre">MarginRankingLoss</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-besskge.metric">besskge.metric</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.metric.BaseMetric"><code class="docutils literal notranslate"><span class="pre">BaseMetric</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.metric.Evaluation"><code class="docutils literal notranslate"><span class="pre">Evaluation</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.metric.HitsAtK"><code class="docutils literal notranslate"><span class="pre">HitsAtK</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.metric.ReciprocalRank"><code class="docutils literal notranslate"><span class="pre">ReciprocalRank</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-besskge.negative_sampler">besskge.negative_sampler</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.negative_sampler.RandomShardedNegativeSampler"><code class="docutils literal notranslate"><span class="pre">RandomShardedNegativeSampler</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.negative_sampler.ShardedNegativeSampler"><code class="docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.negative_sampler.TripleBasedShardedNegativeSampler"><code class="docutils literal notranslate"><span class="pre">TripleBasedShardedNegativeSampler</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.negative_sampler.TypeBasedShardedNegativeSampler"><code class="docutils literal notranslate"><span class="pre">TypeBasedShardedNegativeSampler</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-besskge.scoring">besskge.scoring</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.scoring.BaseScoreFunction"><code class="docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.scoring.DistanceBasedScoreFunction"><code class="docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.scoring.TransE"><code class="docutils literal notranslate"><span class="pre">TransE</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-besskge.sharding">besskge.sharding</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.sharding.PartitionedTripleSet"><code class="docutils literal notranslate"><span class="pre">PartitionedTripleSet</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.sharding.Sharding"><code class="docutils literal notranslate"><span class="pre">Sharding</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-besskge.utils">besskge.utils</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.utils.gather_indices"><code class="docutils literal notranslate"><span class="pre">gather_indices()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#module-besskge">Module contents</a></li>
-</ul>
-</li>
-</ul>
-</li>
+              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="API_ref/dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_ref/sharding.html">Sharding utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_ref/batch_sampler.html">Batch samplers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_ref/negative_sampler.html">Negative samplers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_ref/bess.html">BESS models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_ref/scoring.html">Scoring functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_ref/loss.html">Loss functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_ref/metric.html">Metrics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_ref/embedding.html">Embedding utilitis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_ref/utils.html">General-purpose utility functions</a></li>
 </ul>
 
         </div>
@@ -124,7 +67,6 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="modules.html">besskge</a></li>
       <li class="breadcrumb-item active">besskge package</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/besskge.rst.txt" rel="nofollow"> View page source</a>
@@ -139,162 +81,34 @@
 <h1>besskge package<a class="headerlink" href="#besskge-package" title="Permalink to this heading"></a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
-</section>
-<section id="module-besskge.batch_sampler">
-<span id="besskge-batch-sampler"></span><h2>besskge.batch_sampler<a class="headerlink" href="#module-besskge.batch_sampler" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="besskge.batch_sampler.RandomShardedBatchSampler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.batch_sampler.</span></span><span class="sig-name descname"><span class="pre">RandomShardedBatchSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partitioned_triple_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shard_bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batches_per_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hrt_freq_weighting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplicate_batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_triple_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/batch_sampler.html#RandomShardedBatchSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.RandomShardedBatchSampler" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#besskge.batch_sampler.ShardedBatchSampler" title="besskge.batch_sampler.ShardedBatchSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardedBatchSampler</span></code></a></p>
-<p>Sample random indices (with replacement) from all triple partitions.
-No padding of triple partitions applied.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="besskge.batch_sampler.RandomShardedBatchSampler.get_dataloader_sampler">
-<span class="sig-name descname"><span class="pre">get_dataloader_sampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/batch_sampler.html#RandomShardedBatchSampler.get_dataloader_sampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.RandomShardedBatchSampler.get_dataloader_sampler" title="Permalink to this definition"></a></dt>
-<dd><p>Instantiate appropriate <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.data.Sampler</span></code> for the
-<code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code> to be used with the
-sharded batch sampler.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>shuffle</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Shuffle triples at each new epoch.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The dataloader sampler.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="besskge.batch_sampler.RandomShardedBatchSampler.sample_triples">
-<span class="sig-name descname"><span class="pre">sample_triples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/batch_sampler.html#RandomShardedBatchSampler.sample_triples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.RandomShardedBatchSampler.sample_triples" title="Permalink to this definition"></a></dt>
-<dd><p>Sample positive triples in the batch.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>idx</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The batch index.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool_</span></code>]]]]</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Per-partition indices of positive triples, and other relevant data.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="besskge.batch_sampler.RigidShardedBatchSampler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.batch_sampler.</span></span><span class="sig-name descname"><span class="pre">RigidShardedBatchSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partitioned_triple_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shard_bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batches_per_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hrt_freq_weighting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplicate_batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_triple_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/batch_sampler.html#RigidShardedBatchSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.RigidShardedBatchSampler" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#besskge.batch_sampler.ShardedBatchSampler" title="besskge.batch_sampler.ShardedBatchSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardedBatchSampler</span></code></a></p>
-<p>At each call, sample triples with same specified indices from all triple partitions,
-repeating triples in shorter ones to pad to same length.
-Returns mask to identify padding triples.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="besskge.batch_sampler.RigidShardedBatchSampler.sample_triples">
-<span class="sig-name descname"><span class="pre">sample_triples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/batch_sampler.html#RigidShardedBatchSampler.sample_triples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.RigidShardedBatchSampler.sample_triples" title="Permalink to this definition"></a></dt>
-<dd><p>Sample positive triples in the batch.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>idx</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The batch index.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool_</span></code>]]]]</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Per-partition indices of positive triples, and other relevant data.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="besskge.batch_sampler.ShardedBatchSampler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.batch_sampler.</span></span><span class="sig-name descname"><span class="pre">ShardedBatchSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partitioned_triple_set</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shard_bs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batches_per_step</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hrt_freq_weighting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight_smoothing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">duplicate_batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_triple_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/batch_sampler.html#ShardedBatchSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.ShardedBatchSampler" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>Base class for sharded batch sampler.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="besskge.batch_sampler.ShardedBatchSampler.get_dataloader">
-<span class="sig-name descname"><span class="pre">get_dataloader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persistent_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/batch_sampler.html#ShardedBatchSampler.get_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.ShardedBatchSampler.get_dataloader" title="Permalink to this definition"></a></dt>
-<dd><p>Instantiate appropriate <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code>
-to iterate over the batch sampler.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>shuffle</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Shuffle triples at each new epoch, defaults to True.</p></li>
-<li><p><strong>num_workers</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader.__init__()</span></code>, defaults to 0.</p></li>
-<li><p><strong>persistent_workers</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader.__init__()</span></code>, defaults to False.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]]</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The dataloader.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="besskge.batch_sampler.ShardedBatchSampler.get_dataloader_sampler">
-<span class="sig-name descname"><span class="pre">get_dataloader_sampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shuffle</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/batch_sampler.html#ShardedBatchSampler.get_dataloader_sampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.ShardedBatchSampler.get_dataloader_sampler" title="Permalink to this definition"></a></dt>
-<dd><p>Instantiate appropriate <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.data.Sampler</span></code> for the
-<code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code> to be used with the
-sharded batch sampler.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>shuffle</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Shuffle triples at each new epoch.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Sampler</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]]</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The dataloader sampler.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="besskge.batch_sampler.ShardedBatchSampler.sample_triples">
-<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sample_triples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/batch_sampler.html#ShardedBatchSampler.sample_triples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.ShardedBatchSampler.sample_triples" title="Permalink to this definition"></a></dt>
-<dd><p>Sample positive triples in the batch.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>idx</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – The batch index.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool_</span></code>]]]]</p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Per-partition indices of positive triples, and other relevant data.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="besskge.batch_sampler.ShardedBatchSampler.worker_init_fn">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">worker_init_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">worker_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/batch_sampler.html#ShardedBatchSampler.worker_init_fn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.ShardedBatchSampler.worker_init_fn" title="Permalink to this definition"></a></dt>
-<dd><p>Worker intialization function to be passed to
-<code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>worker_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Worker ID.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<span class="target" id="module-besskge.batch_sampler"></span></section>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ABC</span></code>()</p></td>
+<td><p>Helper class that provides a standard way to create an ABC using inheritance.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">PartitionedTripleSet</span></code>(sharding, ...)</p></td>
+<td><p>A partitioned collection of triples.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/besskge.batch_sampler.RandomShardedBatchSampler.html#besskge.batch_sampler.RandomShardedBatchSampler" title="besskge.batch_sampler.RandomShardedBatchSampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RandomShardedBatchSampler</span></code></a>(...[, ...])</p></td>
+<td><p>Sample random indices (with replacement) from all triple partitions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/besskge.batch_sampler.RigidShardedBatchSampler.html#besskge.batch_sampler.RigidShardedBatchSampler" title="besskge.batch_sampler.RigidShardedBatchSampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RigidShardedBatchSampler</span></code></a>(...[, ...])</p></td>
+<td><p>At each call, sample triples with same specified indices from all triple partitions, repeating triples in shorter ones to pad to same length.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/besskge.batch_sampler.ShardedBatchSampler.html#besskge.batch_sampler.ShardedBatchSampler" title="besskge.batch_sampler.ShardedBatchSampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShardedBatchSampler</span></code></a>(partitioned_triple_set, ...)</p></td>
+<td><p>Base class for sharded batch sampler.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code>()</p></td>
+<td><p>Base class for sharded negative sampler.</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="module-besskge.bess">
-<span id="besskge-bess"></span><h2>besskge.bess<a class="headerlink" href="#module-besskge.bess" title="Permalink to this heading"></a></h2>
+<span id="besskge-bess-module"></span><h2>besskge.bess module<a class="headerlink" href="#module-besskge.bess" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.bess.BessKGE">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.bess.</span></span><span class="sig-name descname"><span class="pre">BessKGE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_relation_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_intializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_intializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_scores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/bess.html#BessKGE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.BessKGE" title="Permalink to this definition"></a></dt>
@@ -303,6 +117,11 @@ sharded batch sampler.</p>
 the distribution framework BESS […].
 To be used in combination with a batch sampler based on a
 “ht_shardpair”-partitioned triple set.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.bess.BessKGE.embedding_size">
+<span class="sig-name descname"><span class="pre">embedding_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#besskge.bess.BessKGE.embedding_size" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.bess.BessKGE.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/bess.html#BessKGE.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.BessKGE.forward" title="Permalink to this definition"></a></dt>
@@ -469,7 +288,7 @@ scores of the microbatch.</p>
 
 </section>
 <section id="module-besskge.dataset">
-<span id="besskge-dataset"></span><h2>besskge.dataset<a class="headerlink" href="#module-besskge.dataset" title="Permalink to this heading"></a></h2>
+<span id="besskge-dataset-module"></span><h2>besskge.dataset module<a class="headerlink" href="#module-besskge.dataset" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.dataset.KGDataset">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.dataset.</span></span><span class="sig-name descname"><span class="pre">KGDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_entity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_relation_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_offsets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neg_heads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neg_tails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/dataset.html#KGDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.dataset.KGDataset" title="Permalink to this definition"></a></dt>
@@ -576,7 +395,7 @@ scores of the microbatch.</p>
 
 </section>
 <section id="module-besskge.embedding">
-<span id="besskge-embedding"></span><h2>besskge.embedding<a class="headerlink" href="#module-besskge.embedding" title="Permalink to this heading"></a></h2>
+<span id="besskge-embedding-module"></span><h2>besskge.embedding module<a class="headerlink" href="#module-besskge.embedding" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.embedding.EmbeddingInitializer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.embedding.</span></span><span class="sig-name descname"><span class="pre">EmbeddingInitializer</span></span><a class="reference internal" href="_modules/besskge/embedding.html#EmbeddingInitializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.embedding.EmbeddingInitializer" title="Permalink to this definition"></a></dt>
@@ -667,7 +486,7 @@ embedding table.</p></li>
 
 </section>
 <section id="module-besskge.loss">
-<span id="besskge-loss"></span><h2>besskge.loss<a class="headerlink" href="#module-besskge.loss" title="Permalink to this heading"></a></h2>
+<span id="besskge-loss-module"></span><h2>besskge.loss module<a class="headerlink" href="#module-besskge.loss" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.loss.BaseLossFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.loss.</span></span><span class="sig-name descname"><span class="pre">BaseLossFunction</span></span><a class="reference internal" href="_modules/besskge/loss.html#BaseLossFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.loss.BaseLossFunction" title="Permalink to this definition"></a></dt>
@@ -761,7 +580,7 @@ Scores of negative samples.</p>
 
 </section>
 <section id="module-besskge.metric">
-<span id="besskge-metric"></span><h2>besskge.metric<a class="headerlink" href="#module-besskge.metric" title="Permalink to this heading"></a></h2>
+<span id="besskge-metric-module"></span><h2>besskge.metric module<a class="headerlink" href="#module-besskge.metric" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.metric.BaseMetric">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.metric.</span></span><span class="sig-name descname"><span class="pre">BaseMetric</span></span><a class="reference internal" href="_modules/besskge/metric.html#BaseMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.metric.BaseMetric" title="Permalink to this definition"></a></dt>
@@ -856,7 +675,7 @@ Returns (reduced) reciprocal rank of ground truth among predictions.</p>
 
 </section>
 <section id="module-besskge.negative_sampler">
-<span id="besskge-negative-sampler"></span><h2>besskge.negative_sampler<a class="headerlink" href="#module-besskge.negative_sampler" title="Permalink to this heading"></a></h2>
+<span id="besskge-negative-sampler-module"></span><h2>besskge.negative_sampler module<a class="headerlink" href="#module-besskge.negative_sampler" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.negative_sampler.RandomShardedNegativeSampler">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.negative_sampler.</span></span><span class="sig-name descname"><span class="pre">RandomShardedNegativeSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_negative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corruption_scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_sampling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flat_negative_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/negative_sampler.html#RandomShardedNegativeSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.negative_sampler.RandomShardedNegativeSampler" title="Permalink to this definition"></a></dt>
@@ -907,6 +726,11 @@ Returns (reduced) reciprocal rank of ground truth among predictions.</p>
 <dd><p>Bases: <a class="reference internal" href="#besskge.negative_sampler.ShardedNegativeSampler" title="besskge.negative_sampler.ShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code></a></p>
 <p>Return (possibly triple-specific) predetermined negative entities.</p>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.negative_sampler.TripleBasedShardedNegativeSampler.N">
+<span class="sig-name descname"><span class="pre">N</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#besskge.negative_sampler.TripleBasedShardedNegativeSampler.N" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.negative_sampler.TripleBasedShardedNegativeSampler.corruption_scheme">
 <span class="sig-name descname"><span class="pre">corruption_scheme</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#besskge.negative_sampler.TripleBasedShardedNegativeSampler.corruption_scheme" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -919,6 +743,11 @@ Returns (reduced) reciprocal rank of ground truth among predictions.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.negative_sampler.TripleBasedShardedNegativeSampler.local_sampling">
 <span class="sig-name descname"><span class="pre">local_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.negative_sampler.TripleBasedShardedNegativeSampler.local_sampling" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.negative_sampler.TripleBasedShardedNegativeSampler.n_negative">
+<span class="sig-name descname"><span class="pre">n_negative</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></em><a class="headerlink" href="#besskge.negative_sampler.TripleBasedShardedNegativeSampler.n_negative" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -999,7 +828,7 @@ Sorting index to cluster negatives in shard order.</p>
 
 </section>
 <section id="module-besskge.scoring">
-<span id="besskge-scoring"></span><h2>besskge.scoring<a class="headerlink" href="#module-besskge.scoring" title="Permalink to this heading"></a></h2>
+<span id="besskge-scoring-module"></span><h2>besskge.scoring module<a class="headerlink" href="#module-besskge.scoring" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.scoring.BaseScoreFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">BaseScoreFunction</span></span><a class="reference internal" href="_modules/besskge/scoring.html#BaseScoreFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.BaseScoreFunction" title="Permalink to this definition"></a></dt>
@@ -1277,7 +1106,7 @@ Scores of batch triples.</p>
 
 </section>
 <section id="module-besskge.sharding">
-<span id="besskge-sharding"></span><h2>besskge.sharding<a class="headerlink" href="#module-besskge.sharding" title="Permalink to this heading"></a></h2>
+<span id="besskge-sharding-module"></span><h2>besskge.sharding module<a class="headerlink" href="#module-besskge.sharding" title="Permalink to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.sharding.</span></span><span class="sig-name descname"><span class="pre">PartitionedTripleSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dummy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_offsets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_sort_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neg_heads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neg_tails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/sharding.html#PartitionedTripleSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.sharding.PartitionedTripleSet" title="Permalink to this definition"></a></dt>
@@ -1516,7 +1345,7 @@ Global offsets of entity types, defaults to None.</p></li>
 
 </section>
 <section id="module-besskge.utils">
-<span id="besskge-utils"></span><h2>besskge.utils<a class="headerlink" href="#module-besskge.utils" title="Permalink to this heading"></a></h2>
+<span id="besskge-utils-module"></span><h2>besskge.utils module<a class="headerlink" href="#module-besskge.utils" title="Permalink to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="besskge.utils.gather_indices">
 <span class="sig-prename descclassname"><span class="pre">besskge.utils.</span></span><span class="sig-name descname"><span class="pre">gather_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/besskge/utils.html#gather_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.utils.gather_indices" title="Permalink to this definition"></a></dt>
@@ -1545,15 +1374,16 @@ If <cite>index.shape == 1</cite>, the same mask is applied to all rows.</p>
 </section>
 <section id="module-besskge">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-besskge" title="Permalink to this heading"></a></h2>
+<p>BESS-KGE is a Python package for Knowledge Graph Embedding on IPUs using
+<a class="reference external" href="https://github.com/graphcore/poptorch">PopTorch</a> and the distribution framework
+<a class="reference external" href="https://arxiv.org/abs/2211.12281">BESS</a>.</p>
 </section>
 </section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="modules.html" class="btn btn-neutral float-left" title="besskge" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-    </div>
+          <footer>
 
   <hr/>
 

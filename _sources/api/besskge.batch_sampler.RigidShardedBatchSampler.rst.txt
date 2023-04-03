@@ -1,0 +1,17 @@
+RigidShardedBatchSampler
+========================
+
+.. currentmodule:: besskge.batch_sampler
+
+.. autoclass:: RigidShardedBatchSampler
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~RigidShardedBatchSampler.sample_triples
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: sample_triples
