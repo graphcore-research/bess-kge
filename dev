@@ -137,8 +137,10 @@ def copyright() -> None:
 
 @cli()
 def doc() -> None:
-    """generate API documentation"""
+    """generate Sphinx documentation"""
     subprocess.call(["rm", "-r", "docs/build"])
+    subprocess.call(["rm", "-r", "docs/source/api"])
+    # subprocess.call(["rm", "docs/source/besskge.rst"])
     # run(["sphinx-apidoc", "-o", "docs/source", "besskge/"])
     run(["make", "clean", "-C", "docs/"])
     run(["make", "html", "-C", "docs/"])
@@ -146,7 +148,7 @@ def doc() -> None:
 
 @cli("--skip", nargs="*", default=[], help="commands to skip")
 def ci(skip: List[str] = []) -> None:
-    """run all continuous integration tests & checks"""
+    """run continuous integration tests & checks + doc build"""
     build()
     if "lint" not in skip:
         lint()

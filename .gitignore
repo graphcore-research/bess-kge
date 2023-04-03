@@ -7,6 +7,7 @@ __pycache__/
 third_party/
 .coverage
 docs/build/
+docs/source/api
 
 *.ipynb
 *.so

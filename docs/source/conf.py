@@ -23,12 +23,18 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
-    # "sphinx.ext.autosummary",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.autosummary",
     "sphinx_autodoc_typehints",
+    "sphinx_automodapi.automodapi",
+    "sphinx_automodapi.smart_resolver",
 ]
-
+numpydoc_show_class_members = False
 todo_include_todos = True
-# autosummary_generate = True
+autosummary_generate = True
+# autoclass_content = "both"
+# autodoc_typehints = "both"
 
 templates_path = ["_templates"]
 exclude_patterns = []

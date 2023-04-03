@@ -4,80 +4,80 @@ besskge package
 Submodules
 ----------
 
-besskge.batch\_sampler
-----------------------
+.. besskge.batch\_sampler module
+.. -----------------------------
 
-.. automodule:: besskge.batch_sampler
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. automodapi:: besskge.batch_sampler
+   :no-heading:
+   :headings: --
+   :no-inheritance-diagram:
 
-besskge.bess
-------------
+besskge.bess module
+-------------------
 
 .. automodule:: besskge.bess
    :members:
    :undoc-members:
    :show-inheritance:
 
-besskge.dataset
----------------
+besskge.dataset module
+----------------------
 
 .. automodule:: besskge.dataset
    :members:
    :undoc-members:
    :show-inheritance:
 
-besskge.embedding
------------------
+besskge.embedding module
+------------------------
 
 .. automodule:: besskge.embedding
    :members:
    :undoc-members:
    :show-inheritance:
 
-besskge.loss
-------------
+besskge.loss module
+-------------------
 
 .. automodule:: besskge.loss
    :members:
    :undoc-members:
    :show-inheritance:
 
-besskge.metric
---------------
+besskge.metric module
+---------------------
 
 .. automodule:: besskge.metric
    :members:
    :undoc-members:
    :show-inheritance:
 
-besskge.negative\_sampler
--------------------------
+besskge.negative\_sampler module
+--------------------------------
 
 .. automodule:: besskge.negative_sampler
    :members:
    :undoc-members:
    :show-inheritance:
 
-besskge.scoring
----------------
+besskge.scoring module
+----------------------
 
 .. automodule:: besskge.scoring
    :members:
    :undoc-members:
    :show-inheritance:
 
-besskge.sharding
-----------------
+besskge.sharding module
+-----------------------
 
 .. automodule:: besskge.sharding
    :members:
    :undoc-members:
    :show-inheritance:
 
-besskge.utils
--------------
+besskge.utils module
+--------------------
 
 .. automodule:: besskge.utils
    :members:
