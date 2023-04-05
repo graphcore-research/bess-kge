@@ -1,7 +1,7 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
 from abc import ABC, abstractmethod
-from typing import Dict, Optional, Tuple, cast
+from typing import Dict, Optional, Tuple, Union, cast
 
 import einops
 import numpy as np
@@ -26,7 +26,7 @@ class ShardedNegativeSampler(ABC):
     def __call__(
         self,
         sample_idx: NDArray[np.int64],
-    ) -> Dict[str, NDArray[np.int32]]:
+    ) -> Dict[str, Union[NDArray[np.int32], NDArray[np.bool_]]]:
         """
         Sample negatives for batch.
 
@@ -96,7 +96,7 @@ class RandomShardedNegativeSampler(ShardedNegativeSampler):
     def __call__(
         self,
         sample_idx: NDArray[np.int64],
-    ) -> Dict[str, NDArray[np.int32]]:
+    ) -> Dict[str, Union[NDArray[np.int32], NDArray[np.bool_]]]:
         batches_per_step, n_shard = sample_idx.shape[:2]
         positive_per_partition = sample_idx.shape[-1]
         shard_bs = (
@@ -110,7 +110,7 @@ class RandomShardedNegativeSampler(ShardedNegativeSampler):
             B = shard_bs
         negative_entities = (
             self.rng.randint(
-                1 << 63,
+                1 << 31,
                 size=(
                     batches_per_step,
                     n_shard,
@@ -118,7 +118,7 @@ class RandomShardedNegativeSampler(ShardedNegativeSampler):
                     B,
                     self.n_negative,
                 ),
-            )
+            ).astype(np.int32)
             % self.shard_counts[None, :, None, None, None]
         )
         return dict(negative_entities=negative_entities)
@@ -172,7 +172,7 @@ class TypeBasedShardedNegativeSampler(RandomShardedNegativeSampler):
     def __call__(
         self,
         sample_idx: NDArray[np.int64],
-    ) -> Dict[str, NDArray[np.int32]]:
+    ) -> Dict[str, Union[NDArray[np.int32], NDArray[np.bool_]]]:
         n_shard = sample_idx.shape[1]
         positive_per_partition = sample_idx.shape[-1]
         head_type, tail_type = einops.rearrange(
@@ -234,6 +234,7 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
         sharding: Sharding,
         corruption_scheme: str,
         seed: int,
+        mask_on_gather: bool = False,
         return_sort_idx: bool = False,
     ):
         """
@@ -251,6 +252,11 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
             see :meth:`RandomShardedNegativeSampler.__init__`
         :param seed:
             see :meth:`RandomShardedNegativeSampler.__init__`
+        :param mask_on_gather:
+            Shape the negative mask to be applied on the device where
+            negative entities are gathered, instead of the one where they
+            are scored. Set to `True` only when using
+            :class:`besskge.bess.TopKQueryBessKGE`. Defaults to False.
         :param return_sort_idx:
             Return for each triple in batch the sorting indices
             to recover same ordering of negatives as in :attr:`negative_heads`,
@@ -266,17 +272,17 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
             negative_tails = negative_tails.reshape(-1, negative_tails.shape[-1])
             self.N, self.n_negative = negative_heads.shape
         elif negative_tails is not None:
-            assert (
-                corruption_scheme == "t"
-            ), f"Corruption scheme '{corruption_scheme}' requires"
-            " providing negative_heads"
+            assert corruption_scheme == "t", (
+                f"Corruption scheme '{corruption_scheme}' requires"
+                " providing negative_heads"
+            )
             negative_tails = negative_tails.reshape(-1, negative_tails.shape[-1])
             self.N, self.n_negative = negative_tails.shape
         elif negative_heads is not None:
-            assert (
-                corruption_scheme == "h"
-            ), f"Corruption scheme '{corruption_scheme}' requires"
-            " providing negative_tails"
+            assert corruption_scheme == "h", (
+                f"Corruption scheme '{corruption_scheme}' requires"
+                " providing negative_tails"
+            )
             negative_heads = negative_heads.reshape(-1, negative_heads.shape[-1])
             self.N, self.n_negative = negative_heads.shape
         else:
@@ -344,25 +350,47 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
                 " not supported by {self.__class__}"
             )
 
+        # Negative entities are consumed on gathering device (shard_neg)
+        self.ent_rearrange_pattern = (
+            "step shard ... triple shard_neg idx_neg ->"
+            "step shard_neg shard (... triple) idx_neg"
+        )
+        self.ent_repeat_pattern = (
+            "pad shard_neg idx_neg -> step shard_neg shard pad idx_neg"
+        )
+        self.mask_on_gather = mask_on_gather
+        if self.mask_on_gather:
+            # Negative masks are consumed on gathering device (shard_neg)
+            self.mask_rearrange_pattern = self.ent_rearrange_pattern
+            self.mask_repeat_pattern = self.ent_repeat_pattern
+        else:
+            # Negative masks are consumed on processing device (shard)
+            self.mask_rearrange_pattern = (
+                "step shard ... triple shard_neg idx_neg ->"
+                "step shard (... triple) shard_neg idx_neg"
+            )
+            self.mask_repeat_pattern = (
+                "pad shard_neg idx_neg -> step shard pad shard_neg idx_neg"
+            )
+
     # docstr-coverage: inherited
     def __call__(
         self,
         sample_idx: NDArray[np.int64],
-    ) -> Dict[str, NDArray[np.int32]]:
+    ) -> Dict[str, Union[NDArray[np.int32], NDArray[np.bool_]]]:
         if self.corruption_scheme in ["h", "t"]:
-            sample_idx = einops.rearrange(
-                sample_idx,
-                "step shard ... triple -> step shard (... triple)",
-            )
             if self.flat_negative_format:
                 sample_idx_orig_shape = sample_idx.shape
-                sample_idx = np.full(fill_value=0, shape=(*sample_idx.shape[:-1], 1))
+                sample_idx = np.full(fill_value=0, shape=(*sample_idx.shape[:2], 1))
+
             negative_entities = einops.rearrange(
                 self.padded_negatives[sample_idx],
-                "step shard triple shard_neg idx_neg ->"
-                " step shard_neg shard triple idx_neg",
+                self.ent_rearrange_pattern,
             )
-            negative_mask = self.mask[sample_idx]
+            negative_mask = einops.rearrange(
+                self.mask[sample_idx],
+                self.mask_rearrange_pattern,
+            )
             if self.return_sort_idx:
                 if self.flat_negative_format:
                     negative_sort_idx = self.sort_neg_idx[
@@ -378,13 +406,13 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
                     np.concatenate(
                         [self.padded_negatives_h, self.padded_negatives_t], axis=0
                     ),
-                    "pad shard_neg idx_neg -> step shard_neg shard pad idx_neg",
+                    self.ent_repeat_pattern,
                     step=bps,
                     shard=n_shard,
                 )
                 negative_mask = einops.repeat(
                     np.concatenate([self.mask_h, self.mask_t], axis=0),
-                    "pad idx_neg -> step shard pad idx_neg",
+                    self.mask_repeat_pattern,
                     step=bps,
                     shard=n_shard,
                 )
@@ -407,8 +435,7 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
                         ],
                         axis=-3,
                     ),
-                    "step shard ... triple shard_neg idx_neg ->"
-                    " step shard_neg shard (... triple) idx_neg",
+                    self.ent_rearrange_pattern,
                 )
                 negative_mask = einops.rearrange(
                     np.concatenate(
@@ -416,34 +443,35 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
                             self.mask_h[sample_h_idx],
                             self.mask_t[sample_t_idx],
                         ],
-                        axis=-2,
+                        axis=-3,
                     ),
-                    "step shard ... triple idx_neg -> step shard (... triple) idx_neg",
+                    self.mask_rearrange_pattern,
                 )
             if self.return_sort_idx:
-                negative_sort_idx = einops.rearrange(
-                    np.concatenate(
-                        [
-                            self.sort_neg_h_idx[sample_h_idx],
-                            self.sort_neg_t_idx[sample_t_idx],
-                        ],
-                        axis=-2,
-                    ),
-                    "step shard ... triple idx_neg -> step shard (... triple) idx_neg",
+                negative_sort_idx = np.concatenate(
+                    [
+                        self.sort_neg_h_idx[sample_h_idx],
+                        self.sort_neg_t_idx[sample_t_idx],
+                    ],
+                    axis=-2,
                 )
         out_dict = dict(
             negative_entities=negative_entities,
             negative_mask=negative_mask,
         )
         if self.return_sort_idx:
+            negative_sort_idx = einops.rearrange(
+                negative_sort_idx,
+                "step shard ... triple idx_neg -> step shard (... triple) idx_neg",
+            )
             out_dict.update(negative_sort_idx=negative_sort_idx)
 
-        return out_dict
+        return cast(Dict[str, Union[NDArray[np.int32], NDArray[np.bool_]]], out_dict)
 
     def shard_negatives(
         self,
         negatives: NDArray[np.int32],
-    ) -> Tuple[NDArray[np.int64], NDArray[np.int64]]:
+    ) -> Tuple[NDArray[np.int64], NDArray[np.int32]]:
         """
         Split negative entities into correpsonding shards.
 
@@ -462,14 +490,14 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
         ).reshape(self.N, n_shard)
         sort_neg_idx = np.argsort(shard_idx, axis=-1)
 
-        return shard_neg_counts, sort_neg_idx
+        return shard_neg_counts, sort_neg_idx.astype(np.int32)
 
     def pad_negatives(
         self,
         negatives: NDArray[np.int32],
         shard_counts: NDArray[np.int64],
         padded_shard_length: int,
-    ) -> Tuple[NDArray[np.int32], NDArray[np.int64]]:
+    ) -> Tuple[NDArray[np.int32], NDArray[np.bool_]]:
         """
         Divide negatives based on shard and pad lists to same length.
 
@@ -489,8 +517,6 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
         mask_bool = (
             np.arange(padded_shard_length)[None, None, :] < shard_counts[..., None]
         )  # shape(N, n_shard, padded_shard_length)
-        mask_idx = np.where(mask_bool.reshape(self.N, -1))[-1].reshape(self.N, -1)
-        # shape(N, n_negative)
 
         shard_offsets = np.c_[[0] * self.N, np.cumsum(shard_counts, axis=-1)[:, :-1]]
 
@@ -503,4 +529,38 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
 
         padded_negatives = negatives[np.arange(self.N)[:, None, None], global_idx]
 
-        return padded_negatives, mask_idx
+        return padded_negatives, mask_bool
+
+
+class PlaceholderNegativeSampler(ShardedNegativeSampler):
+    """
+    A placeholder sharded negative smapler, returns no negatives when called.
+    Used with :class:`besskge.bess.TopKQueryBessKGE` to score queries against
+    all entities in the KG.
+    """
+
+    def __init__(
+        self,
+        corruption_scheme: str,
+        seed: int = 0,
+    ) -> None:
+        """
+        Initialize placeholder negative sampler.
+
+        :param corruption_scheme:
+            see :class:`ShardedNegativeSampler`
+        :param seed:
+            No effect.
+        """
+        self.corruption_scheme = corruption_scheme
+        self.local_sampling = False
+        self.flat_negative_format = True
+        self.seed = seed
+        self.rng = np.random.RandomState(seed=self.seed)
+
+    # docstr-coverage: inherited
+    def __call__(
+        self,
+        sample_idx: NDArray[np.int64],
+    ) -> Dict[str, Union[NDArray[np.int32], NDArray[np.bool_]]]:
+        return dict()
