@@ -44,11 +44,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/bess.html">BESS models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/bess.html">BESS modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/scoring.html">Scoring functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/loss.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilitis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
 </ul>
 
@@ -92,12 +92,12 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 
-<div class="viewcode-block" id="EmbeddingInitializer"><a class="viewcode-back" href="../../besskge.html#besskge.embedding.EmbeddingInitializer">[docs]</a><span class="k">class</span> <span class="nc">EmbeddingInitializer</span><span class="p">:</span>
+<div class="viewcode-block" id="EmbeddingInitializer"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.EmbeddingInitializer">[docs]</a><span class="k">class</span> <span class="nc">EmbeddingInitializer</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for custom embedding initialization scheme.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="EmbeddingInitializer.initialize"><a class="viewcode-back" href="../../besskge.html#besskge.embedding.EmbeddingInitializer.initialize">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="EmbeddingInitializer.initialize"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.EmbeddingInitializer.initialize">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize embedding table.</span>
@@ -108,7 +108,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
 
-<div class="viewcode-block" id="MarginBasedInitializer"><a class="viewcode-back" href="../../besskge.html#besskge.embedding.MarginBasedInitializer">[docs]</a><span class="k">class</span> <span class="nc">MarginBasedInitializer</span><span class="p">(</span><span class="n">EmbeddingInitializer</span><span class="p">):</span>
+<div class="viewcode-block" id="MarginBasedInitializer"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.MarginBasedInitializer">[docs]</a><span class="k">class</span> <span class="nc">MarginBasedInitializer</span><span class="p">(</span><span class="n">EmbeddingInitializer</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">margin</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Margin-based initialization scheme.</span>
@@ -119,12 +119,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">=</span> <span class="n">margin</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
-<div class="viewcode-block" id="MarginBasedInitializer.initialize"><a class="viewcode-back" href="../../besskge.html#besskge.embedding.MarginBasedInitializer.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="MarginBasedInitializer.initialize"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.MarginBasedInitializer.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">embedding_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">/</span> <span class="n">embedding_table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="n">embedding_table</span><span class="p">,</span> <span class="o">-</span><span class="n">embedding_range</span><span class="p">,</span> <span class="n">embedding_range</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="initialize_entity_embedding"><a class="viewcode-back" href="../../besskge.html#besskge.embedding.initialize_entity_embedding">[docs]</a><span class="k">def</span> <span class="nf">initialize_entity_embedding</span><span class="p">(</span>
+<div class="viewcode-block" id="initialize_entity_embedding"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.initialize_entity_embedding">[docs]</a><span class="k">def</span> <span class="nf">initialize_entity_embedding</span><span class="p">(</span>
     <span class="n">initializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
     <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
     <span class="n">embedding_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -191,7 +191,7 @@
     <span class="k">return</span> <span class="n">entity_embedding</span></div>
 
 
-<div class="viewcode-block" id="initialize_relation_embedding"><a class="viewcode-back" href="../../besskge.html#besskge.embedding.initialize_relation_embedding">[docs]</a><span class="k">def</span> <span class="nf">initialize_relation_embedding</span><span class="p">(</span>
+<div class="viewcode-block" id="initialize_relation_embedding"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.initialize_relation_embedding">[docs]</a><span class="k">def</span> <span class="nf">initialize_relation_embedding</span><span class="p">(</span>
     <span class="n">initializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
     <span class="n">n_relation_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">embedding_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

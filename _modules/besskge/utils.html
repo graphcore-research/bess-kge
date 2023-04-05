@@ -44,11 +44,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/bess.html">BESS models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/bess.html">BESS modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/scoring.html">Scoring functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/loss.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilitis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
 </ul>
 
@@ -82,24 +82,26 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 
 
-<div class="viewcode-block" id="gather_indices"><a class="viewcode-back" href="../../besskge.html#besskge.utils.gather_indices">[docs]</a><span class="k">def</span> <span class="nf">gather_indices</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="gather_indices"><a class="viewcode-back" href="../../API_ref/utils.html#besskge.utils.gather_indices">[docs]</a><span class="k">def</span> <span class="nf">gather_indices</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    IPU-friendly gather function like torch.take_along_dim</span>
 <span class="sd">    for 2-dimensional tensors (indices along dim=1).</span>
 
 <span class="sd">    :param x: shape: (a, e)</span>
-<span class="sd">    :param index: shape: (a, k) or (1, k)</span>
-<span class="sd">    :return: shape: (a, k)</span>
+<span class="sd">    :param index: shape: (b, k)</span>
+<span class="sd">    :return: shape: (b, k)</span>
 <span class="sd">        For all rows of `x`, take the `k` elements on</span>
 <span class="sd">        the row with the indices specified by</span>
 <span class="sd">        the corresponding row of `index`.</span>
-<span class="sd">        If `index.shape == 1`, the same mask is applied to all rows.</span>
+<span class="sd">        If `b == 1`, the same indices are gathered from all rows of `x`;</span>
+<span class="sd">        if `a == 1`, all rows in `index` gather from `x[0]`;</span>
+<span class="sd">        otherwise `a == b` is required.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bs</span><span class="p">,</span> <span class="n">sq</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">mask_size</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">index_flattened</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">sq</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">index_flattened</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">mask_size</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mask_size</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

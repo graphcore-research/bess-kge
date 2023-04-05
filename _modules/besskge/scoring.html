@@ -44,11 +44,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/bess.html">BESS models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/bess.html">BESS modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/scoring.html">Scoring functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/loss.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilitis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
 </ul>
 
@@ -87,7 +87,7 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 
 
-<div class="viewcode-block" id="BaseScoreFunction"><a class="viewcode-back" href="../../besskge.html#besskge.scoring.BaseScoreFunction">[docs]</a><span class="k">class</span> <span class="nc">BaseScoreFunction</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseScoreFunction"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.BaseScoreFunction">[docs]</a><span class="k">class</span> <span class="nc">BaseScoreFunction</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for scoring functions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -95,7 +95,7 @@
     <span class="c1"># Share negative entities to construct negative samples</span>
     <span class="n">negative_sample_sharing</span><span class="p">:</span> <span class="nb">bool</span>
 
-<div class="viewcode-block" id="BaseScoreFunction.score_triple"><a class="viewcode-back" href="../../besskge.html#besskge.scoring.BaseScoreFunction.score_triple">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="BaseScoreFunction.score_triple"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.BaseScoreFunction.score_triple">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">score_triple</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">head</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
@@ -117,7 +117,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="BaseScoreFunction.score_heads"><a class="viewcode-back" href="../../besskge.html#besskge.scoring.BaseScoreFunction.score_heads">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="BaseScoreFunction.score_heads"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.BaseScoreFunction.score_heads">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">score_heads</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">head</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
@@ -141,7 +141,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="BaseScoreFunction.score_tails"><a class="viewcode-back" href="../../besskge.html#besskge.scoring.BaseScoreFunction.score_tails">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="BaseScoreFunction.score_tails"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.BaseScoreFunction.score_tails">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">score_tails</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">head</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
@@ -166,7 +166,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
 
-<div class="viewcode-block" id="DistanceBasedScoreFunction"><a class="viewcode-back" href="../../besskge.html#besskge.scoring.DistanceBasedScoreFunction">[docs]</a><span class="k">class</span> <span class="nc">DistanceBasedScoreFunction</span><span class="p">(</span><span class="n">BaseScoreFunction</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="DistanceBasedScoreFunction"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistanceBasedScoreFunction">[docs]</a><span class="k">class</span> <span class="nc">DistanceBasedScoreFunction</span><span class="p">(</span><span class="n">BaseScoreFunction</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for distance-based scoring functions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -183,7 +183,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">negative_sample_sharing</span> <span class="o">=</span> <span class="n">negative_sample_sharing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scoring_norm</span> <span class="o">=</span> <span class="n">scoring_norm</span>
 
-<div class="viewcode-block" id="DistanceBasedScoreFunction.reduce_norm"><a class="viewcode-back" href="../../besskge.html#besskge.scoring.DistanceBasedScoreFunction.reduce_norm">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="DistanceBasedScoreFunction.reduce_norm"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistanceBasedScoreFunction.reduce_norm">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        p-norm reduction along embedding dimension.</span>
 
@@ -195,7 +195,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scoring_norm</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="DistanceBasedScoreFunction.distance_matrix"><a class="viewcode-back" href="../../besskge.html#besskge.scoring.DistanceBasedScoreFunction.distance_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">distance_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="DistanceBasedScoreFunction.distance_matrix"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistanceBasedScoreFunction.distance_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">distance_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Broadcasted pairwise distance between two collections of vectors.</span>
 <span class="sd">        Computes p-norm reduction along trailing dimension of</span>
@@ -222,7 +222,7 @@
             <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scoring_norm</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">distance_matrix</span></div>
 
-<div class="viewcode-block" id="DistanceBasedScoreFunction.broadcasted_score"><a class="viewcode-back" href="../../besskge.html#besskge.scoring.DistanceBasedScoreFunction.broadcasted_score">[docs]</a>    <span class="k">def</span> <span class="nf">broadcasted_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="DistanceBasedScoreFunction.broadcasted_score"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistanceBasedScoreFunction.broadcasted_score">[docs]</a>    <span class="k">def</span> <span class="nf">broadcasted_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Broadcasted scores of queries against sets of negative entities.</span>
 
@@ -244,13 +244,13 @@
         <span class="k">return</span> <span class="n">dist</span></div></div>
 
 
-<div class="viewcode-block" id="TransE"><a class="viewcode-back" href="../../besskge.html#besskge.scoring.TransE">[docs]</a><span class="k">class</span> <span class="nc">TransE</span><span class="p">(</span><span class="n">DistanceBasedScoreFunction</span><span class="p">):</span>
+<div class="viewcode-block" id="TransE"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.TransE">[docs]</a><span class="k">class</span> <span class="nc">TransE</span><span class="p">(</span><span class="n">DistanceBasedScoreFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    TransE scoring function (see [...]).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
-<div class="viewcode-block" id="TransE.score_triple"><a class="viewcode-back" href="../../besskge.html#besskge.scoring.TransE.score_triple">[docs]</a>    <span class="k">def</span> <span class="nf">score_triple</span><span class="p">(</span>
+<div class="viewcode-block" id="TransE.score_triple"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.TransE.score_triple">[docs]</a>    <span class="k">def</span> <span class="nf">score_triple</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">head</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">relation</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
@@ -259,7 +259,7 @@
         <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">reduce_norm</span><span class="p">(</span><span class="n">head</span> <span class="o">+</span> <span class="n">relation</span> <span class="o">-</span> <span class="n">tail</span><span class="p">)</span></div>
 
     <span class="c1"># docstr-coverage: inherited</span>
-<div class="viewcode-block" id="TransE.score_heads"><a class="viewcode-back" href="../../besskge.html#besskge.scoring.TransE.score_heads">[docs]</a>    <span class="k">def</span> <span class="nf">score_heads</span><span class="p">(</span>
+<div class="viewcode-block" id="TransE.score_heads"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.TransE.score_heads">[docs]</a>    <span class="k">def</span> <span class="nf">score_heads</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">head</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">relation</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
@@ -268,7 +268,7 @@
         <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span><span class="n">tail</span> <span class="o">-</span> <span class="n">relation</span><span class="p">,</span> <span class="n">head</span><span class="p">)</span></div>
 
     <span class="c1"># docstr-coverage: inherited</span>
-<div class="viewcode-block" id="TransE.score_tails"><a class="viewcode-back" href="../../besskge.html#besskge.scoring.TransE.score_tails">[docs]</a>    <span class="k">def</span> <span class="nf">score_tails</span><span class="p">(</span>
+<div class="viewcode-block" id="TransE.score_tails"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.TransE.score_tails">[docs]</a>    <span class="k">def</span> <span class="nf">score_tails</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">head</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">relation</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>

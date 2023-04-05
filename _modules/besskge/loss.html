@@ -44,11 +44,11 @@
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/bess.html">BESS models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/bess.html">BESS modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/scoring.html">Scoring functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/loss.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilitis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
 </ul>
 
@@ -84,7 +84,7 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 
 
-<div class="viewcode-block" id="BaseLossFunction"><a class="viewcode-back" href="../../besskge.html#besskge.loss.BaseLossFunction">[docs]</a><span class="k">class</span> <span class="nc">BaseLossFunction</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseLossFunction"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.BaseLossFunction">[docs]</a><span class="k">class</span> <span class="nc">BaseLossFunction</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for a loss function.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -94,7 +94,7 @@
     <span class="c1"># Reciprocal temperature of self-adversarial weighting</span>
     <span class="n">negative_adversarial_scale</span><span class="p">:</span> <span class="nb">float</span>
 
-<div class="viewcode-block" id="BaseLossFunction.get_negative_weights"><a class="viewcode-back" href="../../besskge.html#besskge.loss.BaseLossFunction.get_negative_weights">[docs]</a>    <span class="k">def</span> <span class="nf">get_negative_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">negative_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="BaseLossFunction.get_negative_weights"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.BaseLossFunction.get_negative_weights">[docs]</a>    <span class="k">def</span> <span class="nf">get_negative_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">negative_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Construct weights of negative samples, based on their score.</span>
 
@@ -138,7 +138,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
-<div class="viewcode-block" id="MarginBasedLossFunction"><a class="viewcode-back" href="../../besskge.html#besskge.loss.MarginBasedLossFunction">[docs]</a><span class="k">class</span> <span class="nc">MarginBasedLossFunction</span><span class="p">(</span><span class="n">BaseLossFunction</span><span class="p">):</span>
+<div class="viewcode-block" id="MarginBasedLossFunction"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.MarginBasedLossFunction">[docs]</a><span class="k">class</span> <span class="nc">MarginBasedLossFunction</span><span class="p">(</span><span class="n">BaseLossFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for margin-based loss functions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -164,7 +164,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">=</span> <span class="n">margin</span></div>
 
 
-<div class="viewcode-block" id="LogSigmoidLoss"><a class="viewcode-back" href="../../besskge.html#besskge.loss.LogSigmoidLoss">[docs]</a><span class="k">class</span> <span class="nc">LogSigmoidLoss</span><span class="p">(</span><span class="n">MarginBasedLossFunction</span><span class="p">):</span>
+<div class="viewcode-block" id="LogSigmoidLoss"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.LogSigmoidLoss">[docs]</a><span class="k">class</span> <span class="nc">LogSigmoidLoss</span><span class="p">(</span><span class="n">MarginBasedLossFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The log-sigmoid loss function (see [...]).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -191,7 +191,7 @@
         <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="MarginRankingLoss"><a class="viewcode-back" href="../../besskge.html#besskge.loss.MarginRankingLoss">[docs]</a><span class="k">class</span> <span class="nc">MarginRankingLoss</span><span class="p">(</span><span class="n">MarginBasedLossFunction</span><span class="p">):</span>
+<div class="viewcode-block" id="MarginRankingLoss"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.MarginRankingLoss">[docs]</a><span class="k">class</span> <span class="nc">MarginRankingLoss</span><span class="p">(</span><span class="n">MarginBasedLossFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The margin ranking (or pairwise hinge) loss function (see [...]).</span>
 <span class="sd">    &quot;&quot;&quot;</span>

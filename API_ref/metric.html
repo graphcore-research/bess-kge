@@ -18,7 +18,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Embedding utilitis" href="embedding.html" />
+    <link rel="next" title="Embedding utilities" href="embedding.html" />
     <link rel="prev" title="Loss functions" href="loss.html" /> 
 </head>
 
@@ -47,7 +47,7 @@
 <li class="toctree-l1"><a class="reference internal" href="sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="negative_sampler.html">Negative samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bess.html">BESS models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bess.html">BESS modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scoring.html">Scoring functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="loss.html">Loss functions</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Metrics</a><ul>
@@ -70,7 +70,7 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="embedding.html">Embedding utilitis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">General-purpose utility functions</a></li>
 </ul>
 
@@ -168,9 +168,9 @@ Scores of negative triples.</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.metric.HitsAtK">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.metric.</span></span><span class="sig-name descname"><span class="pre">HitsAtK</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reduction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/metric.html#HitsAtK"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.metric.HitsAtK" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="../besskge.html#besskge.metric.BaseMetric" title="besskge.metric.BaseMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMetric</span></code></a></p>
-<p>Hits&#64;K metric.
-Returns (reduced) count of triples where the ground truth
+<dd><p>Bases: <a class="reference internal" href="#besskge.metric.BaseMetric" title="besskge.metric.BaseMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMetric</span></code></a></p>
+<p>Hits&#64;K metric.</p>
+<p>Returns (reduced) count of triples where the ground truth
 is among the K most likely predicted entities.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.metric.HitsAtK.reduction">
@@ -182,9 +182,9 @@ is among the K most likely predicted entities.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.metric.ReciprocalRank">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.metric.</span></span><span class="sig-name descname"><span class="pre">ReciprocalRank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reduction</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/metric.html#ReciprocalRank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.metric.ReciprocalRank" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="../besskge.html#besskge.metric.BaseMetric" title="besskge.metric.BaseMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMetric</span></code></a></p>
-<p>Reciprocal rank (e.g. to compute MRR).
-Returns (reduced) reciprocal rank of ground truth among predictions.</p>
+<dd><p>Bases: <a class="reference internal" href="#besskge.metric.BaseMetric" title="besskge.metric.BaseMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMetric</span></code></a></p>
+<p>Reciprocal rank (e.g. to compute MRR).</p>
+<p>Returns (reduced) reciprocal rank of ground truth among predictions.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.metric.ReciprocalRank.reduction">
 <span class="sig-name descname"><span class="pre">reduction</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code><span class="pre">[[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code><span class="pre">],</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code><span class="pre">]</span></em><a class="headerlink" href="#besskge.metric.ReciprocalRank.reduction" title="Permalink to this definition"></a></dt>
@@ -199,7 +199,7 @@ Returns (reduced) reciprocal rank of ground truth among predictions.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="loss.html" class="btn btn-neutral float-left" title="Loss functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="embedding.html" class="btn btn-neutral float-right" title="Embedding utilitis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="embedding.html" class="btn btn-neutral float-right" title="Embedding utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BESS models &mdash; BESS-KGE  documentation</title>
+  <title>BESS modules &mdash; BESS-KGE  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -47,9 +47,10 @@
 <li class="toctree-l1"><a class="reference internal" href="sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="negative_sampler.html">Negative samplers</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">BESS models</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">BESS modules</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#besskge.bess.BessKGE"><code class="docutils literal notranslate"><span class="pre">BessKGE</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.bess.BessKGE.forward"><code class="docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.bess.BessKGE.n_parameters"><code class="docutils literal notranslate"><span class="pre">BessKGE.n_parameters</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.bess.BessKGE.score_batch"><code class="docutils literal notranslate"><span class="pre">BessKGE.score_batch()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.bess.BessKGE.training"><code class="docutils literal notranslate"><span class="pre">BessKGE.training</span></code></a></li>
 </ul>
@@ -66,12 +67,17 @@
 <li class="toctree-l3"><a class="reference internal" href="#besskge.bess.ScoreMovingBessKGE.training"><code class="docutils literal notranslate"><span class="pre">ScoreMovingBessKGE.training</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.bess.TopKQueryBessKGE"><code class="docutils literal notranslate"><span class="pre">TopKQueryBessKGE</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.bess.TopKQueryBessKGE.forward"><code class="docutils literal notranslate"><span class="pre">TopKQueryBessKGE.forward()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.bess.TopKQueryBessKGE.training"><code class="docutils literal notranslate"><span class="pre">TopKQueryBessKGE.training</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="scoring.html">Scoring functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="loss.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metric.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="embedding.html">Embedding utilitis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">General-purpose utility functions</a></li>
 </ul>
 
@@ -89,7 +95,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">BESS models</li>
+      <li class="breadcrumb-item active">BESS modules</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/API_ref/bess.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -100,7 +106,7 @@
            <div itemprop="articleBody">
              
   <section id="module-besskge.bess">
-<span id="bess-models"></span><h1>BESS models<a class="headerlink" href="#module-besskge.bess" title="Permalink to this heading"></a></h1>
+<span id="bess-modules"></span><h1>BESS modules<a class="headerlink" href="#module-besskge.bess" title="Permalink to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.bess.BessKGE">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.bess.</span></span><span class="sig-name descname"><span class="pre">BessKGE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_relation_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_intializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_intializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_scores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#BessKGE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.BessKGE" title="Permalink to this definition"></a></dt>
@@ -112,12 +118,14 @@ To be used in combination with a batch sampler based on a
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.bess.BessKGE.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#BessKGE.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.BessKGE.forward" title="Permalink to this definition"></a></dt>
-<dd><p>Forward step, comprising of four phases:
-1) Gather relevant embeddings from local memory;
-2) Share embeddings with other devices through collective operators;
-3) Score positive and negative triples;
-4) Compute loss/metrics.
-Each device scores n_shard * positive_per_partition positive triples.</p>
+<dd><p>Forward step, comprising of four phases:</p>
+<ol class="arabic simple">
+<li><p>Gather relevant embeddings from local memory;</p></li>
+<li><p>Share embeddings with other devices through collective operators;</p></li>
+<li><p>Score positive and negative triples;</p></li>
+<li><p>Compute loss/metrics.</p></li>
+</ol>
+<p>Each device scores n_shard * positive_per_partition positive triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -127,11 +135,13 @@ Head indices.</p></li>
 Relation indices.</p></li>
 <li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (n_shard, positive_per_partition)
 Tail indices.</p></li>
-<li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (n_shard, B, n_negative)
+<li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (n_shard, B, padded_negative)
 Indices of negative entities,
 with B = 1 or n_shard * positive_per_partition.</p></li>
 <li><p><strong>triple_weight</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (n_shard * positive_per_partition,) or ()
 Weights of positive triples.</p></li>
+<li><p><strong>negative_mask</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (B, n_shard, padded_negative)
+Mask to identify padding negatives, to discard when computing metrics.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -143,6 +153,17 @@ Weights of positive triples.</p></li>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="besskge.bess.BessKGE.n_parameters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_parameters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#besskge.bess.BessKGE.n_parameters" title="Permalink to this definition"></a></dt>
+<dd><p>number of trainable parameters in the embedding tables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>return</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.bess.BessKGE.score_batch">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#BessKGE.score_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.BessKGE.score_batch" title="Permalink to this definition"></a></dt>
@@ -150,10 +171,10 @@ Weights of positive triples.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -177,14 +198,14 @@ scores of the microbatch.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.bess.EmbeddingMovingBessKGE">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.bess.</span></span><span class="sig-name descname"><span class="pre">EmbeddingMovingBessKGE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_relation_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_intializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_intializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_scores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#EmbeddingMovingBessKGE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.EmbeddingMovingBessKGE" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE" title="besskge.bess.BessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BessKGE</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#besskge.bess.BessKGE" title="besskge.bess.BessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BessKGE</span></code></a></p>
 <p>Compute negative scores on the shard where the positive triples
 are scored (i.e. head shard).
 This requires moving embedding of negative entities between shards,
 which can be done with a single AllToAll collective.</p>
 <p>Each triple is scored against a total number of entities equal to
 <cite>n_negative * n_shard</cite> if negative sample sharing is disabled, otherwise
-<cite>n_negative * n_shard * B</cite> (see <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a>) for “h”, “t”
+<cite>n_negative * n_shard * B</cite> (see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a>) for “h”, “t”
 corruption scheme, <cite>n_negative * n_shard * B // (B &gt; 1 ? 2 : 1)</cite> for “ht”.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.bess.EmbeddingMovingBessKGE.embedding_size">
@@ -198,10 +219,10 @@ corruption scheme, <cite>n_negative * n_shard * B // (B &gt; 1 ? 2 : 1)</cite> f
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -225,7 +246,7 @@ scores of the microbatch.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.bess.ScoreMovingBessKGE">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.bess.</span></span><span class="sig-name descname"><span class="pre">ScoreMovingBessKGE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_relation_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embedding_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_intializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_intializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_scores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#ScoreMovingBessKGE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.ScoreMovingBessKGE" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE" title="besskge.bess.BessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BessKGE</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#besskge.bess.BessKGE" title="besskge.bess.BessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BessKGE</span></code></a></p>
 <p>Compute negative scores on the shard where the negative entities are stored.
 This avoids moving embeddings between shards (convenient when the number of
 negative entities is very large, e.g. when scoring queries against all entities
@@ -234,7 +255,7 @@ in the KG, or when using large embedding size).</p>
 they can be scored against the local negative entities. An AllToAll collective
 is then used to send the scores back to the correct device.</p>
 <p>For the number of negative samples scored for each triple, see the corresponding
-value documented in <a class="reference internal" href="../besskge.html#besskge.bess.EmbeddingMovingBessKGE" title="besskge.bess.EmbeddingMovingBessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmbeddingMovingBessKGE</span></code></a> and, if using negative
+value documented in <a class="reference internal" href="#besskge.bess.EmbeddingMovingBessKGE" title="besskge.bess.EmbeddingMovingBessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmbeddingMovingBessKGE</span></code></a> and, if using negative
 sample sharing, multiply that by n_shard.</p>
 <p>Does not support local sampling.</p>
 <dl class="py attribute">
@@ -249,10 +270,10 @@ sample sharing, multiply that by n_shard.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="../besskge.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -269,6 +290,70 @@ scores of the microbatch.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.bess.ScoreMovingBessKGE.training">
 <span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.bess.ScoreMovingBessKGE.training" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="besskge.bess.TopKQueryBessKGE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.bess.</span></span><span class="sig-name descname"><span class="pre">TopKQueryBessKGE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_intializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_intializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_scores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#TopKQueryBessKGE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.TopKQueryBessKGE" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Distributed scoring of (h, r, ?) or (?, r, t) queries (against
+all entities in the KG, or a query-specific set)
+returning top-k most likely completions, based on BESS
+inference scheme.
+To be used in combination with a batch sampler based on a
+“h_shard”/”t_shard”-partitioned triple set.
+If the correct tail/head is known, can be passed as an input
+in order to compute metrics on the final predictions.</p>
+<p>This class is recommended over <a class="reference internal" href="#besskge.bess.BessKGE" title="besskge.bess.BessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BessKGE</span></code></a> when the number of
+negatives is large, e.g. when one wants to score queries against
+all entities in the KG, as it uses a sliding window over the
+negative sample size via an on-device for-loop.</p>
+<p>Only to be used for inference.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.bess.TopKQueryBessKGE.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#TopKQueryBessKGE.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.TopKQueryBessKGE.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Forward step.</p>
+<p>Similarly to <a class="reference internal" href="#besskge.bess.ScoreMovingBessKGE" title="besskge.bess.ScoreMovingBessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScoreMovingBessKGE</span></code></a>, candidates are scored
+on the device where they are gathered, then scores for the same
+query against candidates in different shards are collected together
+via an AllToAll.
+At each iteration of the for loop, only the top-k best query responses and
+respective scores are kept to be used in the next iteration, while the
+rest is discarded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (shard_bs,)
+Relation indices.</p></li>
+<li><p><strong>head</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (shard_bs,)
+Head indices, if known. Defaults to False.</p></li>
+<li><p><strong>tail</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (shard_bs,)
+Tail indices, if known. Defaults to False.</p></li>
+<li><p><strong>negative</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (n_shard, B, padded_negative)
+Candidates to score against the queries.
+It can be the same set for all queries (B=1),
+or specific for each query in the batch (B=shard_bs).
+If None, score each query against all entities in the KG.
+Defaults to None.</p></li>
+<li><p><strong>negative_mask</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (n_shard, B, padded_negative)
+If candidates are provided, mask to discard padding
+negatives when computing best completions.
+Requires the use of <cite>mask_on_gather=True</cite> in the candidate sampler
+(see <a class="reference internal" href="negative_sampler.html#besskge.negative_sampler.TripleBasedShardedNegativeSampler" title="besskge.negative_sampler.TripleBasedShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">besskge.negative_sampler.TripleBasedShardedNegativeSampler</span></code></a>).
+Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.bess.TopKQueryBessKGE.training">
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.bess.TopKQueryBessKGE.training" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

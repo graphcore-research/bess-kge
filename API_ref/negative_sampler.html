@@ -18,7 +18,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="BESS models" href="bess.html" />
+    <link rel="next" title="BESS modules" href="bess.html" />
     <link rel="prev" title="Batch samplers" href="batch_sampler.html" /> 
 </head>
 
@@ -47,6 +47,12 @@
 <li class="toctree-l1"><a class="reference internal" href="sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Negative samplers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.negative_sampler.PlaceholderNegativeSampler"><code class="docutils literal notranslate"><span class="pre">PlaceholderNegativeSampler</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.negative_sampler.PlaceholderNegativeSampler.corruption_scheme"><code class="docutils literal notranslate"><span class="pre">PlaceholderNegativeSampler.corruption_scheme</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.negative_sampler.PlaceholderNegativeSampler.flat_negative_format"><code class="docutils literal notranslate"><span class="pre">PlaceholderNegativeSampler.flat_negative_format</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.negative_sampler.PlaceholderNegativeSampler.local_sampling"><code class="docutils literal notranslate"><span class="pre">PlaceholderNegativeSampler.local_sampling</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#besskge.negative_sampler.RandomShardedNegativeSampler"><code class="docutils literal notranslate"><span class="pre">RandomShardedNegativeSampler</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.negative_sampler.RandomShardedNegativeSampler.corruption_scheme"><code class="docutils literal notranslate"><span class="pre">RandomShardedNegativeSampler.corruption_scheme</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.negative_sampler.RandomShardedNegativeSampler.flat_negative_format"><code class="docutils literal notranslate"><span class="pre">RandomShardedNegativeSampler.flat_negative_format</span></code></a></li>
@@ -75,11 +81,11 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="bess.html">BESS models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bess.html">BESS modules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="scoring.html">Scoring functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="loss.html">Loss functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="metric.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="embedding.html">Embedding utilitis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">General-purpose utility functions</a></li>
 </ul>
 
@@ -110,9 +116,33 @@
   <section id="negative-samplers">
 <h1>Negative samplers<a class="headerlink" href="#negative-samplers" title="Permalink to this heading"></a></h1>
 <span class="target" id="module-besskge.negative_sampler"></span><dl class="py class">
+<dt class="sig sig-object py" id="besskge.negative_sampler.PlaceholderNegativeSampler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.negative_sampler.</span></span><span class="sig-name descname"><span class="pre">PlaceholderNegativeSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corruption_scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/negative_sampler.html#PlaceholderNegativeSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.negative_sampler.PlaceholderNegativeSampler" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#besskge.negative_sampler.ShardedNegativeSampler" title="besskge.negative_sampler.ShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code></a></p>
+<p>A placeholder sharded negative smapler, returns no negatives when called.
+Used with <a class="reference internal" href="bess.html#besskge.bess.TopKQueryBessKGE" title="besskge.bess.TopKQueryBessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">besskge.bess.TopKQueryBessKGE</span></code></a> to score queries against
+all entities in the KG.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.negative_sampler.PlaceholderNegativeSampler.corruption_scheme">
+<span class="sig-name descname"><span class="pre">corruption_scheme</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#besskge.negative_sampler.PlaceholderNegativeSampler.corruption_scheme" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.negative_sampler.PlaceholderNegativeSampler.flat_negative_format">
+<span class="sig-name descname"><span class="pre">flat_negative_format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.negative_sampler.PlaceholderNegativeSampler.flat_negative_format" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.negative_sampler.PlaceholderNegativeSampler.local_sampling">
+<span class="sig-name descname"><span class="pre">local_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.negative_sampler.PlaceholderNegativeSampler.local_sampling" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="besskge.negative_sampler.RandomShardedNegativeSampler">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.negative_sampler.</span></span><span class="sig-name descname"><span class="pre">RandomShardedNegativeSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_negative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corruption_scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_sampling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flat_negative_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/negative_sampler.html#RandomShardedNegativeSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.negative_sampler.RandomShardedNegativeSampler" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="../besskge.html#besskge.negative_sampler.ShardedNegativeSampler" title="besskge.negative_sampler.ShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#besskge.negative_sampler.ShardedNegativeSampler" title="besskge.negative_sampler.ShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code></a></p>
 <p>Sample random negative entities for each triple in batch.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.negative_sampler.RandomShardedNegativeSampler.corruption_scheme">
@@ -155,8 +185,8 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.negative_sampler.TripleBasedShardedNegativeSampler">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.negative_sampler.</span></span><span class="sig-name descname"><span class="pre">TripleBasedShardedNegativeSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">negative_heads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_tails</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corruption_scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_sort_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/negative_sampler.html#TripleBasedShardedNegativeSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.negative_sampler.TripleBasedShardedNegativeSampler" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="../besskge.html#besskge.negative_sampler.ShardedNegativeSampler" title="besskge.negative_sampler.ShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.negative_sampler.</span></span><span class="sig-name descname"><span class="pre">TripleBasedShardedNegativeSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">negative_heads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_tails</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corruption_scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_on_gather</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_sort_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/negative_sampler.html#TripleBasedShardedNegativeSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.negative_sampler.TripleBasedShardedNegativeSampler" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#besskge.negative_sampler.ShardedNegativeSampler" title="besskge.negative_sampler.ShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code></a></p>
 <p>Return (possibly triple-specific) predetermined negative entities.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.negative_sampler.TripleBasedShardedNegativeSampler.corruption_scheme">
@@ -197,7 +227,7 @@ The padded shard lists of negatives.</p>
 Indices of true negatives in <cite>padded_negatives.view(N,-1)</cite>.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code>]]]</p>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">bool_</span></code>]]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -220,7 +250,7 @@ Number of negative entities per shard.</p>
 Sorting index to cluster negatives in shard order.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code>]]]</p>
+<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code>]], <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code>]]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -230,7 +260,7 @@ Sorting index to cluster negatives in shard order.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.negative_sampler.TypeBasedShardedNegativeSampler">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.negative_sampler.</span></span><span class="sig-name descname"><span class="pre">TypeBasedShardedNegativeSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">triple_types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_negative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">corruption_scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_sampling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/negative_sampler.html#TypeBasedShardedNegativeSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.negative_sampler.TypeBasedShardedNegativeSampler" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="../besskge.html#besskge.negative_sampler.RandomShardedNegativeSampler" title="besskge.negative_sampler.RandomShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomShardedNegativeSampler</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#besskge.negative_sampler.RandomShardedNegativeSampler" title="besskge.negative_sampler.RandomShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomShardedNegativeSampler</span></code></a></p>
 <p>Corrupt entities with entities of the same type.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.negative_sampler.TypeBasedShardedNegativeSampler.corruption_scheme">
@@ -256,7 +286,7 @@ Sorting index to cluster negatives in shard order.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="batch_sampler.html" class="btn btn-neutral float-left" title="Batch samplers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="bess.html" class="btn btn-neutral float-right" title="BESS models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="bess.html" class="btn btn-neutral float-right" title="BESS modules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
