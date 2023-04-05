@@ -26,6 +26,7 @@ class BaseMetric(ABC):
 class ReciprocalRank(BaseMetric):
     """
     Reciprocal rank (e.g. to compute MRR).
+
     Returns (reduced) reciprocal rank of ground truth among predictions.
     """
 
@@ -44,6 +45,7 @@ class ReciprocalRank(BaseMetric):
 class HitsAtK(BaseMetric):
     """
     Hits@K metric.
+
     Returns (reduced) count of triples where the ground truth
     is among the K most likely predicted entities.
     """
@@ -194,8 +196,9 @@ class Evaluation:
             )
 
         worst_rank = torch.inf if self.worst_rank_infty else float(n_negative + 1)
-        batch_rank = torch.full((batch_size,), worst_rank, requires_grad=False)
-        match_idx = torch.where(neg_indices == ground_truth)
-        batch_rank[match_idx[0]] = 1.0 + match_idx[1]
+        ranks = torch.where(
+            ground_truth == neg_indices, torch.arange(1, n_negative + 1), worst_rank
+        )
+        batch_rank, _ = ranks.min(dim=-1)
 
         return {m_name: m_fn(batch_rank) for m_name, m_fn in self.metrics.items()}

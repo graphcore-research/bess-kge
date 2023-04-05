@@ -1,4 +1,4 @@
-BESS models
+BESS modules
 ==============
 .. automodule:: besskge.bess
    :members:

@@ -170,7 +170,7 @@ class PartitionedTripleSet:
     #: If set is constructed from (h,r,?) (resp. (?,r,t)) queries,
     # dummy tails (resp. heads) are added to make pairs into triples.
     # "head", "tail", "none"
-    dummy: str
+    dummy: Optional[str]
 
     #: h/r/t IDs for triples ordered by partition
     # Local IDs for heads (resp. tails) and global IDs
@@ -317,6 +317,7 @@ class PartitionedTripleSet:
         sharding: Sharding,
         queries: NDArray[np.int32],
         query_mode: str,
+        ground_truth: Optional[NDArray[np.int32]] = None,
         negative: Optional[NDArray[np.int32]] = None,
         negative_type: Optional[str] = None,
     ) -> "PartitionedTripleSet":
@@ -333,6 +334,8 @@ class PartitionedTripleSet:
             Global IDs for entities/relations.
         :param query_mode:
             "hr" for (h,r,?) queries, "rt" for (?,r,t) queries.
+        :param ground_truth: shape: (n_query,)
+            If know, the global ID of the ground truth tail/head.
         :param negative: shape: (N, n_negative)
             Global IDs of negative entities to score against each query,
             query-specific (N=n_query) or same for all queries (N=1).
@@ -357,45 +360,49 @@ class PartitionedTripleSet:
                     " a type of entity in the KGDataset"
                 )
             ds_type_offsets = dataset.type_offsets
-            type_range = {
+            type_range_dict = {
                 k: (a, b - 1)
                 for ((k, a), b) in zip(
                     dataset.type_offsets.items(),
                     [*list(dataset.type_offsets.values())[1:], dataset.n_entity],
                 )
             }
-            dummy_entities = np.full(
-                fill_value=type_range[negative_type][0], shape=(n_query, 1)
-            )
+            type_range = type_range_dict[negative_type]
             if negative is not None:
                 # Check that all negatives provided are of requested type
-                if np.any(negative < type_range[negative_type][0]) or np.any(
-                    negative >= type_range[negative_type][1]
+                if np.any(negative < type_range[0]) or np.any(
+                    negative >= type_range[1]
                 ):
                     warnings.warn(
                         "The negative entities provided are not all"
                         " of the specified negative_type"
                     )
+
+        if ground_truth is not None:
+            fill_column = ground_truth.reshape(n_query, 1)
+        elif negative_type:
+            fill_column = np.full(fill_value=type_range[0], shape=(n_query, 1))
         else:
-            dummy_entities = np.full(fill_value=0, shape=(n_query, 1))
+            fill_column = np.full(fill_value=0, shape=(n_query, 1))
+
+        if negative is not None:
+            negative = negative.reshape(-1, negative.shape[-1])
+        elif negative_type:
+            negative = np.expand_dims(np.arange(type_range[0], type_range[1]), axis=0)
+        else:
+            negative = np.expand_dims(np.arange(sharding.n_entity), axis=0)
 
         if query_mode == "hr":
-            triples = np.concatenate([queries, dummy_entities], axis=-1)
+            triples = np.concatenate([queries, fill_column], axis=-1)
             partition_mode = "h_shard"
-            dummy = "tail"
+            dummy = "tail" if ground_truth is None else None
             neg_heads = None
-            if negative is not None:
-                neg_tails = negative.reshape(-1, negative.shape[-1])
-            else:
-                neg_tails = np.arange(sharding.n_entity).squeeze(0)
+            neg_tails = negative
         elif query_mode == "rt":
-            triples = np.concatenate([dummy_entities, queries], axis=-1)
+            triples = np.concatenate([fill_column, queries], axis=-1)
             partition_mode = "t_shard"
-            dummy = "head"
-            if negative is not None:
-                neg_heads = negative.reshape(-1, negative.shape[-1])
-            else:
-                neg_heads = np.arange(sharding.n_entity).squeeze(0)
+            dummy = "head" if ground_truth is None else None
+            neg_heads = negative
             neg_tails = None
         else:
             raise ValueError(f"Query mode {query_mode} not supported")

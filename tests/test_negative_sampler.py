@@ -179,18 +179,19 @@ def test_triple_based_sharded_ns(
         corruption_scheme=corruption_scheme,
         seed=seed,
         return_sort_idx=True,
+        mask_on_gather=False,
     )
 
     sample_idx = np.random.randint(
         n_triple, size=sample_idx_size[triple_partition_mode]
     )
     neg_batch = ns(sample_idx)
-    neg_batch_ent = neg_batch["negative_entities"]
-    neg_batch_mask = neg_batch["negative_mask"]
-    neg_sort_idx = neg_batch["negative_sort_idx"]
+    neg_batch_ent = neg_batch["negative_entities"].astype(np.int32)  # mypy check
+    neg_batch_mask = neg_batch["negative_mask"].astype(np.bool_)
+    neg_sort_idx = neg_batch["negative_sort_idx"].astype(np.int32)
 
     # Check that for all triples there are exactly n_negative entities in mask
-    assert_equal(neg_batch_mask.shape[-1], n_negative)
+    assert np.all(neg_batch_mask.sum(axis=(-2, -1)) == n_negative)
 
     if flat_negative_format:
         # Replicate entities and mask along microbatch dimension
@@ -198,7 +199,7 @@ def test_triple_based_sharded_ns(
         shard_bs = np.prod(sample_idx.shape[2:])
         if corruption_scheme == "ht":
             neg_batch_h, neg_batch_t = np.split(neg_batch_ent, [1], axis=-2)
-            neg_mask_h, neg_mask_t = np.split(neg_batch_mask, [1], axis=-2)
+            neg_mask_h, neg_mask_t = np.split(neg_batch_mask, [1], axis=-3)
             if triple_partition_mode == "shardpair":
                 neg_batch_h = np.expand_dims(neg_batch_h, 3).repeat(n_shard, axis=3)
                 neg_batch_t = np.expand_dims(neg_batch_t, 3).repeat(n_shard, axis=3)
@@ -213,17 +214,20 @@ def test_triple_based_sharded_ns(
             )
             neg_batch_mask = np.concatenate(
                 [
-                    np.repeat(neg_mask_h, cutpoint, axis=-2),
-                    np.repeat(neg_mask_t, positive_per_partition - cutpoint, axis=-2),
+                    np.repeat(neg_mask_h, cutpoint, axis=-3),
+                    np.repeat(neg_mask_t, positive_per_partition - cutpoint, axis=-3),
                 ],
-                axis=-2,
+                axis=-3,
             )
             neg_batch_ent = einops.rearrange(
                 neg_batch_ent,
-                "bps shard1 shard2 ... triple neg -> bps shard1 shard2 (... triple) neg",
+                "bps shard_neg shard ... triple neg ->"
+                " bps shard_neg shard (... triple) neg",
             )
             neg_batch_mask = einops.rearrange(
-                neg_batch_mask, "bps shard ... triple neg -> bps shard (... triple) neg"
+                neg_batch_mask,
+                "bps shard ... triple shard_neg neg ->"
+                " bps shard (... triple) shard_neg neg",
             )
         else:
             neg_batch_ent = einops.repeat(
@@ -233,7 +237,7 @@ def test_triple_based_sharded_ns(
             )
             neg_batch_mask = einops.repeat(
                 neg_batch_mask,
-                "... pad neg -> ... (r pad) neg",
+                "... pad shard_neg neg -> ... (r pad) shard_neg neg",
                 r=shard_bs,
             )
 
@@ -257,12 +261,16 @@ def test_triple_based_sharded_ns(
         ]
         negative_entities = einops.rearrange(
             negative_entities,
-            "step source_shard triple neg -> step triple (source_shard neg)",
+            "step shard_neg triple neg -> step triple (shard_neg neg)",
         )
         # Discard padding negatives
-        negative_entities_filtered = np.take_along_axis(
-            negative_entities, neg_batch_mask[:, processing_shard], axis=-1
+        mask = einops.rearrange(
+            neg_batch_mask[:, processing_shard],
+            "step triple shard_neg neg -> step triple (shard_neg neg)",
         )
+        negative_entities_filtered = negative_entities[mask].reshape(
+            *negative_entities.shape[:-1], -1
+        )  # shape (step, shard_bs, n_negative)
 
         # Check that the set of triple-specific negatives is correct
         if corruption_scheme == "h":

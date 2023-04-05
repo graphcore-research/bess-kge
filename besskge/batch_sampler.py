@@ -151,17 +151,17 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
                 tail, "step shard_h shard_t triple -> step shard_t shard_h triple"
             )
 
-        sample_negative_dict = self.negative_sampler(sample_idx)
-        negative_entities = sample_negative_dict.pop("negative_entities")
-
         batch_dict = {
             "head": head.astype(np.int32),
             "relation": relation.astype(np.int32),
             "tail": tail.astype(np.int32),
-            "negative": negative_entities.astype(np.int32),
             **sample_triple_dict,
-            **sample_negative_dict,
         }
+        sample_negative_dict = self.negative_sampler(sample_idx)
+        if "negative_entities" in sample_negative_dict.keys():
+            negative_entities = sample_negative_dict.pop("negative_entities")
+            batch_dict.update(negative=negative_entities.astype(np.int32))
+        batch_dict.update(**sample_negative_dict)
 
         if self.dummy in ["head", "tail"]:
             batch_dict.pop(self.dummy)

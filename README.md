@@ -27,24 +27,9 @@ pip install -r requirements.txt
 ./dev build
 ```
 
-## For developers
+## Contributing
 
-Initial setup:
-
-```
-python3.8 -m venv .venv
-# Add to .venv/bin/activate
-# source /PATH_TO_POPLAR_SDK/enable
-source .venv/bin/activate
-pip install wheel
-pip install $POPLAR_SDK_ENABLED/../poptorch-*.whl
-pip install -r requirements-dev.txt
-```
-
-Run `./dev --help` for a list of dev options.
-
-Individual tests can be run with pattern matching filtering `./dev tests -k FILTER`
-
+See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## References
 BESS: Balanced Entity Sampling and Sharing for Large-Scale Knowledge Graph Completion ([arXiv](https://arxiv.org/abs/2211.12281))
