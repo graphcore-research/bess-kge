@@ -1,6 +1,6 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Optional, Union
 
 import numpy as np
@@ -13,7 +13,7 @@ Utilities for entity/relation embeddings.
 """
 
 
-class EmbeddingInitializer:
+class EmbeddingInitializer(ABC):
     """
     Base class for custom embedding initialization scheme.
     """
