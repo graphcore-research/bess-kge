@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 import torch
 
 
-class BaseLossFunction(ABC):
+class BaseLossFunction(torch.nn.Module, ABC):
     """
     Base class for a loss function.
     """
@@ -37,7 +37,7 @@ class BaseLossFunction(ABC):
         return negative_weights
 
     @abstractmethod
-    def __call__(
+    def forward(
         self,
         positive_score: torch.Tensor,
         negative_score: torch.Tensor,
@@ -59,7 +59,7 @@ class BaseLossFunction(ABC):
         raise NotImplementedError
 
 
-class MarginBasedLossFunction(BaseLossFunction):
+class MarginBasedLossFunction(BaseLossFunction, ABC):
     """
     Base class for margin-based loss functions.
     """
@@ -80,6 +80,7 @@ class MarginBasedLossFunction(BaseLossFunction):
         :param negative_adversarial_scale:
             see :class:`BaseLossFunction`
         """
+        super(MarginBasedLossFunction, self).__init__()
         self.negative_adversarial_sampling = negative_adversarial_sampling
         self.negative_adversarial_scale = negative_adversarial_scale
         self.margin = margin
@@ -91,7 +92,7 @@ class LogSigmoidLoss(MarginBasedLossFunction):
     """
 
     # docstr-coverage: inherited
-    def __call__(
+    def forward(
         self,
         positive_score: torch.Tensor,
         negative_score: torch.Tensor,
@@ -150,7 +151,7 @@ class MarginRankingLoss(MarginBasedLossFunction):
             )
 
     # docstr-coverage: inherited
-    def __call__(
+    def forward(
         self,
         positive_score: torch.Tensor,
         negative_score: torch.Tensor,

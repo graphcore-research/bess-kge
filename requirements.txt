@@ -1,4 +1,4 @@
 einops==0.6.0
 numpy==1.24.2
-ogb==1.3.5
+ogb==1.3.6
 poptorch-experimental-addons @ git+https://github.com/graphcore-research/poptorch-experimental-addons@14886d2285c3e45b0eadf4d719dae87d5f28b109
