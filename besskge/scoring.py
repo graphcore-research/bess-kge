@@ -3,7 +3,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, Union, cast
 
-import poptorch
 import poptorch_experimental_addons as pea
 import torch
 
@@ -13,6 +12,7 @@ from besskge.embedding import (
     initialize_relation_embedding,
 )
 from besskge.sharding import Sharding
+from besskge.utils import complex_multiplication, complex_rotation
 
 
 class BaseScoreFunction(torch.nn.Module, ABC):
@@ -35,7 +35,7 @@ class BaseScoreFunction(torch.nn.Module, ABC):
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
         """
-        Score (h,r,t) triples.
+        Score (h,r,t) triples. No sharing is used.
 
         :param head_emb: shape: (batch_size, embedding_size)
             Embeddings of head entities in batch.
@@ -140,36 +140,12 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
         """
         return cast(torch.Tensor, torch.norm(v, p=self.scoring_norm, dim=-1))
 
-    def distance_matrix(self, v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
-        """
-        Broadcasted pairwise distance between two collections of vectors.
-        Computes p-norm reduction along trailing dimension of
-        `tensor1[:, None, :] - tensor2[None, :, :]` without materializing the
-        intermediate broadcasted difference, for memory optimization.
-
-        :param v1: shape: (outer1, K)
-            First collection.
-        :param v2: shape: (outer2, K)
-            Second collection.
-
-        :return: shape: (outer1, outer2)
-            Broadcasted pairwise p-distance.
-        """
-        distance_matrix: torch.Tensor
-        if poptorch.isRunningOnIpu():
-            if self.scoring_norm in [1, 2]:
-                distance_matrix = pea.distance_matrix(v1, v2, p=self.scoring_norm)
-            else:
-                raise NotImplementedError(
-                    "Only 1- and 2-norm supported by distance_matrix on IPU"
-                )
-        else:
-            distance_matrix = torch.cdist(v1, v2, p=self.scoring_norm)
-        return distance_matrix
-
     def broadcasted_score(self, v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
         """
-        Broadcasted scores of queries against sets of negative entities.
+        Broadcasted scores of queries against sets of entities.
+
+        For each query and candidate, the score is given by the p-distance
+        of the embeddings.
 
         :param v1: shape: (batch_size, embedding_size)
             Batch queries.
@@ -183,10 +159,53 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
 
         embedding_size = v1.shape[-1]
         if self.negative_sample_sharing:
-            dist = self.distance_matrix(v1, v2.reshape(-1, embedding_size))
+            score = pea.distance_matrix(
+                v1, v2.reshape(-1, embedding_size), p=self.scoring_norm
+            )
         else:
-            dist = self.reduce_norm(v1.unsqueeze(1) - v2)
-        return dist
+            score = self.reduce_norm(v1.unsqueeze(1) - v2)
+        return cast(torch.Tensor, score)
+
+
+class MatrixDecompositionScoreFunction(BaseScoreFunction, ABC):
+    """
+    Base class for matrix-decomposition scoring functions.
+    """
+
+    # scoring_norm: int
+    def __init__(self, negative_sample_sharing: bool) -> None:
+        """
+        Initialize matrix-decomposition scoring function.
+
+        :param negative_sample_sharing:
+            see :class:`BaseScoreFunction`
+        """
+        super().__init__()
+        self.negative_sample_sharing = negative_sample_sharing
+
+    def broadcasted_score(self, v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
+        """
+        Broadcasted scores of queries against sets of entities.
+
+        For each query and candidate, the score is given by the dot product of
+        the embeddings.
+
+        :param v1: shape: (batch_size, embedding_size)
+            Batch queries.
+        :param v2: shape: (B, n_neg, embedding_size) with B = 1, batch_size
+            Negative embeddings to score against queries.
+
+        :return: shape: (batch_size, B * n_neg) if
+                :attr:`BaseScoreFunction.negative_sample_sharing`
+                else (batch_size, n_neg)
+        """
+
+        embedding_size = v1.shape[-1]
+        if self.negative_sample_sharing:
+            score = torch.matmul(v1, v2.reshape(-1, embedding_size).T)
+        else:
+            score = torch.sum(v1.unsqueeze(1) * v2, dim=-1)
+        return score
 
 
 class TransE(DistanceBasedScoreFunction):
@@ -216,7 +235,9 @@ class TransE(DistanceBasedScoreFunction):
         :param n_relation_type:
             Number of relation types in the KG.
         :param embedding_size:
-            Size of entities and relation embeddings.
+            Size of entities and relation embeddings. Can be omitted
+            if passing tensors for initialization of entity and relation
+            embeddings.
         :param entity_intializer:
             Initialization scheme / table for entity embeddings.
         :param relation_intializer:
@@ -234,7 +255,7 @@ class TransE(DistanceBasedScoreFunction):
         )
         assert (
             self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
-        ), "TransE requires same embedding dimension for entities and relations"
+        ), "TransE requires same embedding size for entities and relations"
 
     # docstr-coverage: inherited
     def score_triple(
@@ -265,3 +286,252 @@ class TransE(DistanceBasedScoreFunction):
     ) -> torch.Tensor:
         relation_emb = self.relation_embedding[relation_id.to(torch.long)]
         return -self.broadcasted_score(head_emb + relation_emb, tail_emb)
+
+
+class RotatE(DistanceBasedScoreFunction):
+    """
+    RotatE scoring function (see [...]).
+    """
+
+    def __init__(
+        self,
+        negative_sample_sharing: bool,
+        scoring_norm: int,
+        sharding: Sharding,
+        n_relation_type: int,
+        embedding_size: int,
+        entity_intializer: Union[torch.Tensor, EmbeddingInitializer],
+        relation_intializer: Union[torch.Tensor, EmbeddingInitializer],
+    ) -> None:
+        """
+        Initialize RotatE model.
+
+        :param negative_sample_sharing:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :type scoring_norm:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :type sharding:
+            Entity sharding.
+        :param n_relation_type:
+            Number of relation types in the KG.
+        :param embedding_size:
+            Size of entity embeddings (relation embedding size
+            will be half of this). Can be omitted
+            if passing tensors for initialization of entity and relation
+            embeddings.
+        :param entity_intializer:
+            Initialization scheme / table for entity embeddings.
+        :param relation_intializer:
+            Initialization scheme / table for relation embeddings.
+        """
+        super(RotatE, self).__init__(
+            negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
+        )
+
+        self.entity_embedding = initialize_entity_embedding(
+            entity_intializer, sharding, embedding_size
+        )
+        self.relation_embedding = initialize_relation_embedding(
+            relation_intializer, n_relation_type, embedding_size // 2
+        )
+        assert (
+            self.entity_embedding.shape[-1] % 2 == 0
+        ), "RotatE requires even real embedding size for entities"
+        assert (
+            self.entity_embedding.shape[-1] // 2 == self.relation_embedding.shape[-1]
+        ), "RotatE requires relation emebdding size to be half entity embedding size"
+
+    # docstr-coverage: inherited
+    def score_triple(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        return -self.reduce_norm(complex_rotation(head_emb, relation_emb) - tail_emb)
+
+    # docstr-coverage: inherited
+    def score_heads(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        return -self.broadcasted_score(
+            complex_rotation(tail_emb, -relation_emb), head_emb
+        )
+
+    # docstr-coverage: inherited
+    def score_tails(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        return -self.broadcasted_score(
+            complex_rotation(head_emb, relation_emb), tail_emb
+        )
+
+
+class DistMult(MatrixDecompositionScoreFunction):
+    """
+    DistMult scoring function (see [...]).
+    """
+
+    def __init__(
+        self,
+        negative_sample_sharing: bool,
+        sharding: Sharding,
+        n_relation_type: int,
+        embedding_size: Optional[int],
+        entity_intializer: Union[torch.Tensor, EmbeddingInitializer],
+        relation_intializer: Union[torch.Tensor, EmbeddingInitializer],
+    ) -> None:
+        """
+        Initialize DistMult model.
+
+        :param negative_sample_sharing:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :type sharding:
+            Entity sharding.
+        :param n_relation_type:
+            Number of relation types in the KG.
+        :param embedding_size:
+            Size of entity and relation embeddings. Can be omitted
+            if passing tensors for initialization of entity and relation
+            embeddings.
+        :param entity_intializer:
+            Initialization scheme / table for entity embeddings.
+        :param relation_intializer:
+            Initialization scheme / table for relation embeddings.
+        """
+        super(DistMult, self).__init__(negative_sample_sharing=negative_sample_sharing)
+
+        self.entity_embedding = initialize_entity_embedding(
+            entity_intializer, sharding, embedding_size
+        )
+        self.relation_embedding = initialize_relation_embedding(
+            relation_intializer, n_relation_type, embedding_size
+        )
+        assert (
+            self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
+        ), "DistMult requires same embedding size for entities and relations"
+
+    # docstr-coverage: inherited
+    def score_triple(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        return torch.sum(head_emb * relation_emb * tail_emb, dim=-1)
+
+    # docstr-coverage: inherited
+    def score_heads(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        return self.broadcasted_score(relation_emb * tail_emb, head_emb)
+
+    # docstr-coverage: inherited
+    def score_tails(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        return self.broadcasted_score(head_emb * relation_emb, tail_emb)
+
+
+class ComplEx(MatrixDecompositionScoreFunction):
+    """
+    ComplEx scoring function (see [...]).
+    """
+
+    def __init__(
+        self,
+        negative_sample_sharing: bool,
+        sharding: Sharding,
+        n_relation_type: int,
+        embedding_size: Optional[int],
+        entity_intializer: Union[torch.Tensor, EmbeddingInitializer],
+        relation_intializer: Union[torch.Tensor, EmbeddingInitializer],
+    ) -> None:
+        """
+        Initialize ComplEx model.
+
+        :param negative_sample_sharing:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :type sharding:
+            Entity sharding.
+        :param n_relation_type:
+            Number of relation types in the KG.
+        :param embedding_size:
+            Size of entity and relation embeddings. Can be omitted
+            if passing tensors for initialization of entity and relation
+            embeddings.
+        :param entity_intializer:
+            Initialization scheme / table for entity embeddings.
+        :param relation_intializer:
+            Initialization scheme / table for relation embeddings.
+        """
+        super(ComplEx, self).__init__(negative_sample_sharing=negative_sample_sharing)
+
+        self.entity_embedding = initialize_entity_embedding(
+            entity_intializer, sharding, embedding_size
+        )
+        self.relation_embedding = initialize_relation_embedding(
+            relation_intializer, n_relation_type, embedding_size
+        )
+        assert (
+            self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
+        ), "ComplEx requires same embedding size for entities and relations"
+        assert (
+            self.entity_embedding.shape[-1] % 2 == 0
+        ), "ComplEx requires even real embedding size for entities and relations"
+
+    # docstr-coverage: inherited
+    def score_triple(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        return torch.sum(
+            complex_multiplication(head_emb, relation_emb) * tail_emb, dim=-1
+        )
+
+    # docstr-coverage: inherited
+    def score_heads(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        cutpoint = relation_emb.shape[-1] // 2
+        relation_emb[:, cutpoint:] = -relation_emb[:, cutpoint:]  # conjugate relations
+        return self.broadcasted_score(
+            complex_multiplication(relation_emb, tail_emb), head_emb
+        )
+
+    # docstr-coverage: inherited
+    def score_tails(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        return self.broadcasted_score(
+            complex_multiplication(head_emb, relation_emb), tail_emb
+        )
