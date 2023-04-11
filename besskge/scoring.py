@@ -128,7 +128,7 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
         self.negative_sample_sharing = negative_sample_sharing
         self.scoring_norm = scoring_norm
 
-    def reduce_norm(self, v: torch.Tensor) -> torch.Tensor:
+    def reduce_embedding(self, v: torch.Tensor) -> torch.Tensor:
         """
         p-norm reduction along embedding dimension.
 
@@ -163,7 +163,7 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
                 v1, v2.reshape(-1, embedding_size), p=self.scoring_norm
             )
         else:
-            score = self.reduce_norm(v1.unsqueeze(1) - v2)
+            score = self.reduce_embedding(v1.unsqueeze(1) - v2)
         return cast(torch.Tensor, score)
 
 
@@ -182,6 +182,18 @@ class MatrixDecompositionScoreFunction(BaseScoreFunction, ABC):
         """
         super().__init__()
         self.negative_sample_sharing = negative_sample_sharing
+
+    def reduce_embedding(self, v: torch.Tensor) -> torch.Tensor:
+        """
+        sum reduction along embedding dimension.
+
+        :param v: shape: (*, embedding_size)
+            The tensor to reduce.
+
+        :return: shape: (*,)
+            sum reduction.
+        """
+        return torch.sum(v, dim=-1)
 
     def broadcasted_score(self, v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
         """
@@ -204,7 +216,7 @@ class MatrixDecompositionScoreFunction(BaseScoreFunction, ABC):
         if self.negative_sample_sharing:
             score = torch.matmul(v1, v2.reshape(-1, embedding_size).T)
         else:
-            score = torch.sum(v1.unsqueeze(1) * v2, dim=-1)
+            score = self.reduce_embedding(v1.unsqueeze(1) * v2)
         return score
 
 
@@ -265,7 +277,7 @@ class TransE(DistanceBasedScoreFunction):
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
         relation_emb = self.relation_embedding[relation_id.to(torch.long)]
-        return -self.reduce_norm(head_emb + relation_emb - tail_emb)
+        return -self.reduce_embedding(head_emb + relation_emb - tail_emb)
 
     # docstr-coverage: inherited
     def score_heads(
@@ -349,7 +361,9 @@ class RotatE(DistanceBasedScoreFunction):
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
         relation_emb = self.relation_embedding[relation_id.to(torch.long)]
-        return -self.reduce_norm(complex_rotation(head_emb, relation_emb) - tail_emb)
+        return -self.reduce_embedding(
+            complex_rotation(head_emb, relation_emb) - tail_emb
+        )
 
     # docstr-coverage: inherited
     def score_heads(
@@ -428,7 +442,7 @@ class DistMult(MatrixDecompositionScoreFunction):
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
         relation_emb = self.relation_embedding[relation_id.to(torch.long)]
-        return torch.sum(head_emb * relation_emb * tail_emb, dim=-1)
+        return self.reduce_embedding(head_emb * relation_emb * tail_emb)
 
     # docstr-coverage: inherited
     def score_heads(
@@ -506,8 +520,8 @@ class ComplEx(MatrixDecompositionScoreFunction):
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
         relation_emb = self.relation_embedding[relation_id.to(torch.long)]
-        return torch.sum(
-            complex_multiplication(head_emb, relation_emb) * tail_emb, dim=-1
+        return self.reduce_embedding(
+            complex_multiplication(head_emb, relation_emb) * tail_emb
         )
 
     # docstr-coverage: inherited
