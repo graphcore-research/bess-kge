@@ -22,7 +22,7 @@ from besskge.negative_sampler import (
     PlaceholderNegativeSampler,
     TripleBasedShardedNegativeSampler,
 )
-from besskge.scoring import TransE
+from besskge.scoring import ComplEx
 from besskge.sharding import PartitionedTripleSet, Sharding
 
 seed = 1234
@@ -87,9 +87,8 @@ def test_bess_inference(
         ds, "test", sharding, partition_mode="ht_shardpair"
     )
 
-    score_fn = TransE(
+    score_fn = ComplEx(
         negative_sample_sharing=flat_negative_format,
-        scoring_norm=1,
         sharding=sharding,
         n_relation_type=ds.n_relation_type,
         embedding_size=embedding_size,
@@ -236,6 +235,8 @@ def test_bess_inference(
                     dim=-1,
                 ),
                 neg_h_scores_filtered,
+                rtol=1e-4,
+                atol=1e-5,
             )
             assert_close(
                 torch.take_along_dim(
@@ -244,6 +245,8 @@ def test_bess_inference(
                     dim=-1,
                 ),
                 neg_t_scores_filtered,
+                rtol=1e-4,
+                atol=1e-5,
             )
         else:
             negative_score_filtered = negative_score[triple_mask]
@@ -260,6 +263,8 @@ def test_bess_inference(
                     dim=-1,
                 ),
                 negative_score_filtered,
+                rtol=1e-4,
+                atol=1e-5,
             )
 
 
@@ -304,9 +309,8 @@ def test_bess_topk_prediction(
         ds, "test", sharding, partition_mode=partition_mode
     )
 
-    score_fn = TransE(
+    score_fn = ComplEx(
         negative_sample_sharing=flat_negative_format,
-        scoring_norm=1,
         sharding=sharding,
         n_relation_type=ds.n_relation_type,
         embedding_size=embedding_size,
