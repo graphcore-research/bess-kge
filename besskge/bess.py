@@ -1,7 +1,7 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
 import warnings
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, Tuple, Union, cast
 
 import numpy as np
@@ -14,11 +14,6 @@ from poptorch_experimental_addons.collectives import (
     all_to_all_single_cross_replica as all_to_all,
 )
 
-from besskge.embedding import (
-    EmbeddingInitializer,
-    initialize_entity_embedding,
-    initialize_relation_embedding,
-)
 from besskge.loss import BaseLossFunction
 from besskge.metric import Evaluation
 from besskge.negative_sampler import (
@@ -33,7 +28,7 @@ from besskge.utils import gather_indices
 BAD_NEGATIVE_SCORE = -10000.0
 
 
-class BessKGE(torch.nn.Module):
+class BessKGE(torch.nn.Module, ABC):
     """
     Base class for distributed training and inference of KGE models, using
     the distribution framework BESS [...].
@@ -44,11 +39,7 @@ class BessKGE(torch.nn.Module):
     def __init__(
         self,
         sharding: Sharding,
-        n_relation_type: int,
-        embedding_size: Optional[int],
         negative_sampler: ShardedNegativeSampler,
-        entity_intializer: Union[torch.Tensor, EmbeddingInitializer],
-        relation_intializer: Union[torch.Tensor, EmbeddingInitializer],
         score_fn: BaseScoreFunction,
         loss_fn: Optional[BaseLossFunction] = None,
         evaluation: Optional[Evaluation] = None,
@@ -59,16 +50,8 @@ class BessKGE(torch.nn.Module):
 
         :param sharding:
             The entity sharding.
-        :param n_relation_type:
-            Number of relation types in the KG.
-        :param embedding_size:
-            Size of entities and relation embeddings.
         :param negative_sampler:
             Sampler of negative entities.
-        :param entity_intializer:
-            Initialization scheme / table for entity embeddings.
-        :param relation_intializer:
-            Initialization scheme / table for relation embeddings.
         :param score_fn:
             Scoring function.
         :param loss_fn:
@@ -82,7 +65,6 @@ class BessKGE(torch.nn.Module):
         """
         super().__init__()
         self.sharding = sharding
-        self.n_relation_type = n_relation_type
         self.negative_sampler = negative_sampler
         self.score_fn = score_fn
         self.loss_fn = loss_fn
@@ -99,20 +81,18 @@ class BessKGE(torch.nn.Module):
                 score_fn.negative_sample_sharing
             ), "Using flat negative format requires negative sample sharing"
 
-        self.entity_embedding = initialize_entity_embedding(
-            entity_intializer, self.sharding, embedding_size
-        )
-        self.relation_embedding = initialize_relation_embedding(
-            relation_intializer, self.n_relation_type, embedding_size
-        )
-        self.embedding_size: int = self.entity_embedding.shape[-1]
+        self.entity_embedding = self.score_fn.entity_embedding
+        self.entity_embedding_size: int = self.score_fn.entity_embedding.shape[-1]
 
     @property
-    def n_parameters(self) -> int:
+    def n_embedding_parameters(self) -> int:
         """
         :return: number of trainable parameters in the embedding tables
         """
-        return self.entity_embedding.numel() + self.relation_embedding.numel()
+        return (
+            self.score_fn.entity_embedding.numel()
+            + self.score_fn.relation_embedding.numel()
+        )
 
     def forward(
         self,
@@ -274,7 +254,6 @@ class EmbeddingMovingBessKGE(BessKGE):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         # Gather embeddings
         n_shard = relation.shape[0]
-        relation_embedding = self.relation_embedding[relation]
         negative_flat = negative.flatten(start_dim=1)
         gather_idx = torch.concat([head, tail, negative_flat], dim=1)
         head_embedding, tail_and_negative_embedding = torch.split(
@@ -301,33 +280,35 @@ class EmbeddingMovingBessKGE(BessKGE):
                 dim=1,
             )
         negative_embedding = (
-            negative_embedding.reshape(*negative.shape, self.embedding_size)
+            negative_embedding.reshape(*negative.shape, self.entity_embedding_size)
             .transpose(0, 1)
             .flatten(start_dim=1, end_dim=2)
         )
 
         positive_score = self.score_fn.score_triple(
             head_embedding.flatten(end_dim=1),
-            relation_embedding.flatten(end_dim=1),
+            relation.flatten(end_dim=1),
             tail_embedding.flatten(end_dim=1),
         )
 
         if self.negative_sampler.corruption_scheme == "h":
             negative_score = self.score_fn.score_heads(
                 negative_embedding,
-                relation_embedding.flatten(end_dim=1),
+                relation.flatten(end_dim=1),
                 tail_embedding.flatten(end_dim=1),
             )
         elif self.negative_sampler.corruption_scheme == "t":
             negative_score = self.score_fn.score_tails(
                 head_embedding.flatten(end_dim=1),
-                relation_embedding.flatten(end_dim=1),
+                relation.flatten(end_dim=1),
                 negative_embedding,
             )
         elif self.negative_sampler.corruption_scheme == "ht":
             cut_point = relation.shape[1] // 2
             relation_half1, relation_half2 = torch.split(
-                relation_embedding, cut_point, dim=1
+                relation,
+                cut_point,
+                dim=1,
             )
             if self.negative_sampler.flat_negative_format:
                 negative_heads, negative_tails = torch.split(
@@ -335,7 +316,7 @@ class EmbeddingMovingBessKGE(BessKGE):
                 )
             else:
                 negative_embedding = negative_embedding.reshape(
-                    *relation.shape[:2], -1, self.embedding_size
+                    *relation.shape[:2], -1, self.entity_embedding_size
                 )
                 negative_heads, negative_tails = torch.split(
                     negative_embedding, cut_point, dim=1
@@ -390,7 +371,7 @@ class ScoreMovingBessKGE(BessKGE):
         n_shard = self.sharding.n_shard
 
         # Gather embeddings
-        relation_embedding = self.relation_embedding[relation]
+        # relation_embedding = self.score_fn.relation_embedding[relation]
         negative_flat = negative.flatten(start_dim=1)
         gather_idx = torch.concat([head, tail, negative_flat], dim=1)
         head_embedding, tail_embedding, negative_embedding = torch.split(
@@ -399,7 +380,7 @@ class ScoreMovingBessKGE(BessKGE):
             dim=1,
         )
         negative_embedding = negative_embedding.reshape(
-            *negative.shape, self.embedding_size
+            *negative.shape, self.entity_embedding_size
         )
         if (
             isinstance(self.negative_sampler, TripleBasedShardedNegativeSampler)
@@ -409,26 +390,28 @@ class ScoreMovingBessKGE(BessKGE):
             # one copy is needed
             negative_embedding = negative_embedding[0].unsqueeze(0)
 
-        relation_embedding_all = all_gather(relation_embedding, n_shard)
+        relation_all = all_gather(relation, n_shard)
 
         if self.negative_sampler.corruption_scheme == "h":
             tail_embedding_all = all_gather(tail_embedding, n_shard).transpose(0, 1)
             negative_score = self.score_fn.score_heads(
                 negative_embedding.flatten(end_dim=1),
-                relation_embedding_all.flatten(end_dim=2),
+                relation_all.flatten(end_dim=2),
                 tail_embedding_all.flatten(end_dim=2),
             )
         elif self.negative_sampler.corruption_scheme == "t":
             head_embedding_all = all_gather(head_embedding, n_shard)
             negative_score = self.score_fn.score_tails(
                 head_embedding_all.flatten(end_dim=2),
-                relation_embedding_all.flatten(end_dim=2),
+                relation_all.flatten(end_dim=2),
                 negative_embedding.flatten(end_dim=1),
             )
         elif self.negative_sampler.corruption_scheme == "ht":
             cut_point = relation.shape[1] // 2
             relation_half1, relation_half2 = torch.split(
-                relation_embedding_all, cut_point, dim=2
+                relation_all,
+                cut_point,
+                dim=2,
             )
             tail_embedding_all = all_gather(
                 tail_embedding[:, :cut_point, :], n_shard
@@ -442,7 +425,10 @@ class ScoreMovingBessKGE(BessKGE):
                 negative_tails = negative_tails.flatten(end_dim=1)
             else:
                 negative_embedding = negative_embedding.reshape(
-                    self.sharding.n_shard, *relation.shape[:2], -1, self.embedding_size
+                    self.sharding.n_shard,
+                    *relation.shape[:2],
+                    -1,
+                    self.entity_embedding_size
                 )
                 negative_heads, negative_tails = torch.split(
                     negative_embedding, cut_point, dim=2
@@ -484,7 +470,7 @@ class ScoreMovingBessKGE(BessKGE):
 
         positive_score = self.score_fn.score_triple(
             head_embedding.flatten(end_dim=1),
-            relation_embedding.flatten(end_dim=1),
+            relation.flatten(end_dim=1),
             tail_embedding.flatten(end_dim=1),
         )
 
@@ -517,8 +503,6 @@ class TopKQueryBessKGE(torch.nn.Module):
         candidate_sampler: Union[
             TripleBasedShardedNegativeSampler, PlaceholderNegativeSampler
         ],
-        entity_intializer: torch.Tensor,
-        relation_intializer: torch.Tensor,
         score_fn: BaseScoreFunction,
         evaluation: Optional[Evaluation] = None,
         return_scores: bool = False,
@@ -531,19 +515,11 @@ class TopKQueryBessKGE(torch.nn.Module):
             For each query return the top-k most likely predictions.
         :param sharding:
             The entity sharding.
-        :param n_relation_type:
-            Number of relation types in the KG.
-        :param embedding_size:
-            Size of entities and relation embeddings.
         :param candidate_sampler:
             Sampler of candidate entities to score against queries.
             Use :class:`besskge.negative_sampler.PlaceholderNegativeSampler`
             to score queries against all entities in the KG, avoiding
             unnecessary loading of negative entities on device.
-        :param entity_intializer:
-            Initialization TABLE for entity embeddings.
-        :param relation_intializer:
-            Initialization TABLE for relation embeddings.
         :param score_fn:
             Scoring function.
         :param evaluation:
@@ -586,13 +562,8 @@ class TopKQueryBessKGE(torch.nn.Module):
                 " in the candidate_sampler"
             )
 
-        self.entity_embedding = initialize_entity_embedding(
-            entity_intializer, self.sharding
-        )
-        self.relation_embedding = initialize_relation_embedding(
-            relation_intializer, n_relation_type=relation_intializer.shape[0]
-        )
-        self.embedding_size: int = self.entity_embedding.shape[-1]
+        self.entity_embedding = self.score_fn.entity_embedding
+        self.entity_embedding_size: int = self.entity_embedding.shape[-1]
 
     def forward(
         self,
@@ -658,8 +629,7 @@ class TopKQueryBessKGE(torch.nn.Module):
         shard_bs = relation.shape[0]
         n_best = self.k + 1
 
-        relation_embedding = self.relation_embedding[relation]
-        relation_embedding_all = all_gather(relation_embedding, n_shard)
+        relation_all = all_gather(relation, n_shard)
 
         def loop_body(
             curr_score: torch.Tensor, curr_idx: torch.Tensor, slide_idx: torch.Tensor
@@ -680,7 +650,7 @@ class TopKQueryBessKGE(torch.nn.Module):
                 tail_embedding_all = all_gather(tail_embedding, n_shard)
                 negative_score = self.score_fn.score_heads(
                     negative_embedding,
-                    relation_embedding_all.flatten(end_dim=1),
+                    relation_all.flatten(end_dim=1),
                     tail_embedding_all.flatten(end_dim=1),
                 )
             elif self.negative_sampler.corruption_scheme == "t":
@@ -688,7 +658,7 @@ class TopKQueryBessKGE(torch.nn.Module):
                 head_embedding_all = all_gather(head_embedding, n_shard)
                 negative_score = self.score_fn.score_tails(
                     head_embedding_all.flatten(end_dim=1),
-                    relation_embedding_all.flatten(end_dim=1),
+                    relation_all.flatten(end_dim=1),
                     negative_embedding,
                 )
 

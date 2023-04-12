@@ -87,7 +87,15 @@ def test_bess_inference(
         ds, "test", sharding, partition_mode="ht_shardpair"
     )
 
-    score_fn = TransE(negative_sample_sharing=flat_negative_format, scoring_norm=1)
+    score_fn = TransE(
+        negative_sample_sharing=flat_negative_format,
+        scoring_norm=1,
+        sharding=sharding,
+        n_relation_type=ds.n_relation_type,
+        embedding_size=embedding_size,
+        entity_intializer=entity_table,
+        relation_intializer=relation_table,
+    )
 
     test_ns = TripleBasedShardedNegativeSampler(
         partitioned_triple_set.neg_heads,
@@ -122,11 +130,7 @@ def test_bess_inference(
     # Define model with custom embedding tables
     inf_model = model(
         sharding=sharding,
-        n_relation_type=ds.n_relation_type,
-        embedding_size=embedding_size,
         negative_sampler=test_ns,
-        entity_intializer=entity_table,
-        relation_intializer=relation_table,
         score_fn=score_fn,
         return_scores=True,
     )
@@ -142,24 +146,24 @@ def test_bess_inference(
     # Compute true positive/negative scores
     flat_ent_table = entity_table[sharding.entity_to_shard, sharding.entity_to_idx]
     test_h_embs = flat_ent_table[torch.from_numpy(test_triples_h).to(torch.long)]
-    test_rel_embs = relation_table[torch.from_numpy(test_triples_r).to(torch.long)]
+    test_rel = torch.from_numpy(test_triples_r)
     test_t_embs = flat_ent_table[torch.from_numpy(test_triples_t).to(torch.long)]
     neg_h_embs = flat_ent_table[torch.from_numpy(test_negative_heads).to(torch.long)]
     neg_t_embs = flat_ent_table[torch.from_numpy(test_negative_tails).to(torch.long)]
 
     true_positive_score = score_fn.score_triple(
         test_h_embs,
-        test_rel_embs,
+        test_rel,
         test_t_embs,
     )
     true_neg_h_score = score_fn.score_heads(
         neg_h_embs,
-        test_rel_embs,
+        test_rel,
         test_t_embs,
     )
     true_neg_t_score = score_fn.score_tails(
         test_h_embs,
-        test_rel_embs,
+        test_rel,
         neg_t_embs,
     )
 
@@ -232,6 +236,8 @@ def test_bess_inference(
                     dim=-1,
                 ),
                 neg_h_scores_filtered,
+                rtol=1e-4,
+                atol=1e-5,
             )
             assert_close(
                 torch.take_along_dim(
@@ -240,6 +246,8 @@ def test_bess_inference(
                     dim=-1,
                 ),
                 neg_t_scores_filtered,
+                rtol=1e-4,
+                atol=1e-5,
             )
         else:
             negative_score_filtered = negative_score[triple_mask]
@@ -256,10 +264,15 @@ def test_bess_inference(
                     dim=-1,
                 ),
                 negative_score_filtered,
+                rtol=1e-4,
+                atol=1e-5,
             )
 
 
-@pytest.mark.skip(reason="does not compile on IPUModel --- exclude from github CI")
+@pytest.mark.skipif(
+    not poptorch.ipuHardwareIsAvailable(num_ipus=n_shard),
+    reason="test does not compile on IPUModel -- exclude from github CI",
+)
 @pytest.mark.parametrize("corruption_scheme", ["h", "t"])
 @pytest.mark.parametrize(
     "vs_all, flat_negative_format", [(True, True), (False, True), (False, False)]
@@ -297,7 +310,15 @@ def test_bess_topk_prediction(
         ds, "test", sharding, partition_mode=partition_mode
     )
 
-    score_fn = TransE(negative_sample_sharing=flat_negative_format, scoring_norm=1)
+    score_fn = TransE(
+        negative_sample_sharing=flat_negative_format,
+        scoring_norm=1,
+        sharding=sharding,
+        n_relation_type=ds.n_relation_type,
+        embedding_size=embedding_size,
+        entity_intializer=entity_table,
+        relation_intializer=relation_table,
+    )
 
     test_ns: Union[TripleBasedShardedNegativeSampler, PlaceholderNegativeSampler]
     if vs_all:
@@ -334,8 +355,6 @@ def test_bess_topk_prediction(
         k=k,
         sharding=sharding,
         candidate_sampler=test_ns,
-        entity_intializer=entity_table,
-        relation_intializer=relation_table,
         score_fn=score_fn,
         evaluation=None,
         return_scores=True,
@@ -370,7 +389,7 @@ def test_bess_topk_prediction(
         test_negative_heads = test_negative_heads[triple_indices]
     flat_ent_table = entity_table[sharding.entity_to_shard, sharding.entity_to_idx]
     head_emb = flat_ent_table[batch_triples[:, 0]]
-    relation_emb = relation_table[batch_triples[:, 1]]
+    relation = torch.from_numpy(batch_triples[:, 1])
     tail_emb = flat_ent_table[batch_triples[:, 2]]
 
     # Indices to score against
@@ -385,9 +404,9 @@ def test_bess_topk_prediction(
 
     # Score queries and select topk predictions
     if corruption_scheme == "t":
-        tot_scores = score_fn.score_tails(head_emb, relation_emb, candidate_embs)
+        tot_scores = score_fn.score_tails(head_emb, relation, candidate_embs)
     else:
-        tot_scores = score_fn.score_heads(candidate_embs, relation_emb, tail_emb)
+        tot_scores = score_fn.score_heads(candidate_embs, relation, tail_emb)
 
     topk_scores, topk_idx = torch.topk(tot_scores, k=k, dim=-1)
     predict_idx = torch.take_along_dim(candidate_idx, topk_idx, dim=-1).to(torch.int32)

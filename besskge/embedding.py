@@ -1,6 +1,6 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from typing import Optional, Union
 
 import numpy as np
@@ -13,7 +13,7 @@ Utilities for entity/relation embeddings.
 """
 
 
-class EmbeddingInitializer:
+class EmbeddingInitializer(ABC):
     """
     Base class for custom embedding initialization scheme.
     """
@@ -92,6 +92,11 @@ def initialize_entity_embedding(
             entity_embedding = torch.nn.Parameter(intializer_sharded.to(torch.float32))
         else:
             raise ValueError("Table for initialization needs to be 2- or 3-dimensional")
+
+        if embedding_size:
+            assert (
+                embedding_size == entity_embedding.shape[-1]
+            ), "Initialization tensor and embedding_size provided are incompatible"
     else:
         if not embedding_size:
             raise ValueError(
@@ -136,6 +141,11 @@ def initialize_relation_embedding(
         if initializer.dim() != 2:
             raise ValueError("Table for initialization needs to be 2-dimensional")
         relation_embedding = torch.nn.Parameter(initializer.to(torch.float32))
+
+        if embedding_size:
+            assert (
+                embedding_size == relation_embedding.shape[-1]
+            ), "Initialization tensor and embedding_size provided are incompatible"
     else:
         if not embedding_size:
             raise ValueError(
