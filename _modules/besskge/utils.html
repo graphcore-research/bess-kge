@@ -102,6 +102,44 @@
     <span class="n">index_flattened</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">sq</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">index_flattened</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mask_size</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="complex_multiplication"><a class="viewcode-back" href="../../API_ref/utils.html#besskge.utils.complex_multiplication">[docs]</a><span class="k">def</span> <span class="nf">complex_multiplication</span><span class="p">(</span><span class="n">v1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Batched complex multiplication.</span>
+
+<span class="sd">    :param v1: shape: (a, 2*e)</span>
+<span class="sd">        `v1[:,:e]` real part, `v1[:,e:]` imaginary part.</span>
+<span class="sd">    :param v2: shape: (a, 2*e)</span>
+<span class="sd">        `v2[:,:e]` real part, `v2[:,e:]` imaginary part.</span>
+<span class="sd">    :return: shape: (a, 2*e)</span>
+<span class="sd">        Row-wise complex multiplcation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cutpoint</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span>
+    <span class="n">v1_re</span><span class="p">,</span> <span class="n">v1_im</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">cutpoint</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">v2_re</span><span class="p">,</span> <span class="n">v2_im</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">v2</span><span class="p">,</span> <span class="n">cutpoint</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">v1_re</span> <span class="o">*</span> <span class="n">v2_re</span> <span class="o">-</span> <span class="n">v1_im</span> <span class="o">*</span> <span class="n">v2_im</span><span class="p">,</span> <span class="n">v1_re</span> <span class="o">*</span> <span class="n">v2_im</span> <span class="o">+</span> <span class="n">v1_im</span> <span class="o">*</span> <span class="n">v2_re</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="complex_rotation"><a class="viewcode-back" href="../../API_ref/utils.html#besskge.utils.complex_rotation">[docs]</a><span class="k">def</span> <span class="nf">complex_rotation</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Batched rotation by unitary tensors.</span>
+
+<span class="sd">    :param v: shape: (a, 2*e)</span>
+<span class="sd">        Complex tensor to rotate:</span>
+<span class="sd">        `v[:,:e]` real part, `v[:,e:]` imaginary part.</span>
+<span class="sd">    :param r: shape: (a, e)</span>
+<span class="sd">        Rotate `v[k]` by</span>
+<span class="sd">    .. math::</span>
+<span class="sd">        \exp^{i \pi r[k]}</span>
+<span class="sd">    :return: shape: (a, 2*e)</span>
+<span class="sd">        Row-wise rotated tensors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r_complex</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">r</span><span class="p">)],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">complex_multiplication</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">r_complex</span><span class="p">)</span></div>
 </pre></div>
 
            </div>

@@ -80,37 +80,48 @@
 <span></span><span class="c1"># Copyright (c) 2023 Graphcore Ltd. All rights reserved.</span>
 
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">cast</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
 
-<span class="kn">import</span> <span class="nn">poptorch</span>
 <span class="kn">import</span> <span class="nn">poptorch_experimental_addons</span> <span class="k">as</span> <span class="nn">pea</span>
 <span class="kn">import</span> <span class="nn">torch</span>
 
+<span class="kn">from</span> <span class="nn">besskge.embedding</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">EmbeddingInitializer</span><span class="p">,</span>
+    <span class="n">initialize_entity_embedding</span><span class="p">,</span>
+    <span class="n">initialize_relation_embedding</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">besskge.sharding</span> <span class="kn">import</span> <span class="n">Sharding</span>
+<span class="kn">from</span> <span class="nn">besskge.utils</span> <span class="kn">import</span> <span class="n">complex_multiplication</span><span class="p">,</span> <span class="n">complex_rotation</span>
 
-<div class="viewcode-block" id="BaseScoreFunction"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.BaseScoreFunction">[docs]</a><span class="k">class</span> <span class="nc">BaseScoreFunction</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+
+<div class="viewcode-block" id="BaseScoreFunction"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.BaseScoreFunction">[docs]</a><span class="k">class</span> <span class="nc">BaseScoreFunction</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for scoring functions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Share negative entities to construct negative samples</span>
+    <span class="c1">#: Share negative entities to construct negative samples</span>
     <span class="n">negative_sample_sharing</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="c1">#: Relation embedding table</span>
+    <span class="n">entity_embedding</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span>
+    <span class="c1">#: Relation embedding table</span>
+    <span class="n">relation_embedding</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span>
 
 <div class="viewcode-block" id="BaseScoreFunction.score_triple"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.BaseScoreFunction.score_triple">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">score_triple</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">head</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">relation</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">tail</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Score (h,r,t) triples.</span>
+<span class="sd">        Score (h,r,t) triples. No sharing is used.</span>
 
-<span class="sd">        :param head: shape: (batch_size, embedding_size)</span>
+<span class="sd">        :param head_emb: shape: (batch_size, embedding_size)</span>
 <span class="sd">            Embeddings of head entities in batch.</span>
-<span class="sd">        :param relation: shape: (batch_size, embedding_size)</span>
-<span class="sd">            Embeddings of relation types in batch.</span>
-<span class="sd">        :param tail: shape: (batch_size, embedding_size)</span>
-<span class="sd">            Embedding of tail entities in batch.</span>
+<span class="sd">        :param relation_id: shape: (batch_size,)</span>
+<span class="sd">            IDs of relation types in batch.</span>
+<span class="sd">        :param tail_emb: shape: (batch_size, embedding_size)</span>
+<span class="sd">            Embeddings of tail entities in batch.</span>
 
 <span class="sd">        :return: shape (batch_size,)</span>
 <span class="sd">            Scores of batch triples.</span>
@@ -120,18 +131,18 @@
 <div class="viewcode-block" id="BaseScoreFunction.score_heads"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.BaseScoreFunction.score_heads">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">score_heads</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">head</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">relation</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">tail</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Score sets of head entities against fixed (r,t) queries.</span>
 
-<span class="sd">        :param head: shape: (B, n_heads, embedding_size) with B = 1, batch_size</span>
+<span class="sd">        :param head_emb: shape: (B, n_heads, embedding_size) with B = 1, batch_size</span>
 <span class="sd">            Embeddings of head entities.</span>
-<span class="sd">        :param relation: shape: (batch_size, embedding_size)</span>
-<span class="sd">            Embeddings of relation types in batch.</span>
-<span class="sd">        :param tail: shape: (batch_size, embedding_size)</span>
+<span class="sd">        :param relation_id: shape: (batch_size,)</span>
+<span class="sd">            IDs of relation types in batch.</span>
+<span class="sd">        :param tail_emb: shape: (batch_size, embedding_size)</span>
 <span class="sd">            Embedding of tail entities in batch.</span>
 
 <span class="sd">        :return: shape: (batch_size, B * n_heads) if</span>
@@ -144,18 +155,18 @@
 <div class="viewcode-block" id="BaseScoreFunction.score_tails"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.BaseScoreFunction.score_tails">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">score_tails</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">head</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">relation</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">tail</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Score sets of tail entities against fixed (h,r) queries.</span>
 
-<span class="sd">        :param head: shape: (batch_size, embedding_size)</span>
+<span class="sd">        :param head_emb: shape: (batch_size, embedding_size)</span>
 <span class="sd">            Embeddings of head entities in batch.</span>
-<span class="sd">        :param relation: shape: (batch_size, embedding_size)</span>
-<span class="sd">            Embeddings of relation types in batch.</span>
-<span class="sd">        :param tail: shape: (B, n_tails, embedding_size) with B = 1, batch_size</span>
+<span class="sd">        :param relation_id: shape: (batch_size,)</span>
+<span class="sd">            IDs of relation types in batch.</span>
+<span class="sd">        :param tail_emb: shape: (B, n_tails, embedding_size) with B = 1, batch_size</span>
 <span class="sd">            Embedding of tail entities.</span>
 
 <span class="sd">        :return: shape: (batch_size, B * n_tails) if</span>
@@ -163,7 +174,18 @@
 <span class="sd">                else (batch_size, n_tails)</span>
 <span class="sd">            Scores of broadcasted triples.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="BaseScoreFunction.forward"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.BaseScoreFunction.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        see :meth:`BaseScoreFunction.score_triple`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_triple</span><span class="p">(</span><span class="n">head_emb</span><span class="p">,</span> <span class="n">relation_id</span><span class="p">,</span> <span class="n">tail_emb</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="DistanceBasedScoreFunction"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistanceBasedScoreFunction">[docs]</a><span class="k">class</span> <span class="nc">DistanceBasedScoreFunction</span><span class="p">(</span><span class="n">BaseScoreFunction</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
@@ -171,6 +193,7 @@
 <span class="sd">    Base class for distance-based scoring functions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="c1"># scoring_norm: int</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">negative_sample_sharing</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize distance-based scoring function.</span>
@@ -180,10 +203,11 @@
 <span class="sd">        :param scoring_norm:</span>
 <span class="sd">            p for p-norm to use in distance computation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">negative_sample_sharing</span> <span class="o">=</span> <span class="n">negative_sample_sharing</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scoring_norm</span> <span class="o">=</span> <span class="n">scoring_norm</span>
 
-<div class="viewcode-block" id="DistanceBasedScoreFunction.reduce_norm"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistanceBasedScoreFunction.reduce_norm">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_norm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="DistanceBasedScoreFunction.reduce_embedding"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistanceBasedScoreFunction.reduce_embedding">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        p-norm reduction along embedding dimension.</span>
 
@@ -195,36 +219,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scoring_norm</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="DistanceBasedScoreFunction.distance_matrix"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistanceBasedScoreFunction.distance_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">distance_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Broadcasted pairwise distance between two collections of vectors.</span>
-<span class="sd">        Computes p-norm reduction along trailing dimension of</span>
-<span class="sd">        `tensor1[:, None, :] - tensor2[None, :, :]` without materializing the</span>
-<span class="sd">        intermediate broadcasted difference, for memory optimization.</span>
-
-<span class="sd">        :param v1: shape: (outer1, K)</span>
-<span class="sd">            First collection.</span>
-<span class="sd">        :param v2: shape: (outer2, K)</span>
-<span class="sd">            Second collection.</span>
-
-<span class="sd">        :return: shape: (outer1, outer2)</span>
-<span class="sd">            Broadcasted pairwise p-distance.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">distance_matrix</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
-        <span class="k">if</span> <span class="n">poptorch</span><span class="o">.</span><span class="n">isRunningOnIpu</span><span class="p">():</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scoring_norm</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
-                <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">pea</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scoring_norm</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
-                    <span class="s2">&quot;Only 1- and 2-norm supported by distance_matrix on IPU&quot;</span>
-                <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cdist</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scoring_norm</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">distance_matrix</span></div>
-
 <div class="viewcode-block" id="DistanceBasedScoreFunction.broadcasted_score"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistanceBasedScoreFunction.broadcasted_score">[docs]</a>    <span class="k">def</span> <span class="nf">broadcasted_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Broadcasted scores of queries against sets of negative entities.</span>
+<span class="sd">        Broadcasted scores of queries against sets of entities.</span>
+
+<span class="sd">        For each query and candidate, the score is given by the p-distance</span>
+<span class="sd">        of the embeddings.</span>
 
 <span class="sd">        :param v1: shape: (batch_size, embedding_size)</span>
 <span class="sd">            Batch queries.</span>
@@ -238,10 +238,65 @@
 
         <span class="n">embedding_size</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sample_sharing</span><span class="p">:</span>
-            <span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">))</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">pea</span><span class="o">.</span><span class="n">distance_matrix</span><span class="p">(</span>
+                <span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">),</span> <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scoring_norm</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">dist</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce_norm</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">v2</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">dist</span></div></div>
+            <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce_embedding</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">v2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">score</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="MatrixDecompositionScoreFunction"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.MatrixDecompositionScoreFunction">[docs]</a><span class="k">class</span> <span class="nc">MatrixDecompositionScoreFunction</span><span class="p">(</span><span class="n">BaseScoreFunction</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for matrix-decomposition scoring functions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># scoring_norm: int</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">negative_sample_sharing</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize matrix-decomposition scoring function.</span>
+
+<span class="sd">        :param negative_sample_sharing:</span>
+<span class="sd">            see :class:`BaseScoreFunction`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">negative_sample_sharing</span> <span class="o">=</span> <span class="n">negative_sample_sharing</span>
+
+<div class="viewcode-block" id="MatrixDecompositionScoreFunction.reduce_embedding"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.MatrixDecompositionScoreFunction.reduce_embedding">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        sum reduction along embedding dimension.</span>
+
+<span class="sd">        :param v: shape: (*, embedding_size)</span>
+<span class="sd">            The tensor to reduce.</span>
+
+<span class="sd">        :return: shape: (*,)</span>
+<span class="sd">            sum reduction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MatrixDecompositionScoreFunction.broadcasted_score"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.MatrixDecompositionScoreFunction.broadcasted_score">[docs]</a>    <span class="k">def</span> <span class="nf">broadcasted_score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Broadcasted scores of queries against sets of entities.</span>
+
+<span class="sd">        For each query and candidate, the score is given by the dot product of</span>
+<span class="sd">        the embeddings.</span>
+
+<span class="sd">        :param v1: shape: (batch_size, embedding_size)</span>
+<span class="sd">            Batch queries.</span>
+<span class="sd">        :param v2: shape: (B, n_neg, embedding_size) with B = 1, batch_size</span>
+<span class="sd">            Negative embeddings to score against queries.</span>
+
+<span class="sd">        :return: shape: (batch_size, B * n_neg) if</span>
+<span class="sd">                :attr:`BaseScoreFunction.negative_sample_sharing`</span>
+<span class="sd">                else (batch_size, n_neg)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">embedding_size</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sample_sharing</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce_embedding</span><span class="p">(</span><span class="n">v1</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">v2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">score</span></div></div>
 
 
 <div class="viewcode-block" id="TransE"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.TransE">[docs]</a><span class="k">class</span> <span class="nc">TransE</span><span class="p">(</span><span class="n">DistanceBasedScoreFunction</span><span class="p">):</span>
@@ -249,32 +304,330 @@
 <span class="sd">    TransE scoring function (see [...]).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">negative_sample_sharing</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">scoring_norm</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
+        <span class="n">n_relation_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">embedding_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">entity_intializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
+        <span class="n">relation_intializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize TransE model.</span>
+
+<span class="sd">        :param negative_sample_sharing:</span>
+<span class="sd">            see :meth:`DistanceBasedScoreFunction.__init__`</span>
+<span class="sd">        :type scoring_norm:</span>
+<span class="sd">            see :meth:`DistanceBasedScoreFunction.__init__`</span>
+<span class="sd">        :type sharding:</span>
+<span class="sd">            Entity sharding.</span>
+<span class="sd">        :param n_relation_type:</span>
+<span class="sd">            Number of relation types in the KG.</span>
+<span class="sd">        :param embedding_size:</span>
+<span class="sd">            Size of entities and relation embeddings. Can be omitted</span>
+<span class="sd">            if passing tensors for initialization of entity and relation</span>
+<span class="sd">            embeddings.</span>
+<span class="sd">        :param entity_intializer:</span>
+<span class="sd">            Initialization scheme / table for entity embeddings.</span>
+<span class="sd">        :param relation_intializer:</span>
+<span class="sd">            Initialization scheme / table for relation embeddings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TransE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span> <span class="o">=</span> <span class="n">initialize_entity_embedding</span><span class="p">(</span>
+            <span class="n">entity_intializer</span><span class="p">,</span> <span class="n">sharding</span><span class="p">,</span> <span class="n">embedding_size</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
+            <span class="n">relation_intializer</span><span class="p">,</span> <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">embedding_size</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">),</span> <span class="s2">&quot;TransE requires same embedding size for entities and relations&quot;</span>
+
     <span class="c1"># docstr-coverage: inherited</span>
 <div class="viewcode-block" id="TransE.score_triple"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.TransE.score_triple">[docs]</a>    <span class="k">def</span> <span class="nf">score_triple</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">head</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">relation</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">tail</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">reduce_norm</span><span class="p">(</span><span class="n">head</span> <span class="o">+</span> <span class="n">relation</span> <span class="o">-</span> <span class="n">tail</span><span class="p">)</span></div>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">reduce_embedding</span><span class="p">(</span><span class="n">head_emb</span> <span class="o">+</span> <span class="n">relation_emb</span> <span class="o">-</span> <span class="n">tail_emb</span><span class="p">)</span></div>
 
     <span class="c1"># docstr-coverage: inherited</span>
 <div class="viewcode-block" id="TransE.score_heads"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.TransE.score_heads">[docs]</a>    <span class="k">def</span> <span class="nf">score_heads</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">head</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">relation</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">tail</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span><span class="n">tail</span> <span class="o">-</span> <span class="n">relation</span><span class="p">,</span> <span class="n">head</span><span class="p">)</span></div>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span><span class="n">tail_emb</span> <span class="o">-</span> <span class="n">relation_emb</span><span class="p">,</span> <span class="n">head_emb</span><span class="p">)</span></div>
 
     <span class="c1"># docstr-coverage: inherited</span>
 <div class="viewcode-block" id="TransE.score_tails"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.TransE.score_tails">[docs]</a>    <span class="k">def</span> <span class="nf">score_tails</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">head</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">relation</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">tail</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span><span class="n">head</span> <span class="o">+</span> <span class="n">relation</span><span class="p">,</span> <span class="n">tail</span><span class="p">)</span></div></div>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span><span class="n">head_emb</span> <span class="o">+</span> <span class="n">relation_emb</span><span class="p">,</span> <span class="n">tail_emb</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="RotatE"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.RotatE">[docs]</a><span class="k">class</span> <span class="nc">RotatE</span><span class="p">(</span><span class="n">DistanceBasedScoreFunction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    RotatE scoring function (see [...]).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">negative_sample_sharing</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">scoring_norm</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
+        <span class="n">n_relation_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">embedding_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">entity_intializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
+        <span class="n">relation_intializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize RotatE model.</span>
+
+<span class="sd">        :param negative_sample_sharing:</span>
+<span class="sd">            see :meth:`DistanceBasedScoreFunction.__init__`</span>
+<span class="sd">        :type scoring_norm:</span>
+<span class="sd">            see :meth:`DistanceBasedScoreFunction.__init__`</span>
+<span class="sd">        :type sharding:</span>
+<span class="sd">            Entity sharding.</span>
+<span class="sd">        :param n_relation_type:</span>
+<span class="sd">            Number of relation types in the KG.</span>
+<span class="sd">        :param embedding_size:</span>
+<span class="sd">            Size of entity embeddings (relation embedding size</span>
+<span class="sd">            will be half of this). Can be omitted</span>
+<span class="sd">            if passing tensors for initialization of entity and relation</span>
+<span class="sd">            embeddings.</span>
+<span class="sd">        :param entity_intializer:</span>
+<span class="sd">            Initialization scheme / table for entity embeddings.</span>
+<span class="sd">        :param relation_intializer:</span>
+<span class="sd">            Initialization scheme / table for relation embeddings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">RotatE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span> <span class="o">=</span> <span class="n">initialize_entity_embedding</span><span class="p">(</span>
+            <span class="n">entity_intializer</span><span class="p">,</span> <span class="n">sharding</span><span class="p">,</span> <span class="n">embedding_size</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
+            <span class="n">relation_intializer</span><span class="p">,</span> <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">embedding_size</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="p">),</span> <span class="s2">&quot;RotatE requires even real embedding size for entities&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">),</span> <span class="s2">&quot;RotatE requires relation emebdding size to be half entity embedding size&quot;</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="RotatE.score_triple"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.RotatE.score_triple">[docs]</a>    <span class="k">def</span> <span class="nf">score_triple</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">reduce_embedding</span><span class="p">(</span>
+            <span class="n">complex_rotation</span><span class="p">(</span><span class="n">head_emb</span><span class="p">,</span> <span class="n">relation_emb</span><span class="p">)</span> <span class="o">-</span> <span class="n">tail_emb</span>
+        <span class="p">)</span></div>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="RotatE.score_heads"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.RotatE.score_heads">[docs]</a>    <span class="k">def</span> <span class="nf">score_heads</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span>
+            <span class="n">complex_rotation</span><span class="p">(</span><span class="n">tail_emb</span><span class="p">,</span> <span class="o">-</span><span class="n">relation_emb</span><span class="p">),</span> <span class="n">head_emb</span>
+        <span class="p">)</span></div>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="RotatE.score_tails"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.RotatE.score_tails">[docs]</a>    <span class="k">def</span> <span class="nf">score_tails</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span>
+            <span class="n">complex_rotation</span><span class="p">(</span><span class="n">head_emb</span><span class="p">,</span> <span class="n">relation_emb</span><span class="p">),</span> <span class="n">tail_emb</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="DistMult"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistMult">[docs]</a><span class="k">class</span> <span class="nc">DistMult</span><span class="p">(</span><span class="n">MatrixDecompositionScoreFunction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DistMult scoring function (see [...]).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">negative_sample_sharing</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
+        <span class="n">n_relation_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">embedding_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">entity_intializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
+        <span class="n">relation_intializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize DistMult model.</span>
+
+<span class="sd">        :param negative_sample_sharing:</span>
+<span class="sd">            see :meth:`DistanceBasedScoreFunction.__init__`</span>
+<span class="sd">        :type sharding:</span>
+<span class="sd">            Entity sharding.</span>
+<span class="sd">        :param n_relation_type:</span>
+<span class="sd">            Number of relation types in the KG.</span>
+<span class="sd">        :param embedding_size:</span>
+<span class="sd">            Size of entity and relation embeddings. Can be omitted</span>
+<span class="sd">            if passing tensors for initialization of entity and relation</span>
+<span class="sd">            embeddings.</span>
+<span class="sd">        :param entity_intializer:</span>
+<span class="sd">            Initialization scheme / table for entity embeddings.</span>
+<span class="sd">        :param relation_intializer:</span>
+<span class="sd">            Initialization scheme / table for relation embeddings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">DistMult</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span> <span class="o">=</span> <span class="n">initialize_entity_embedding</span><span class="p">(</span>
+            <span class="n">entity_intializer</span><span class="p">,</span> <span class="n">sharding</span><span class="p">,</span> <span class="n">embedding_size</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
+            <span class="n">relation_intializer</span><span class="p">,</span> <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">embedding_size</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">),</span> <span class="s2">&quot;DistMult requires same embedding size for entities and relations&quot;</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="DistMult.score_triple"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistMult.score_triple">[docs]</a>    <span class="k">def</span> <span class="nf">score_triple</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce_embedding</span><span class="p">(</span><span class="n">head_emb</span> <span class="o">*</span> <span class="n">relation_emb</span> <span class="o">*</span> <span class="n">tail_emb</span><span class="p">)</span></div>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="DistMult.score_heads"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistMult.score_heads">[docs]</a>    <span class="k">def</span> <span class="nf">score_heads</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span><span class="n">relation_emb</span> <span class="o">*</span> <span class="n">tail_emb</span><span class="p">,</span> <span class="n">head_emb</span><span class="p">)</span></div>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="DistMult.score_tails"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistMult.score_tails">[docs]</a>    <span class="k">def</span> <span class="nf">score_tails</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span><span class="n">head_emb</span> <span class="o">*</span> <span class="n">relation_emb</span><span class="p">,</span> <span class="n">tail_emb</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="ComplEx"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.ComplEx">[docs]</a><span class="k">class</span> <span class="nc">ComplEx</span><span class="p">(</span><span class="n">MatrixDecompositionScoreFunction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ComplEx scoring function (see [...]).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">negative_sample_sharing</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
+        <span class="n">n_relation_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">embedding_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
+        <span class="n">entity_intializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
+        <span class="n">relation_intializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize ComplEx model.</span>
+
+<span class="sd">        :param negative_sample_sharing:</span>
+<span class="sd">            see :meth:`DistanceBasedScoreFunction.__init__`</span>
+<span class="sd">        :type sharding:</span>
+<span class="sd">            Entity sharding.</span>
+<span class="sd">        :param n_relation_type:</span>
+<span class="sd">            Number of relation types in the KG.</span>
+<span class="sd">        :param embedding_size:</span>
+<span class="sd">            Size of entity and relation embeddings. Can be omitted</span>
+<span class="sd">            if passing tensors for initialization of entity and relation</span>
+<span class="sd">            embeddings.</span>
+<span class="sd">        :param entity_intializer:</span>
+<span class="sd">            Initialization scheme / table for entity embeddings.</span>
+<span class="sd">        :param relation_intializer:</span>
+<span class="sd">            Initialization scheme / table for relation embeddings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ComplEx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span> <span class="o">=</span> <span class="n">initialize_entity_embedding</span><span class="p">(</span>
+            <span class="n">entity_intializer</span><span class="p">,</span> <span class="n">sharding</span><span class="p">,</span> <span class="n">embedding_size</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
+            <span class="n">relation_intializer</span><span class="p">,</span> <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">embedding_size</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">),</span> <span class="s2">&quot;ComplEx requires same embedding size for entities and relations&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="p">),</span> <span class="s2">&quot;ComplEx requires even real embedding size for entities and relations&quot;</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="ComplEx.score_triple"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.ComplEx.score_triple">[docs]</a>    <span class="k">def</span> <span class="nf">score_triple</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce_embedding</span><span class="p">(</span>
+            <span class="n">complex_multiplication</span><span class="p">(</span><span class="n">head_emb</span><span class="p">,</span> <span class="n">relation_emb</span><span class="p">)</span> <span class="o">*</span> <span class="n">tail_emb</span>
+        <span class="p">)</span></div>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="ComplEx.score_heads"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.ComplEx.score_heads">[docs]</a>    <span class="k">def</span> <span class="nf">score_heads</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="n">cutpoint</span> <span class="o">=</span> <span class="n">relation_emb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">relation_emb</span><span class="p">[:,</span> <span class="n">cutpoint</span><span class="p">:]</span> <span class="o">=</span> <span class="o">-</span><span class="n">relation_emb</span><span class="p">[:,</span> <span class="n">cutpoint</span><span class="p">:]</span>  <span class="c1"># conjugate relations</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span>
+            <span class="n">complex_multiplication</span><span class="p">(</span><span class="n">relation_emb</span><span class="p">,</span> <span class="n">tail_emb</span><span class="p">),</span> <span class="n">head_emb</span>
+        <span class="p">)</span></div>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="ComplEx.score_tails"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.ComplEx.score_tails">[docs]</a>    <span class="k">def</span> <span class="nf">score_tails</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span>
+            <span class="n">complex_multiplication</span><span class="p">(</span><span class="n">head_emb</span><span class="p">,</span> <span class="n">relation_emb</span><span class="p">),</span> <span class="n">tail_emb</span>
+        <span class="p">)</span></div></div>
 </pre></div>
 
            </div>

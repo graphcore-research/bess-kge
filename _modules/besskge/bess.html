@@ -80,7 +80,7 @@
 <span></span><span class="c1"># Copyright (c) 2023 Graphcore Ltd. All rights reserved.</span>
 
 <span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -93,11 +93,6 @@
     <span class="n">all_to_all_single_cross_replica</span> <span class="k">as</span> <span class="n">all_to_all</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">besskge.embedding</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">EmbeddingInitializer</span><span class="p">,</span>
-    <span class="n">initialize_entity_embedding</span><span class="p">,</span>
-    <span class="n">initialize_relation_embedding</span><span class="p">,</span>
-<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">besskge.loss</span> <span class="kn">import</span> <span class="n">BaseLossFunction</span>
 <span class="kn">from</span> <span class="nn">besskge.metric</span> <span class="kn">import</span> <span class="n">Evaluation</span>
 <span class="kn">from</span> <span class="nn">besskge.negative_sampler</span> <span class="kn">import</span> <span class="p">(</span>
@@ -112,7 +107,7 @@
 <span class="n">BAD_NEGATIVE_SCORE</span> <span class="o">=</span> <span class="o">-</span><span class="mf">10000.0</span>
 
 
-<div class="viewcode-block" id="BessKGE"><a class="viewcode-back" href="../../API_ref/bess.html#besskge.bess.BessKGE">[docs]</a><span class="k">class</span> <span class="nc">BessKGE</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<div class="viewcode-block" id="BessKGE"><a class="viewcode-back" href="../../API_ref/bess.html#besskge.bess.BessKGE">[docs]</a><span class="k">class</span> <span class="nc">BessKGE</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for distributed training and inference of KGE models, using</span>
 <span class="sd">    the distribution framework BESS [...].</span>
@@ -123,11 +118,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
-        <span class="n">n_relation_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">embedding_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
         <span class="n">negative_sampler</span><span class="p">:</span> <span class="n">ShardedNegativeSampler</span><span class="p">,</span>
-        <span class="n">entity_intializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
-        <span class="n">relation_intializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">EmbeddingInitializer</span><span class="p">],</span>
         <span class="n">score_fn</span><span class="p">:</span> <span class="n">BaseScoreFunction</span><span class="p">,</span>
         <span class="n">loss_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseLossFunction</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">evaluation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -138,16 +129,8 @@
 
 <span class="sd">        :param sharding:</span>
 <span class="sd">            The entity sharding.</span>
-<span class="sd">        :param n_relation_type:</span>
-<span class="sd">            Number of relation types in the KG.</span>
-<span class="sd">        :param embedding_size:</span>
-<span class="sd">            Size of entities and relation embeddings.</span>
 <span class="sd">        :param negative_sampler:</span>
 <span class="sd">            Sampler of negative entities.</span>
-<span class="sd">        :param entity_intializer:</span>
-<span class="sd">            Initialization scheme / table for entity embeddings.</span>
-<span class="sd">        :param relation_intializer:</span>
-<span class="sd">            Initialization scheme / table for relation embeddings.</span>
 <span class="sd">        :param score_fn:</span>
 <span class="sd">            Scoring function.</span>
 <span class="sd">        :param loss_fn:</span>
@@ -161,7 +144,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span> <span class="o">=</span> <span class="n">sharding</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_relation_type</span> <span class="o">=</span> <span class="n">n_relation_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span> <span class="o">=</span> <span class="n">negative_sampler</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span> <span class="o">=</span> <span class="n">score_fn</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loss_fn</span> <span class="o">=</span> <span class="n">loss_fn</span>
@@ -178,20 +160,18 @@
                 <span class="n">score_fn</span><span class="o">.</span><span class="n">negative_sample_sharing</span>
             <span class="p">),</span> <span class="s2">&quot;Using flat negative format requires negative sample sharing&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span> <span class="o">=</span> <span class="n">initialize_entity_embedding</span><span class="p">(</span>
-            <span class="n">entity_intializer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="p">,</span> <span class="n">embedding_size</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
-            <span class="n">relation_intializer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_relation_type</span><span class="p">,</span> <span class="n">embedding_size</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">entity_embedding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">n_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">n_embedding_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :return: number of trainable parameters in the embedding tables</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">relation_embedding</span><span class="o">.</span><span class="n">numel</span><span class="p">()</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="BessKGE.forward"><a class="viewcode-back" href="../../API_ref/bess.html#besskge.bess.BessKGE.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -353,7 +333,6 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
         <span class="c1"># Gather embeddings</span>
         <span class="n">n_shard</span> <span class="o">=</span> <span class="n">relation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">relation_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation</span><span class="p">]</span>
         <span class="n">negative_flat</span> <span class="o">=</span> <span class="n">negative</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">start_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">gather_idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">head</span><span class="p">,</span> <span class="n">tail</span><span class="p">,</span> <span class="n">negative_flat</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">head_embedding</span><span class="p">,</span> <span class="n">tail_and_negative_embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
@@ -380,33 +359,35 @@
                 <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="n">negative_embedding</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">negative_embedding</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="n">negative</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">)</span>
+            <span class="n">negative_embedding</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="n">negative</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding_size</span><span class="p">)</span>
             <span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">start_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">end_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="p">)</span>
 
         <span class="n">positive_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_triple</span><span class="p">(</span>
             <span class="n">head_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-            <span class="n">relation_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">relation</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
             <span class="n">tail_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
             <span class="n">negative_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_heads</span><span class="p">(</span>
                 <span class="n">negative_embedding</span><span class="p">,</span>
-                <span class="n">relation_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">relation</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                 <span class="n">tail_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
             <span class="n">negative_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_tails</span><span class="p">(</span>
                 <span class="n">head_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-                <span class="n">relation_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">relation</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                 <span class="n">negative_embedding</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;ht&quot;</span><span class="p">:</span>
             <span class="n">cut_point</span> <span class="o">=</span> <span class="n">relation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span>
             <span class="n">relation_half1</span><span class="p">,</span> <span class="n">relation_half2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
-                <span class="n">relation_embedding</span><span class="p">,</span> <span class="n">cut_point</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
+                <span class="n">relation</span><span class="p">,</span>
+                <span class="n">cut_point</span><span class="p">,</span>
+                <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">flat_negative_format</span><span class="p">:</span>
                 <span class="n">negative_heads</span><span class="p">,</span> <span class="n">negative_tails</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
@@ -414,7 +395,7 @@
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">negative_embedding</span> <span class="o">=</span> <span class="n">negative_embedding</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
-                    <span class="o">*</span><span class="n">relation</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span>
+                    <span class="o">*</span><span class="n">relation</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding_size</span>
                 <span class="p">)</span>
                 <span class="n">negative_heads</span><span class="p">,</span> <span class="n">negative_tails</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
                     <span class="n">negative_embedding</span><span class="p">,</span> <span class="n">cut_point</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
@@ -469,7 +450,7 @@
         <span class="n">n_shard</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">n_shard</span>
 
         <span class="c1"># Gather embeddings</span>
-        <span class="n">relation_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation</span><span class="p">]</span>
+        <span class="c1"># relation_embedding = self.score_fn.relation_embedding[relation]</span>
         <span class="n">negative_flat</span> <span class="o">=</span> <span class="n">negative</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">start_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">gather_idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">head</span><span class="p">,</span> <span class="n">tail</span><span class="p">,</span> <span class="n">negative_flat</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">head_embedding</span><span class="p">,</span> <span class="n">tail_embedding</span><span class="p">,</span> <span class="n">negative_embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
@@ -478,7 +459,7 @@
             <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">negative_embedding</span> <span class="o">=</span> <span class="n">negative_embedding</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
-            <span class="o">*</span><span class="n">negative</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span>
+            <span class="o">*</span><span class="n">negative</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding_size</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="p">,</span> <span class="n">TripleBasedShardedNegativeSampler</span><span class="p">)</span>
@@ -488,26 +469,28 @@
             <span class="c1"># one copy is needed</span>
             <span class="n">negative_embedding</span> <span class="o">=</span> <span class="n">negative_embedding</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="n">relation_embedding_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
+        <span class="n">relation_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">relation</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
             <span class="n">tail_embedding_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">tail_embedding</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">negative_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_heads</span><span class="p">(</span>
                 <span class="n">negative_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-                <span class="n">relation_embedding_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+                <span class="n">relation_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
                 <span class="n">tail_embedding_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
             <span class="n">head_embedding_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">head_embedding</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
             <span class="n">negative_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_tails</span><span class="p">(</span>
                 <span class="n">head_embedding_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
-                <span class="n">relation_embedding_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+                <span class="n">relation_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
                 <span class="n">negative_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;ht&quot;</span><span class="p">:</span>
             <span class="n">cut_point</span> <span class="o">=</span> <span class="n">relation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span>
             <span class="n">relation_half1</span><span class="p">,</span> <span class="n">relation_half2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
-                <span class="n">relation_embedding_all</span><span class="p">,</span> <span class="n">cut_point</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span>
+                <span class="n">relation_all</span><span class="p">,</span>
+                <span class="n">cut_point</span><span class="p">,</span>
+                <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">tail_embedding_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span>
                 <span class="n">tail_embedding</span><span class="p">[:,</span> <span class="p">:</span><span class="n">cut_point</span><span class="p">,</span> <span class="p">:],</span> <span class="n">n_shard</span>
@@ -521,7 +504,10 @@
                 <span class="n">negative_tails</span> <span class="o">=</span> <span class="n">negative_tails</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">negative_embedding</span> <span class="o">=</span> <span class="n">negative_embedding</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">n_shard</span><span class="p">,</span> <span class="o">*</span><span class="n">relation</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">n_shard</span><span class="p">,</span>
+                    <span class="o">*</span><span class="n">relation</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span>
+                    <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding_size</span>
                 <span class="p">)</span>
                 <span class="n">negative_heads</span><span class="p">,</span> <span class="n">negative_tails</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
                     <span class="n">negative_embedding</span><span class="p">,</span> <span class="n">cut_point</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">2</span>
@@ -563,7 +549,7 @@
 
         <span class="n">positive_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_triple</span><span class="p">(</span>
             <span class="n">head_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-            <span class="n">relation_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">relation</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
             <span class="n">tail_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
         <span class="p">)</span>
 
@@ -596,8 +582,6 @@
         <span class="n">candidate_sampler</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
             <span class="n">TripleBasedShardedNegativeSampler</span><span class="p">,</span> <span class="n">PlaceholderNegativeSampler</span>
         <span class="p">],</span>
-        <span class="n">entity_intializer</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
-        <span class="n">relation_intializer</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">score_fn</span><span class="p">:</span> <span class="n">BaseScoreFunction</span><span class="p">,</span>
         <span class="n">evaluation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">return_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -610,19 +594,11 @@
 <span class="sd">            For each query return the top-k most likely predictions.</span>
 <span class="sd">        :param sharding:</span>
 <span class="sd">            The entity sharding.</span>
-<span class="sd">        :param n_relation_type:</span>
-<span class="sd">            Number of relation types in the KG.</span>
-<span class="sd">        :param embedding_size:</span>
-<span class="sd">            Size of entities and relation embeddings.</span>
 <span class="sd">        :param candidate_sampler:</span>
 <span class="sd">            Sampler of candidate entities to score against queries.</span>
 <span class="sd">            Use :class:`besskge.negative_sampler.PlaceholderNegativeSampler`</span>
 <span class="sd">            to score queries against all entities in the KG, avoiding</span>
 <span class="sd">            unnecessary loading of negative entities on device.</span>
-<span class="sd">        :param entity_intializer:</span>
-<span class="sd">            Initialization TABLE for entity embeddings.</span>
-<span class="sd">        :param relation_intializer:</span>
-<span class="sd">            Initialization TABLE for relation embeddings.</span>
 <span class="sd">        :param score_fn:</span>
 <span class="sd">            Scoring function.</span>
 <span class="sd">        :param evaluation:</span>
@@ -665,13 +641,8 @@
                 <span class="s2">&quot; in the candidate_sampler&quot;</span>
             <span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span> <span class="o">=</span> <span class="n">initialize_entity_embedding</span><span class="p">(</span>
-            <span class="n">entity_intializer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
-            <span class="n">relation_intializer</span><span class="p">,</span> <span class="n">n_relation_type</span><span class="o">=</span><span class="n">relation_intializer</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">entity_embedding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
 <div class="viewcode-block" id="TopKQueryBessKGE.forward"><a class="viewcode-back" href="../../API_ref/bess.html#besskge.bess.TopKQueryBessKGE.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -737,8 +708,7 @@
         <span class="n">shard_bs</span> <span class="o">=</span> <span class="n">relation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">n_best</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span>
 
-        <span class="n">relation_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation</span><span class="p">]</span>
-        <span class="n">relation_embedding_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
+        <span class="n">relation_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">relation</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">loop_body</span><span class="p">(</span>
             <span class="n">curr_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">curr_idx</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">slide_idx</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
@@ -759,7 +729,7 @@
                 <span class="n">tail_embedding_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">tail_embedding</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
                 <span class="n">negative_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_heads</span><span class="p">(</span>
                     <span class="n">negative_embedding</span><span class="p">,</span>
-                    <span class="n">relation_embedding_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                    <span class="n">relation_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                     <span class="n">tail_embedding_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                 <span class="p">)</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
@@ -767,7 +737,7 @@
                 <span class="n">head_embedding_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">head_embedding</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
                 <span class="n">negative_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_tails</span><span class="p">(</span>
                     <span class="n">head_embedding_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-                    <span class="n">relation_embedding_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                    <span class="n">relation_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                     <span class="n">negative_embedding</span><span class="p">,</span>
                 <span class="p">)</span>
 

@@ -15,6 +15,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -52,6 +53,8 @@
 <li class="toctree-l1"><a class="reference internal" href="metric.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">General-purpose utility functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.utils.complex_multiplication"><code class="docutils literal notranslate"><span class="pre">complex_multiplication()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.utils.complex_rotation"><code class="docutils literal notranslate"><span class="pre">complex_rotation()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#besskge.utils.gather_indices"><code class="docutils literal notranslate"><span class="pre">gather_indices()</span></code></a></li>
 </ul>
 </li>
@@ -84,6 +87,57 @@
   <section id="general-purpose-utility-functions">
 <h1>General-purpose utility functions<a class="headerlink" href="#general-purpose-utility-functions" title="Permalink to this heading"></a></h1>
 <span class="target" id="module-besskge.utils"></span><dl class="py function">
+<dt class="sig sig-object py" id="besskge.utils.complex_multiplication">
+<span class="sig-prename descclassname"><span class="pre">besskge.utils.</span></span><span class="sig-name descname"><span class="pre">complex_multiplication</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/utils.html#complex_multiplication"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.utils.complex_multiplication" title="Permalink to this definition"></a></dt>
+<dd><p>Batched complex multiplication.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, 2*e)
+<cite>v1[:,:e]</cite> real part, <cite>v1[:,e:]</cite> imaginary part.</p></li>
+<li><p><strong>v2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, 2*e)
+<cite>v2[:,:e]</cite> real part, <cite>v2[:,e:]</cite> imaginary part.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>shape: (a, 2*e)
+Row-wise complex multiplcation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="besskge.utils.complex_rotation">
+<span class="sig-prename descclassname"><span class="pre">besskge.utils.</span></span><span class="sig-name descname"><span class="pre">complex_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/utils.html#complex_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.utils.complex_rotation" title="Permalink to this definition"></a></dt>
+<dd><p>Batched rotation by unitary tensors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, 2*e)
+Complex tensor to rotate:
+<cite>v[:,:e]</cite> real part, <cite>v[:,e:]</cite> imaginary part.</p></li>
+<li><p><strong>r</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, e)
+Rotate <cite>v[k]</cite> by</p></li>
+</ul>
+</dd>
+</dl>
+<div class="math notranslate nohighlight">
+\[\exp^{i \pi r[k]}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>shape: (a, 2*e)
+Row-wise rotated tensors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="besskge.utils.gather_indices">
 <span class="sig-prename descclassname"><span class="pre">besskge.utils.</span></span><span class="sig-name descname"><span class="pre">gather_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/utils.html#gather_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.utils.gather_indices" title="Permalink to this definition"></a></dt>
 <dd><p>IPU-friendly gather function like torch.take_along_dim

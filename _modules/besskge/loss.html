@@ -84,7 +84,7 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 
 
-<div class="viewcode-block" id="BaseLossFunction"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.BaseLossFunction">[docs]</a><span class="k">class</span> <span class="nc">BaseLossFunction</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseLossFunction"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.BaseLossFunction">[docs]</a><span class="k">class</span> <span class="nc">BaseLossFunction</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for a loss function.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -115,8 +115,8 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">negative_weights</span></div>
 
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+<div class="viewcode-block" id="BaseLossFunction.forward"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.BaseLossFunction.forward">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">positive_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">negative_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
@@ -135,10 +135,10 @@
 <span class="sd">        :return:</span>
 <span class="sd">            The batch loss.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
 
-<div class="viewcode-block" id="MarginBasedLossFunction"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.MarginBasedLossFunction">[docs]</a><span class="k">class</span> <span class="nc">MarginBasedLossFunction</span><span class="p">(</span><span class="n">BaseLossFunction</span><span class="p">):</span>
+<div class="viewcode-block" id="MarginBasedLossFunction"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.MarginBasedLossFunction">[docs]</a><span class="k">class</span> <span class="nc">MarginBasedLossFunction</span><span class="p">(</span><span class="n">BaseLossFunction</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for margin-based loss functions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -159,6 +159,7 @@
 <span class="sd">        :param negative_adversarial_scale:</span>
 <span class="sd">            see :class:`BaseLossFunction`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MarginBasedLossFunction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">negative_adversarial_sampling</span> <span class="o">=</span> <span class="n">negative_adversarial_sampling</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">negative_adversarial_scale</span> <span class="o">=</span> <span class="n">negative_adversarial_scale</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">=</span> <span class="n">margin</span></div>
@@ -170,7 +171,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+<div class="viewcode-block" id="LogSigmoidLoss.forward"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.LogSigmoidLoss.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">positive_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">negative_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
@@ -188,7 +189,7 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
             <span class="n">triple_weight</span> <span class="o">*</span> <span class="p">(</span><span class="n">positive_score_logs</span> <span class="o">+</span> <span class="n">negative_score_reduced</span><span class="p">)</span>
-        <span class="p">)</span></div>
+        <span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="MarginRankingLoss"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.MarginRankingLoss">[docs]</a><span class="k">class</span> <span class="nc">MarginRankingLoss</span><span class="p">(</span><span class="n">MarginBasedLossFunction</span><span class="p">):</span>
@@ -229,7 +230,7 @@
             <span class="p">)</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span>
+<div class="viewcode-block" id="MarginRankingLoss.forward"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.MarginRankingLoss.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">positive_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">negative_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
@@ -242,7 +243,7 @@
         <span class="n">combined_score_reduced</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
             <span class="n">negative_score_weights</span> <span class="o">*</span> <span class="n">combined_score</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">triple_weight</span> <span class="o">*</span> <span class="n">combined_score_reduced</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">triple_weight</span> <span class="o">*</span> <span class="n">combined_score_reduced</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>
