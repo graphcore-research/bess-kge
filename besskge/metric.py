@@ -148,16 +148,16 @@ class Evaluation:
             )
 
         if self.mode == "optimistic":
-            n_better = torch.sum(neg_score > pos_score, dim=-1)
+            n_better = torch.sum(neg_score > pos_score, dim=-1).to(torch.float32)
             if self.worst_rank_infty:
                 mask = n_better == n_negative
         elif self.mode == "pessimistic":
-            n_better = torch.sum(neg_score >= pos_score, dim=-1)
+            n_better = torch.sum(neg_score >= pos_score, dim=-1).to(torch.float32)
             if self.worst_rank_infty:
                 mask = n_better == n_negative
         elif self.mode == "average":
-            n_better_opt = torch.sum(neg_score > pos_score, dim=-1)
-            n_better_pess = torch.sum(neg_score >= pos_score, dim=-1)
+            n_better_opt = torch.sum(neg_score > pos_score, dim=-1).to(torch.float32)
+            n_better_pess = torch.sum(neg_score >= pos_score, dim=-1).to(torch.float32)
             n_better = (n_better_opt + n_better_pess) / 2
             if self.worst_rank_infty:
                 mask = torch.logical_or(

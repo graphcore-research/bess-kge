@@ -118,14 +118,14 @@ def test_bess_inference(
         return_triple_idx=True,
     )
 
-    test_dl = test_bs.get_dataloader(shuffle=False)
-
     ctypes.cdll.LoadLibrary("./custom_ops.so")
     options = poptorch.Options()
     options.replication_factor = sharding.n_shard
     options.deviceIterations(test_bs.batches_per_step)
     options.useIpuModel(True)
     options.outputMode(poptorch.OutputMode.All)
+
+    test_dl = test_bs.get_dataloader(options=options, shuffle=False)
 
     # Define model with custom embedding tables
     inf_model = model(
@@ -349,8 +349,6 @@ def test_bess_topk_prediction(
         return_triple_idx=True,
     )
 
-    test_dl = test_bs.get_dataloader(shuffle=False)
-
     inf_model = TopKQueryBessKGE(
         k=k,
         sharding=sharding,
@@ -365,6 +363,8 @@ def test_bess_topk_prediction(
     options.replication_factor = sharding.n_shard
     options.deviceIterations(test_bs.batches_per_step)
     options.outputMode(poptorch.OutputMode.All)
+
+    test_dl = test_bs.get_dataloader(options=options, shuffle=False)
 
     ipu_inf_model = poptorch.inferenceModel(inf_model, options=options)
 

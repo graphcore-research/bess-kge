@@ -50,7 +50,7 @@ def cli(*args: Any, **kwargs: Any) -> Callable[[T], T]:
 
 # Commands
 
-PYTHON_ROOTS = ["besskge", "tests", "dev"]
+PYTHON_ROOTS = ["besskge", "tests", "dev", "setup.py"]
 
 
 @cli()
@@ -107,7 +107,7 @@ def copyright() -> None:
         + " ".join(
             PYTHON_ROOTS
             + [
-                "custom_ops",
+                "besskge/custom_ops",
             ]
         )
         + " -type f -not -name *.pyc"

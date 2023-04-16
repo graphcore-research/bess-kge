@@ -1,12 +1,15 @@
 // Copyright (c) 2022 Graphcore Ltd. All rights reserved.
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <popart/graph.hpp>
 #include <popart/ir.hpp>
 #include <popart/tensorindex.hpp>
 #include <popart/op/collectives/replicatedallreduce.hpp>
 #include <popart/op/varupdate.hpp>
 #include <popart/tensor.hpp>
-
+#pragma GCC diagnostic pop
 
 namespace {
 struct RemoveAllReducePattern : popart::PreAliasPattern {

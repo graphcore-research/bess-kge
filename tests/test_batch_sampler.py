@@ -150,7 +150,8 @@ def test_random_bs(triple_partition_mode: str, duplicate_batch: bool) -> None:
         return_triple_idx=True,
     )
 
-    b = {k: v.numpy() for k, v in next(iter(bs.get_dataloader())).items()}
+    sampler = bs.get_dataloader_sampler(shuffle=True)
+    b = {k: v.numpy() for k, v in bs[next(iter(sampler))].items()}
     rearrange_pattern = (
         "shard_h (step shard_t triple) hrt -> step shard_h shard_t triple hrt"
         if triple_partition_mode == "ht_shardpair"

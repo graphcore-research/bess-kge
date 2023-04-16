@@ -53,9 +53,7 @@ def complex_rotation(v: torch.Tensor, r: torch.Tensor) -> torch.Tensor:
         Complex tensor to rotate:
         `v[:,:e]` real part, `v[:,e:]` imaginary part.
     :param r: shape: (a, e)
-        Rotate `v[k]` by
-    .. math::
-        \exp^{i \pi r[k]}
+        Rotate `v[k]` by .. math:: e^{i \pi r[k]}
     :return: shape: (a, 2*e)
         Row-wise rotated tensors.
     """

@@ -124,7 +124,7 @@ class BessKGE(torch.nn.Module, ABC):
             Tail indices.
         :param negative: shape: (n_shard, B, padded_negative)
             Indices of negative entities,
-            with B = 1 or n_shard * positive_per_partition.
+            with B = 1, 2 or n_shard * positive_per_partition.
         :param triple_weight: shape: (n_shard * positive_per_partition,) or ()
             Weights of positive triples.
         :param negative_mask: shape: (B, n_shard, padded_negative)
@@ -241,7 +241,7 @@ class EmbeddingMovingBessKGE(BessKGE):
     Each triple is scored against a total number of entities equal to
     `n_negative * n_shard` if negative sample sharing is disabled, otherwise
     `n_negative * n_shard * B` (see :meth:`BessKGE.forward`) for "h", "t"
-    corruption scheme, `n_negative * n_shard * B // (B > 1 ? 2 : 1)` for "ht".
+    corruption scheme, `n_negative * n_shard * (B > 2 ? B // 2 : 1)` for "ht".
     """
 
     # docstr-coverage: inherited
