@@ -35,6 +35,6 @@ setuptools.setup(
             list(map(str, Path("besskge/custom_ops").glob("*.[ch]pp"))),
         )
     ],
-    package_data={"besskge": ["besskge/custom_ops/*_codelet.cpp"]},
+    package_data={"besskge": ["custom_ops/*_codelet.cpp"]},
     cmdclass=dict(build_ext=make_ext),
 )

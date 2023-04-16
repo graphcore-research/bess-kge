@@ -19,7 +19,7 @@ def load_custom_ops_so() -> None:
     Licensed under the MIT License
     """
 
-    root = pathlib.Path(__file__).parent.absolute()
+    root = pathlib.Path(__file__).parent.parent.absolute()
     name = "besskge_custom_ops.so"
     paths = [
         root / "build" / name,
