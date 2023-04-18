@@ -137,7 +137,7 @@ Relation indices.</p></li>
 Tail indices.</p></li>
 <li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (n_shard, B, padded_negative)
 Indices of negative entities,
-with B = 1 or n_shard * positive_per_partition.</p></li>
+with B = 1, 2 or n_shard * positive_per_partition.</p></li>
 <li><p><strong>triple_weight</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (n_shard * positive_per_partition,) or ()
 Weights of positive triples.</p></li>
 <li><p><strong>negative_mask</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (B, n_shard, padded_negative)
@@ -206,7 +206,7 @@ which can be done with a single AllToAll collective.</p>
 <p>Each triple is scored against a total number of entities equal to
 <cite>n_negative * n_shard</cite> if negative sample sharing is disabled, otherwise
 <cite>n_negative * n_shard * B</cite> (see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a>) for “h”, “t”
-corruption scheme, <cite>n_negative * n_shard * B // (B &gt; 1 ? 2 : 1)</cite> for “ht”.</p>
+corruption scheme, <cite>n_negative * n_shard * (B &gt; 2 ? B // 2 : 1)</cite> for “ht”.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.bess.EmbeddingMovingBessKGE.entity_embedding_size">
 <span class="sig-name descname"><span class="pre">entity_embedding_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#besskge.bess.EmbeddingMovingBessKGE.entity_embedding_size" title="Permalink to this definition"></a></dt>

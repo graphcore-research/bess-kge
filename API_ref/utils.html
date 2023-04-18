@@ -15,7 +15,6 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -120,18 +119,14 @@ Row-wise complex multiplcation.</p>
 Complex tensor to rotate:
 <cite>v[:,:e]</cite> real part, <cite>v[:,e:]</cite> imaginary part.</p></li>
 <li><p><strong>r</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, e)
-Rotate <cite>v[k]</cite> by</p></li>
+Rotate <cite>v[k]</cite> by .. math:: e^{i pi r[k]}</p></li>
 </ul>
 </dd>
-</dl>
-<div class="math notranslate nohighlight">
-\[\exp^{i \pi r[k]}\]</div>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>shape: (a, 2*e)
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>shape: (a, 2*e)
 Row-wise rotated tensors.</p>
 </dd>
 </dl>

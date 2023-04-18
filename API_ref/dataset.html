@@ -46,6 +46,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">KG Datasets</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#besskge.dataset.KGDataset"><code class="docutils literal notranslate"><span class="pre">KGDataset</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.dataset.KGDataset.build_biokg"><code class="docutils literal notranslate"><span class="pre">KGDataset.build_biokg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.dataset.KGDataset.build_yago310"><code class="docutils literal notranslate"><span class="pre">KGDataset.build_yago310()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.dataset.KGDataset.entity_dict"><code class="docutils literal notranslate"><span class="pre">KGDataset.entity_dict</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.dataset.KGDataset.ht_types"><code class="docutils literal notranslate"><span class="pre">KGDataset.ht_types</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.dataset.KGDataset.load"><code class="docutils literal notranslate"><span class="pre">KGDataset.load()</span></code></a></li>
@@ -109,13 +110,32 @@
 <dd><p>Build the OGB-BioKG dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>root</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to dataset.</p>
+<dd class="field-odd"><p><strong>root</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to dataset. If dataset is not present, download it
+at this path.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#besskge.dataset.KGDataset" title="besskge.dataset.KGDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGDataset</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>OGB-BioKG KGDataset.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.dataset.KGDataset.build_yago310">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_yago310</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/dataset.html#KGDataset.build_yago310"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.dataset.KGDataset.build_yago310" title="Permalink to this definition"></a></dt>
+<dd><p>Build the YAGO-310 dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>root</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to dataset. If dataset is not present, download it
+at this path.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#besskge.dataset.KGDataset" title="besskge.dataset.KGDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGDataset</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>YAGO-310 KGDataset.</p>
 </dd>
 </dl>
 </dd></dl>

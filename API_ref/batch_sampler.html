@@ -176,22 +176,25 @@ Returns mask to identify padding triples.</p>
 <p>Base class for sharded batch sampler.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.batch_sampler.ShardedBatchSampler.get_dataloader">
-<span class="sig-name descname"><span class="pre">get_dataloader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persistent_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/batch_sampler.html#ShardedBatchSampler.get_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.ShardedBatchSampler.get_dataloader" title="Permalink to this definition"></a></dt>
-<dd><p>Instantiate appropriate <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code>
-to iterate over the batch sampler.</p>
+<span class="sig-name descname"><span class="pre">get_dataloader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shuffle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">persistent_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">16</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/batch_sampler.html#ShardedBatchSampler.get_dataloader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.ShardedBatchSampler.get_dataloader" title="Permalink to this definition"></a></dt>
+<dd><p>Instantiate appropriate <code class="xref py py-class docutils literal notranslate"><span class="pre">poptorch.DataLoader</span></code>
+to iterate over the batch sampler.
+It uses asynchronous dataloading to minimize CPU-IPU I/O.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>options</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Options</span></code>) – poptorch.Options used to compile and run the model.</p></li>
 <li><p><strong>shuffle</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Shuffle triples at each new epoch, defaults to True.</p></li>
 <li><p><strong>num_workers</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader.__init__()</span></code>, defaults to 0.</p></li>
 <li><p><strong>persistent_workers</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader.__init__()</span></code>, defaults to False.</p></li>
+<li><p><strong>buffer_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Size of the ring buffer in shared memory used to preload batches.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]]</p>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">DataLoader</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The dataloader.</p>
+<dd class="field-odd"><p>The poptorch dataloader.</p>
 </dd>
 </dl>
 </dd></dl>

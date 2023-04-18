@@ -99,7 +99,9 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bs</span><span class="p">,</span> <span class="n">sq</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">mask_size</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">shape</span>
-    <span class="n">index_flattened</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">bs</span><span class="p">)</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">sq</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">index_flattened</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">index</span> <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">bs</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">mul</span><span class="p">(</span><span class="n">sq</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">index_flattened</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mask_size</span><span class="p">)</span></div>
 
@@ -132,9 +134,7 @@
 <span class="sd">        Complex tensor to rotate:</span>
 <span class="sd">        `v[:,:e]` real part, `v[:,e:]` imaginary part.</span>
 <span class="sd">    :param r: shape: (a, e)</span>
-<span class="sd">        Rotate `v[k]` by</span>
-<span class="sd">    .. math::</span>
-<span class="sd">        \exp^{i \pi r[k]}</span>
+<span class="sd">        Rotate `v[k]` by .. math:: e^{i \pi r[k]}</span>
 <span class="sd">    :return: shape: (a, 2*e)</span>
 <span class="sd">        Row-wise rotated tensors.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
