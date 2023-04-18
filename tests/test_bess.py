@@ -22,7 +22,7 @@ from besskge.negative_sampler import (
     PlaceholderNegativeSampler,
     TripleBasedShardedNegativeSampler,
 )
-from besskge.scoring import TransE, ComplEx
+from besskge.scoring import ComplEx, TransE
 from besskge.sharding import PartitionedTripleSet, Sharding
 
 seed = 1234
