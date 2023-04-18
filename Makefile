@@ -1,15 +1,19 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
-all: custom_ops.so
+CXX ?= g++
+OUT ?= build/besskge_custom_ops.so
+OBJDIR ?= $(dir $(OUT))obj
 
-custom_ops.so: custom_ops/*.cpp
-	g++ -std=c++14 -fPIC \
-		-DONNX_NAMESPACE=onnx \
-		custom_ops/remove_all_reduce_pattern.cpp \
-		-shared -lpopart -lpoplar -lpoplin -lpopnn -lpopops -lpoputil -lpoprand \
-		-o custom_ops.so
+CXXFLAGS = -Wall -Wextra -Werror -std=c++17 -fPIC -DONNX_NAMESPACE=onnx
+LIBS = -lpopart -lpoplar -lpoplin -lpopnn -lpopops -lpoputil -lpoprand -lgcl
 
-.PHONY : clean
-clean:
-	-rm custom_ops.so || true
+OBJECTS = $(OBJDIR)/remove_all_reduce_pattern.o # Add new custom ops here
 
+.DEFAULT_GOAL := $(OUT)
+
+$(OBJECTS): $(OBJDIR)/%.o: besskge/custom_ops/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) -c $(CXXFLAGS) $< -o $@
+
+$(OUT): $(OBJECTS)
+	$(CXX) $(CXXFLAGS) -shared $^ -o $@ -Wl,--no-undefined $(LIBS)

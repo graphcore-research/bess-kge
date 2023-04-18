@@ -5,14 +5,17 @@ __pycache__/
 .venv*/
 .vscode/
 third_party/
-.coverage
+.coverage*
 docs/build/
 docs/source/api
+build/
+reports/
+datasets/
 
-*.ipynb
+/*.ipynb
 *.so
 *.npz
 *.pkl
 *.log
 
-train.py
+/dev_*.py

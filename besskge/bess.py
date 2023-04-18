@@ -124,7 +124,7 @@ class BessKGE(torch.nn.Module, ABC):
             Tail indices.
         :param negative: shape: (n_shard, B, padded_negative)
             Indices of negative entities,
-            with B = 1 or n_shard * positive_per_partition.
+            with B = 1, 2 or n_shard * positive_per_partition.
         :param triple_weight: shape: (n_shard * positive_per_partition,) or ()
             Weights of positive triples.
         :param negative_mask: shape: (B, n_shard, padded_negative)
@@ -241,7 +241,7 @@ class EmbeddingMovingBessKGE(BessKGE):
     Each triple is scored against a total number of entities equal to
     `n_negative * n_shard` if negative sample sharing is disabled, otherwise
     `n_negative * n_shard * B` (see :meth:`BessKGE.forward`) for "h", "t"
-    corruption scheme, `n_negative * n_shard * B // (B > 1 ? 2 : 1)` for "ht".
+    corruption scheme, `n_negative * n_shard * (B > 2 ? B // 2 : 1)` for "ht".
     """
 
     # docstr-coverage: inherited
@@ -612,7 +612,9 @@ class TopKQueryBessKGE(torch.nn.Module):
 
         candidate: torch.Tensor
         if negative is None:
-            candidate = torch.arange(self.sharding.max_entity_per_shard)
+            candidate = torch.arange(
+                self.sharding.max_entity_per_shard, device=relation.device
+            )
         else:
             assert negative_mask is not None
             candidate = negative.squeeze(0)
@@ -690,24 +692,28 @@ class TopKQueryBessKGE(torch.nn.Module):
             size=(n_shard * shard_bs, n_best),
             requires_grad=False,
         ).to(torch.int32)
-        slide_idx = torch.arange(self.window_size).to(torch.int32).reshape(1, -1)
+        slide_idx = (
+            torch.arange(self.window_size, device=relation.device)
+            .to(torch.int32)
+            .reshape(1, -1)
+        )
 
-        # best_curr_score, best_curr_idx, _ = poptorch.for_loop(
-        #     n_rep,
-        #     loop_body,
-        #     [
-        #         best_curr_score,
-        #         best_curr_idx,
-        #         slide_idx,
-        #     ],
-        # )  # shape (total_bs, n_best)
-
-        for _ in range(n_rep):
-            best_curr_score, best_curr_idx, slide_idx = loop_body(
+        best_curr_score, best_curr_idx, _ = poptorch.for_loop(
+            n_rep,
+            loop_body,
+            [
                 best_curr_score,
                 best_curr_idx,
                 slide_idx,
-            )
+            ],
+        )  # shape (total_bs, n_best)
+
+        # for _ in range(n_rep):
+        #     best_curr_score, best_curr_idx, slide_idx = loop_body(
+        #         best_curr_score,
+        #         best_curr_idx,
+        #         slide_idx,
+        #     )
 
         # Send back queries to original shard
         best_score = all_to_all(
@@ -746,9 +752,8 @@ class TopKQueryBessKGE(torch.nn.Module):
         )
 
         out_dict: Dict[str, Union[torch.Tensor, Dict[str, torch.Tensor]]]
-        out_dict = dict(
-            topk_global_id=gather_indices(best_global_idx, topk_final.indices)
-        )
+        topk_global_id = gather_indices(best_global_idx, topk_final.indices)
+        out_dict = dict(topk_global_id=topk_global_id)
 
         if self.return_scores:
             out_dict.update(topk_scores=topk_final.values)
@@ -762,7 +767,7 @@ class TopKQueryBessKGE(torch.nn.Module):
             ), "Evaluation requires providing ground truth entities"
             out_dict.update(
                 metrics=self.evaluation.metrics_from_indices(
-                    ground_truth, topk_final.indices
+                    ground_truth, topk_global_id
                 )
             )
 

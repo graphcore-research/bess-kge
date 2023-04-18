@@ -6,6 +6,7 @@ from typing import Dict, List, Union, cast
 
 import einops
 import numpy as np
+import poptorch
 import torch
 from numpy.typing import NDArray
 
@@ -217,31 +218,45 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
 
     def get_dataloader(
         self,
+        options: poptorch.Options,
         shuffle: bool = True,
         num_workers: int = 0,
         persistent_workers: bool = False,
-    ) -> torch.utils.data.DataLoader[Dict[str, torch.Tensor]]:
+        buffer_size: int = 16,
+    ) -> poptorch.DataLoader:
         """
-        Instantiate appropriate :class:`torch.utils.data.DataLoader`
+        Instantiate appropriate :class:`poptorch.DataLoader`
         to iterate over the batch sampler.
+        It uses asynchronous dataloading to minimize CPU-IPU I/O.
 
+        :param options:
+            poptorch.Options used to compile and run the model.
         :param shuffle:
             Shuffle triples at each new epoch, defaults to True.
         :param num_workers:
             see :meth:`torch.utils.data.DataLoader.__init__`, defaults to 0.
         :param persistent_workers:
             see :meth:`torch.utils.data.DataLoader.__init__`, defaults to False.
+        :param buffer_size:
+            Size of the ring buffer in shared memory used to preload batches.
         :return:
-            The dataloader.
+            The poptorch dataloader.
         """
-        dl_sampler = self.get_dataloader_sampler(shuffle=shuffle)
-        return torch.utils.data.DataLoader(
-            self,
+
+        return poptorch.DataLoader(
+            options=options,
+            dataset=self,
             batch_size=None,
+            sampler=self.get_dataloader_sampler(shuffle=shuffle),
+            drop_last=False,
             num_workers=num_workers,
             persistent_workers=persistent_workers,
             worker_init_fn=self.worker_init_fn,
-            sampler=dl_sampler,
+            mode=poptorch.DataLoaderMode.Async,
+            async_options={
+                "buffer_size": buffer_size,
+                "sharing_strategy": poptorch.SharingStrategy.SharedMemory,
+            },
         )
 
     @staticmethod

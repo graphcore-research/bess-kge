@@ -2,11 +2,14 @@
 
 import dataclasses
 import pickle
+import tarfile
+from io import BytesIO
 from pathlib import Path
 from typing import Dict, List, Optional
 
 import numpy as np
 import ogb.linkproppred
+import requests
 from numpy.typing import NDArray
 
 
@@ -69,7 +72,8 @@ class KGDataset:
         Build the OGB-BioKG dataset.
 
         :param root:
-            Path to dataset.
+            Path to dataset. If dataset is not present, download it
+            at this path.
 
         :return: OGB-BioKG KGDataset.
         """
@@ -108,6 +112,103 @@ class KGDataset:
             triples=triples,
             neg_heads=neg_heads,
             neg_tails=neg_tails,
+        )
+
+    @classmethod
+    def build_yago310(cls, root: Path) -> "KGDataset":
+        """
+        Build the YAGO-310 dataset.
+
+        :param root:
+            Path to dataset. If dataset is not present, download it
+            at this path.
+
+        :return: YAGO-310 KGDataset.
+        """
+
+        if not (
+            root.joinpath("train.txt").is_file()
+            and root.joinpath("valid.txt").is_file()
+            and root.joinpath("test.txt").is_file()
+        ):
+            res = requests.get(
+                url="https://github.com/TimDettmers/ConvE/raw/master/YAGO3-10.tar.gz"
+            )
+            with tarfile.open(fileobj=BytesIO(res.content)) as tarf:
+                tarf.extractall(path=root)
+
+        train = np.loadtxt(root.joinpath("train.txt"), delimiter="\t", dtype=str)
+        valid = np.loadtxt(root.joinpath("valid.txt"), delimiter="\t", dtype=str)
+        test = np.loadtxt(root.joinpath("test.txt"), delimiter="\t", dtype=str)
+
+        entity_dict, entity_id = np.unique(
+            np.concatenate(
+                [
+                    train[:, 0],
+                    train[:, 2],
+                    valid[:, 0],
+                    valid[:, 2],
+                    test[:, 0],
+                    test[:, 2],
+                ]
+            ),
+            return_inverse=True,
+        )
+        entity_split_limits = np.cumsum(
+            [
+                train.shape[0],
+                train.shape[0],
+                valid.shape[0],
+                valid.shape[0],
+                test.shape[0],
+            ]
+        )
+        (
+            train_head_id,
+            train_tail_id,
+            validation_head_id,
+            validation_tail_id,
+            test_head_id,
+            test_tail_id,
+        ) = np.split(entity_id, entity_split_limits)
+
+        rel_dict, rel_id = np.unique(
+            np.concatenate([train[:, 1], valid[:, 1], test[:, 1]]),
+            return_inverse=True,
+        )
+        relation_split_limits = np.cumsum([train.shape[0], valid.shape[0]])
+        train_rel_id, validation_rel_id, test_rel_id = np.split(
+            rel_id, relation_split_limits
+        )
+
+        triples = {
+            "train": np.concatenate(
+                [train_head_id[:, None], train_rel_id[:, None], train_tail_id[:, None]],
+                axis=1,
+            ),
+            "validation": np.concatenate(
+                [
+                    validation_head_id[:, None],
+                    validation_rel_id[:, None],
+                    validation_tail_id[:, None],
+                ],
+                axis=1,
+            ),
+            "test": np.concatenate(
+                [test_head_id[:, None], test_rel_id[:, None], test_tail_id[:, None]],
+                axis=1,
+            ),
+        }
+
+        return cls(
+            n_entity=len(entity_dict),
+            n_relation_type=len(rel_dict),
+            entity_dict=entity_dict.tolist(),
+            relation_dict=rel_dict.tolist(),
+            type_offsets=None,
+            triples=triples,
+            neg_heads=None,
+            neg_tails=None,
         )
 
     def save(self, out_file: Path) -> None:

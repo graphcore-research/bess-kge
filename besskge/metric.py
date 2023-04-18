@@ -148,16 +148,16 @@ class Evaluation:
             )
 
         if self.mode == "optimistic":
-            n_better = torch.sum(neg_score > pos_score, dim=-1)
+            n_better = torch.sum(neg_score > pos_score, dim=-1).to(torch.float32)
             if self.worst_rank_infty:
                 mask = n_better == n_negative
         elif self.mode == "pessimistic":
-            n_better = torch.sum(neg_score >= pos_score, dim=-1)
+            n_better = torch.sum(neg_score >= pos_score, dim=-1).to(torch.float32)
             if self.worst_rank_infty:
                 mask = n_better == n_negative
         elif self.mode == "average":
-            n_better_opt = torch.sum(neg_score > pos_score, dim=-1)
-            n_better_pess = torch.sum(neg_score >= pos_score, dim=-1)
+            n_better_opt = torch.sum(neg_score > pos_score, dim=-1).to(torch.float32)
+            n_better_pess = torch.sum(neg_score >= pos_score, dim=-1).to(torch.float32)
             n_better = (n_better_opt + n_better_pess) / 2
             if self.worst_rank_infty:
                 mask = torch.logical_or(
@@ -197,7 +197,11 @@ class Evaluation:
 
         worst_rank = torch.inf if self.worst_rank_infty else float(n_negative + 1)
         ranks = torch.where(
-            ground_truth == neg_indices, torch.arange(1, n_negative + 1), worst_rank
+            ground_truth == neg_indices,
+            torch.arange(1, n_negative + 1, device=ground_truth.device).to(
+                torch.float32
+            ),
+            worst_rank,
         )
         batch_rank, _ = ranks.min(dim=-1)
 

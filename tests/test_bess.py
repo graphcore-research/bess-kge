@@ -22,7 +22,7 @@ from besskge.negative_sampler import (
     PlaceholderNegativeSampler,
     TripleBasedShardedNegativeSampler,
 )
-from besskge.scoring import TransE
+from besskge.scoring import ComplEx, TransE
 from besskge.sharding import PartitionedTripleSet, Sharding
 
 seed = 1234
@@ -118,14 +118,20 @@ def test_bess_inference(
         return_triple_idx=True,
     )
 
-    test_dl = test_bs.get_dataloader(shuffle=False)
-
-    ctypes.cdll.LoadLibrary("./custom_ops.so")
+    ctypes.cdll.LoadLibrary("build/besskge_custom_ops.so")
     options = poptorch.Options()
     options.replication_factor = sharding.n_shard
     options.deviceIterations(test_bs.batches_per_step)
     options.useIpuModel(True)
     options.outputMode(poptorch.OutputMode.All)
+
+    # Use standard pytorch dataloader for github CI
+    test_dl = torch.utils.data.DataLoader(
+        test_bs,
+        batch_size=None,
+        worker_init_fn=test_bs.worker_init_fn,
+        sampler=test_bs.get_dataloader_sampler(shuffle=False),
+    )
 
     # Define model with custom embedding tables
     inf_model = model(
@@ -310,9 +316,8 @@ def test_bess_topk_prediction(
         ds, "test", sharding, partition_mode=partition_mode
     )
 
-    score_fn = TransE(
+    score_fn = ComplEx(
         negative_sample_sharing=flat_negative_format,
-        scoring_norm=1,
         sharding=sharding,
         n_relation_type=ds.n_relation_type,
         embedding_size=embedding_size,
@@ -349,8 +354,6 @@ def test_bess_topk_prediction(
         return_triple_idx=True,
     )
 
-    test_dl = test_bs.get_dataloader(shuffle=False)
-
     inf_model = TopKQueryBessKGE(
         k=k,
         sharding=sharding,
@@ -365,6 +368,8 @@ def test_bess_topk_prediction(
     options.replication_factor = sharding.n_shard
     options.deviceIterations(test_bs.batches_per_step)
     options.outputMode(poptorch.OutputMode.All)
+
+    test_dl = test_bs.get_dataloader(options=options, shuffle=False)
 
     ipu_inf_model = poptorch.inferenceModel(inf_model, options=options)
 
