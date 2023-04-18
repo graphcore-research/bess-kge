@@ -8,10 +8,9 @@ See the [documentation](https://symmetrical-adventure-69267rm.pages.github.io/).
 
 Tested on Poplar SDK 3.2.0+1277, Ubuntu 20.04, Python 3.8
 
-
 1\. Install Poplar SDK following the instructions in the Getting Started guide for your IPU system.
 
-2\. Create a virtualenv and activate/install the required packages:
+2\. Create a virtualenv with PopTorch:
 ```
 source <path to poplar installation>/enable.sh
 source <path to popart installation>/enable.sh
@@ -19,12 +18,16 @@ python3.8 -m venv .venv
 source .venv/bin/activate
 pip install wheel
 pip install $POPLAR_SDK_ENABLED/../poptorch-*.whl
-pip install -r requirements.txt 
 ```
 
-3\. Build custom_ops.so with provided makefile:
+3\. Pip install BESS-KGE:
 ```
-./dev build
+pip install git+ssh://git@github.com/graphcore-research/bess-kge.git
+```
+
+4\. Import and use:
+```
+import besskge
 ```
 
 ## Contributing

@@ -197,7 +197,11 @@ class Evaluation:
 
         worst_rank = torch.inf if self.worst_rank_infty else float(n_negative + 1)
         ranks = torch.where(
-            ground_truth == neg_indices, torch.arange(1, n_negative + 1), worst_rank
+            ground_truth == neg_indices,
+            torch.arange(1, n_negative + 1, device=ground_truth.device).to(
+                torch.float32
+            ),
+            worst_rank,
         )
         batch_rank, _ = ranks.min(dim=-1)
 

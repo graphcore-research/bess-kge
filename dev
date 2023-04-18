@@ -89,7 +89,7 @@ def format(check: bool) -> None:
     """autoformat all sources"""
     run(["python", "-m", "black", "--check" if check else None, *PYTHON_ROOTS])
     run(["python", "-m", "isort", "--check" if check else None, *PYTHON_ROOTS])
-    # cpp_files = Path("custom_ops").glob("**/*.[ch]pp")
+    # cpp_files = Path("besskge/custom_ops").glob("**/*.[ch]pp")
     # run(
     #     [
     #         "clang-format",

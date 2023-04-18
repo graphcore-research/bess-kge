@@ -12,10 +12,10 @@ build/
 reports/
 datasets/
 
-*.ipynb
+/*.ipynb
 *.so
 *.npz
 *.pkl
 *.log
 
-dev_*.py
+/dev_*.py

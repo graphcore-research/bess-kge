@@ -20,7 +20,9 @@ def gather_indices(x: torch.Tensor, index: torch.Tensor) -> torch.Tensor:
     """
     bs, sq = x.shape
     _, mask_size = index.shape
-    index_flattened = (index + torch.arange(bs).mul(sq).unsqueeze(1)).view(-1)
+    index_flattened = (
+        index + torch.arange(bs, device=x.device).mul(sq).unsqueeze(1)
+    ).view(-1)
     x = torch.index_select(x.view(-1), 0, index_flattened)
     return x.view(-1, mask_size)
 
