@@ -22,7 +22,7 @@ from besskge.negative_sampler import (
     PlaceholderNegativeSampler,
     TripleBasedShardedNegativeSampler,
 )
-from besskge.scoring import TransE
+from besskge.scoring import TransE, ComplEx
 from besskge.sharding import PartitionedTripleSet, Sharding
 
 seed = 1234
@@ -118,7 +118,7 @@ def test_bess_inference(
         return_triple_idx=True,
     )
 
-    ctypes.cdll.LoadLibrary("./custom_ops.so")
+    ctypes.cdll.LoadLibrary("build/besskge_custom_ops.so")
     options = poptorch.Options()
     options.replication_factor = sharding.n_shard
     options.deviceIterations(test_bs.batches_per_step)
@@ -310,9 +310,8 @@ def test_bess_topk_prediction(
         ds, "test", sharding, partition_mode=partition_mode
     )
 
-    score_fn = TransE(
+    score_fn = ComplEx(
         negative_sample_sharing=flat_negative_format,
-        scoring_norm=1,
         sharding=sharding,
         n_relation_type=ds.n_relation_type,
         embedding_size=embedding_size,

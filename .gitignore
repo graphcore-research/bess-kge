@@ -5,7 +5,7 @@ __pycache__/
 .venv*/
 .vscode/
 third_party/
-.coverage
+.coverage*
 docs/build/
 docs/source/api
 build/
