@@ -125,7 +125,7 @@ def test_bess_inference(
     options.useIpuModel(True)
     options.outputMode(poptorch.OutputMode.All)
 
-    test_dl = test_bs.get_dataloader(options=options, shuffle=False)
+    test_dl = test_bs.get_dataloader(options=options, shuffle=False, buffer_size=2)
 
     # Define model with custom embedding tables
     inf_model = model(
@@ -363,7 +363,7 @@ def test_bess_topk_prediction(
     options.deviceIterations(test_bs.batches_per_step)
     options.outputMode(poptorch.OutputMode.All)
 
-    test_dl = test_bs.get_dataloader(options=options, shuffle=False)
+    test_dl = test_bs.get_dataloader(options=options, shuffle=False, buffer_size=2)
 
     ipu_inf_model = poptorch.inferenceModel(inf_model, options=options)
 
