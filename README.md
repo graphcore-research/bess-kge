@@ -1,6 +1,6 @@
 # BESS for KGE in PopTorch
 
-A library for Knowledge Graph Embedding models on IPU implementing the ditribution framework [BESS](https://arxiv.org/abs/2211.12281), with embedding tables stored in SRAM.
+A library for Knowledge Graph Embedding models on IPU implementing the ditribution framework [BESS](https://arxiv.org/abs/2211.12281), with embedding tables stored in IPU SRAM.
 
 See the [documentation](https://symmetrical-adventure-69267rm.pages.github.io/).
 
@@ -29,6 +29,13 @@ pip install git+ssh://git@github.com/graphcore-research/bess-kge.git
 ```
 import besskge
 ```
+
+## Tutorials and examples
+
+For a walktrhough of the library functionalities, see our jupyter notebooks (better if in sequence): 
+1. [KGE training and inference on the OGB-BioKG dataset](notebooks/1_biokg_training_inference.ipynb);
+2. [Link prediction on the YAGO3-10 dataset](notebooks/2_yago_topk_prediction.ipynb).
+
 
 ## Contributing
 
