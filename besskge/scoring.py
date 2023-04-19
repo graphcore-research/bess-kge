@@ -276,7 +276,9 @@ class TransE(DistanceBasedScoreFunction):
         relation_id: torch.Tensor,
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
-        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
         return -self.reduce_embedding(head_emb + relation_emb - tail_emb)
 
     # docstr-coverage: inherited
@@ -286,7 +288,9 @@ class TransE(DistanceBasedScoreFunction):
         relation_id: torch.Tensor,
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
-        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
         return -self.broadcasted_score(tail_emb - relation_emb, head_emb)
 
     # docstr-coverage: inherited
@@ -296,7 +300,9 @@ class TransE(DistanceBasedScoreFunction):
         relation_id: torch.Tensor,
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
-        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
         return -self.broadcasted_score(head_emb + relation_emb, tail_emb)
 
 
@@ -360,7 +366,9 @@ class RotatE(DistanceBasedScoreFunction):
         relation_id: torch.Tensor,
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
-        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
         return -self.reduce_embedding(
             complex_rotation(head_emb, relation_emb) - tail_emb
         )
@@ -372,7 +380,9 @@ class RotatE(DistanceBasedScoreFunction):
         relation_id: torch.Tensor,
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
-        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
         return -self.broadcasted_score(
             complex_rotation(tail_emb, -relation_emb), head_emb
         )
@@ -384,7 +394,9 @@ class RotatE(DistanceBasedScoreFunction):
         relation_id: torch.Tensor,
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
-        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
         return -self.broadcasted_score(
             complex_rotation(head_emb, relation_emb), tail_emb
         )
@@ -441,7 +453,9 @@ class DistMult(MatrixDecompositionScoreFunction):
         relation_id: torch.Tensor,
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
-        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
         return self.reduce_embedding(head_emb * relation_emb * tail_emb)
 
     # docstr-coverage: inherited
@@ -451,7 +465,9 @@ class DistMult(MatrixDecompositionScoreFunction):
         relation_id: torch.Tensor,
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
-        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
         return self.broadcasted_score(relation_emb * tail_emb, head_emb)
 
     # docstr-coverage: inherited
@@ -461,7 +477,9 @@ class DistMult(MatrixDecompositionScoreFunction):
         relation_id: torch.Tensor,
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
-        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
         return self.broadcasted_score(head_emb * relation_emb, tail_emb)
 
 
@@ -519,7 +537,9 @@ class ComplEx(MatrixDecompositionScoreFunction):
         relation_id: torch.Tensor,
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
-        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
         return self.reduce_embedding(
             complex_multiplication(head_emb, relation_emb) * tail_emb
         )
@@ -531,7 +551,9 @@ class ComplEx(MatrixDecompositionScoreFunction):
         relation_id: torch.Tensor,
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
-        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
         cutpoint = relation_emb.shape[-1] // 2
         relation_emb[:, cutpoint:] = -relation_emb[:, cutpoint:]  # conjugate relations
         return self.broadcasted_score(
@@ -545,7 +567,9 @@ class ComplEx(MatrixDecompositionScoreFunction):
         relation_id: torch.Tensor,
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
-        relation_emb = self.relation_embedding[relation_id.to(torch.long)]
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
         return self.broadcasted_score(
             complex_multiplication(head_emb, relation_emb), tail_emb
         )

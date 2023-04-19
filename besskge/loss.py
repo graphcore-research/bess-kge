@@ -13,7 +13,7 @@ class BaseLossFunction(torch.nn.Module, ABC):
     # Use self-adversarial weighting of negative samples.
     negative_adversarial_sampling: bool
     # Reciprocal temperature of self-adversarial weighting
-    negative_adversarial_scale: float
+    negative_adversarial_scale: torch.Tensor
 
     def get_negative_weights(self, negative_score: torch.Tensor) -> torch.Tensor:
         """
@@ -28,11 +28,15 @@ class BaseLossFunction(torch.nn.Module, ABC):
         """
         if self.negative_adversarial_sampling:
             negative_weights = torch.nn.functional.softmax(
-                self.negative_adversarial_scale * negative_score, dim=-1
+                self.negative_adversarial_scale.to(negative_score.device)
+                * negative_score,
+                dim=-1,
             ).detach()
         else:
             negative_weights = torch.tensor(
-                1.0 / negative_score.shape[-1], requires_grad=False
+                1.0 / negative_score.shape[-1],
+                requires_grad=False,
+                device=negative_score.device,
             )
         return negative_weights
 
@@ -82,8 +86,10 @@ class MarginBasedLossFunction(BaseLossFunction, ABC):
         """
         super(MarginBasedLossFunction, self).__init__()
         self.negative_adversarial_sampling = negative_adversarial_sampling
-        self.negative_adversarial_scale = negative_adversarial_scale
-        self.margin = margin
+        self.negative_adversarial_scale = torch.tensor(
+            negative_adversarial_scale, dtype=torch.float32
+        )
+        self.margin: torch.Tensor = torch.tensor(margin, dtype=torch.float32)
 
 
 class LogSigmoidLoss(MarginBasedLossFunction):
@@ -100,17 +106,17 @@ class LogSigmoidLoss(MarginBasedLossFunction):
     ) -> torch.Tensor:
         negative_score_weights = self.get_negative_weights(negative_score)
         positive_score_logs = torch.nn.functional.logsigmoid(
-            positive_score + self.margin
+            positive_score + self.margin.to(positive_score.device)
         )
         negative_score_logs = torch.nn.functional.logsigmoid(
-            -negative_score - self.margin
+            -negative_score - self.margin.to(negative_score.device)
         )
         negative_score_reduced = torch.sum(
             negative_score_weights * negative_score_logs, dim=-1
         )
-        return -0.5 * torch.sum(
-            triple_weight * (positive_score_logs + negative_score_reduced)
-        )
+        return torch.tensor(
+            -0.5, dtype=torch.float32, device=triple_weight.device
+        ) * torch.sum(triple_weight * (positive_score_logs + negative_score_reduced))
 
 
 class MarginRankingLoss(MarginBasedLossFunction):

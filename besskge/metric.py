@@ -39,7 +39,7 @@ class ReciprocalRank(BaseMetric):
 
     # docstr-coverage: inherited
     def __call__(self, prediction_rank: torch.Tensor) -> torch.Tensor:
-        return self.reduction(1.0 / prediction_rank)
+        return self.reduction(torch.reciprocal(prediction_rank))
 
 
 class HitsAtK(BaseMetric):
@@ -158,13 +158,17 @@ class Evaluation:
         elif self.mode == "average":
             n_better_opt = torch.sum(neg_score > pos_score, dim=-1).to(torch.float32)
             n_better_pess = torch.sum(neg_score >= pos_score, dim=-1).to(torch.float32)
-            n_better = (n_better_opt + n_better_pess) / 2
+            n_better = torch.tensor(
+                0.5, dtype=torch.float32, device=n_better_opt.device
+            ) * (n_better_opt + n_better_pess)
             if self.worst_rank_infty:
                 mask = torch.logical_or(
                     n_better_opt == n_negative, n_better_pess == n_negative
                 )
 
-        batch_rank = 1.0 + n_better
+        batch_rank = (
+            torch.tensor(1.0, dtype=torch.float32, device=n_better.device) + n_better
+        )
         if self.worst_rank_infty:
             batch_rank[mask] = torch.inf
 
@@ -198,11 +202,11 @@ class Evaluation:
         worst_rank = torch.inf if self.worst_rank_infty else float(n_negative + 1)
         ranks = torch.where(
             ground_truth == neg_indices,
-            torch.arange(1, n_negative + 1, device=ground_truth.device).to(
-                torch.float32
+            torch.arange(
+                1, n_negative + 1, dtype=torch.float32, device=ground_truth.device
             ),
             worst_rank,
         )
-        batch_rank, _ = ranks.min(dim=-1)
+        batch_rank = ranks.min(dim=-1)[0]
 
         return {m_name: m_fn(batch_rank) for m_name, m_fn in self.metrics.items()}
