@@ -1,6 +1,6 @@
 # BESS for KGE in PopTorch
 
-A library for Knowledge Graph Embedding models on IPU implementing the ditribution framework [BESS](https://arxiv.org/abs/2211.12281), with embedding tables stored in IPU SRAM.
+A library for Knowledge Graph Embedding models on IPU implementing the distribution framework [BESS](https://arxiv.org/abs/2211.12281), with embedding tables stored in IPU SRAM.
 
 See the [documentation](https://symmetrical-adventure-69267rm.pages.github.io/).
 
@@ -8,7 +8,8 @@ See the [documentation](https://symmetrical-adventure-69267rm.pages.github.io/).
 
 Tested on Poplar SDK 3.2.0+1277, Ubuntu 20.04, Python 3.8
 
-1\. Install Poplar SDK following the instructions in the Getting Started guide for your IPU system.
+1\. Install Poplar SDK following the instructions in the Getting Started guide for your IPU system. More detailed instructions on setting up your Poplar environment are available in the [Poplar quick start guide](https://docs.graphcore.ai/projects/poplar-quick-start).
+
 
 2\. Create a virtualenv with PopTorch:
 ```
@@ -19,8 +20,6 @@ source .venv/bin/activate
 pip install wheel
 pip install $POPLAR_SDK_ENABLED/../poptorch-*.whl
 ```
-
-More detailed instructions on setting up your Poplar environment are available in the [Poplar quick start guide](https://docs.graphcore.ai/projects/poplar-quick-start).
 
 3\. Pip install BESS-KGE:
 ```
