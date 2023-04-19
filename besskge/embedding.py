@@ -54,7 +54,7 @@ def initialize_entity_embedding(
     Initialize entity embedding table.
 
     :param initializer:
-        Embedding table or embedding intializer. If providing
+        Embedding table or embedding initializer. If providing
         embedding table, this can either be sharded
         (shape: (n_shard, max_entity_per_shard, embedding_size))
         or unsharded (shape: (n_entity, embedding_size)).
@@ -84,12 +84,12 @@ def initialize_entity_embedding(
                     "Number of rows of table provided for initialization"
                     " different from number of entities."
                 )
-            intializer_sharded = initializer[
+            initializer_sharded = initializer[
                 torch.from_numpy(
                     np.minimum(sharding.shard_and_idx_to_entity, sharding.n_entity - 1)
                 )
             ]
-            entity_embedding = torch.nn.Parameter(intializer_sharded.to(torch.float32))
+            entity_embedding = torch.nn.Parameter(initializer_sharded.to(torch.float32))
         else:
             raise ValueError("Table for initialization needs to be 2- or 3-dimensional")
 
@@ -126,7 +126,7 @@ def initialize_relation_embedding(
     Initialize relation embedding table.
 
     :param initializer:
-        Embedding table or embedding intializer.
+        Embedding table or embedding initializer.
     :param n_relation_type:
         Number of relation types.
     :param embedding_size:

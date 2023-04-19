@@ -232,8 +232,8 @@ class TransE(DistanceBasedScoreFunction):
         sharding: Sharding,
         n_relation_type: int,
         embedding_size: Optional[int],
-        entity_intializer: Union[torch.Tensor, EmbeddingInitializer],
-        relation_intializer: Union[torch.Tensor, EmbeddingInitializer],
+        entity_initializer: Union[torch.Tensor, EmbeddingInitializer],
+        relation_initializer: Union[torch.Tensor, EmbeddingInitializer],
     ) -> None:
         """
         Initialize TransE model.
@@ -250,9 +250,9 @@ class TransE(DistanceBasedScoreFunction):
             Size of entities and relation embeddings. Can be omitted
             if passing tensors for initialization of entity and relation
             embeddings.
-        :param entity_intializer:
+        :param entity_initializer:
             Initialization scheme / table for entity embeddings.
-        :param relation_intializer:
+        :param relation_initializer:
             Initialization scheme / table for relation embeddings.
         """
         super(TransE, self).__init__(
@@ -260,10 +260,10 @@ class TransE(DistanceBasedScoreFunction):
         )
 
         self.entity_embedding = initialize_entity_embedding(
-            entity_intializer, sharding, embedding_size
+            entity_initializer, sharding, embedding_size
         )
         self.relation_embedding = initialize_relation_embedding(
-            relation_intializer, n_relation_type, embedding_size
+            relation_initializer, n_relation_type, embedding_size
         )
         assert (
             self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
@@ -312,8 +312,8 @@ class RotatE(DistanceBasedScoreFunction):
         sharding: Sharding,
         n_relation_type: int,
         embedding_size: int,
-        entity_intializer: Union[torch.Tensor, EmbeddingInitializer],
-        relation_intializer: Union[torch.Tensor, EmbeddingInitializer],
+        entity_initializer: Union[torch.Tensor, EmbeddingInitializer],
+        relation_initializer: Union[torch.Tensor, EmbeddingInitializer],
     ) -> None:
         """
         Initialize RotatE model.
@@ -331,9 +331,9 @@ class RotatE(DistanceBasedScoreFunction):
             will be half of this). Can be omitted
             if passing tensors for initialization of entity and relation
             embeddings.
-        :param entity_intializer:
+        :param entity_initializer:
             Initialization scheme / table for entity embeddings.
-        :param relation_intializer:
+        :param relation_initializer:
             Initialization scheme / table for relation embeddings.
         """
         super(RotatE, self).__init__(
@@ -341,10 +341,10 @@ class RotatE(DistanceBasedScoreFunction):
         )
 
         self.entity_embedding = initialize_entity_embedding(
-            entity_intializer, sharding, embedding_size
+            entity_initializer, sharding, embedding_size
         )
         self.relation_embedding = initialize_relation_embedding(
-            relation_intializer, n_relation_type, embedding_size // 2
+            relation_initializer, n_relation_type, embedding_size // 2
         )
         assert (
             self.entity_embedding.shape[-1] % 2 == 0
@@ -401,8 +401,8 @@ class DistMult(MatrixDecompositionScoreFunction):
         sharding: Sharding,
         n_relation_type: int,
         embedding_size: Optional[int],
-        entity_intializer: Union[torch.Tensor, EmbeddingInitializer],
-        relation_intializer: Union[torch.Tensor, EmbeddingInitializer],
+        entity_initializer: Union[torch.Tensor, EmbeddingInitializer],
+        relation_initializer: Union[torch.Tensor, EmbeddingInitializer],
     ) -> None:
         """
         Initialize DistMult model.
@@ -417,18 +417,18 @@ class DistMult(MatrixDecompositionScoreFunction):
             Size of entity and relation embeddings. Can be omitted
             if passing tensors for initialization of entity and relation
             embeddings.
-        :param entity_intializer:
+        :param entity_initializer:
             Initialization scheme / table for entity embeddings.
-        :param relation_intializer:
+        :param relation_initializer:
             Initialization scheme / table for relation embeddings.
         """
         super(DistMult, self).__init__(negative_sample_sharing=negative_sample_sharing)
 
         self.entity_embedding = initialize_entity_embedding(
-            entity_intializer, sharding, embedding_size
+            entity_initializer, sharding, embedding_size
         )
         self.relation_embedding = initialize_relation_embedding(
-            relation_intializer, n_relation_type, embedding_size
+            relation_initializer, n_relation_type, embedding_size
         )
         assert (
             self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
@@ -476,8 +476,8 @@ class ComplEx(MatrixDecompositionScoreFunction):
         sharding: Sharding,
         n_relation_type: int,
         embedding_size: Optional[int],
-        entity_intializer: Union[torch.Tensor, EmbeddingInitializer],
-        relation_intializer: Union[torch.Tensor, EmbeddingInitializer],
+        entity_initializer: Union[torch.Tensor, EmbeddingInitializer],
+        relation_initializer: Union[torch.Tensor, EmbeddingInitializer],
     ) -> None:
         """
         Initialize ComplEx model.
@@ -492,18 +492,18 @@ class ComplEx(MatrixDecompositionScoreFunction):
             Size of entity and relation embeddings. Can be omitted
             if passing tensors for initialization of entity and relation
             embeddings.
-        :param entity_intializer:
+        :param entity_initializer:
             Initialization scheme / table for entity embeddings.
-        :param relation_intializer:
+        :param relation_initializer:
             Initialization scheme / table for relation embeddings.
         """
         super(ComplEx, self).__init__(negative_sample_sharing=negative_sample_sharing)
 
         self.entity_embedding = initialize_entity_embedding(
-            entity_intializer, sharding, embedding_size
+            entity_initializer, sharding, embedding_size
         )
         self.relation_embedding = initialize_relation_embedding(
-            relation_intializer, n_relation_type, embedding_size
+            relation_initializer, n_relation_type, embedding_size
         )
         assert (
             self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]

@@ -93,8 +93,8 @@ def test_bess_inference(
         sharding=sharding,
         n_relation_type=ds.n_relation_type,
         embedding_size=embedding_size,
-        entity_intializer=entity_table,
-        relation_intializer=relation_table,
+        entity_initializer=entity_table,
+        relation_initializer=relation_table,
     )
 
     test_ns = TripleBasedShardedNegativeSampler(
@@ -321,8 +321,8 @@ def test_bess_topk_prediction(
         sharding=sharding,
         n_relation_type=ds.n_relation_type,
         embedding_size=embedding_size,
-        entity_intializer=entity_table,
-        relation_intializer=relation_table,
+        entity_initializer=entity_table,
+        relation_initializer=relation_table,
     )
 
     test_ns: Union[TripleBasedShardedNegativeSampler, PlaceholderNegativeSampler]
