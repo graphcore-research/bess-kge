@@ -2,6 +2,11 @@ Copyright (c) 2023 Graphcore Ltd. Licensed under the MIT License.
 
 The included code is released under an MIT license, (see [LICENSE](LICENSE)).
 
+The OGBL-BioKG Dataset is licensed under a CC-0 license.
+
+See [requirements.txt](requirements.txt) and [requirements-dev.txt](requirements-dev.txt) for dependencies.
+
+
 **This directory includes derived work from the following:**
 
 ---
