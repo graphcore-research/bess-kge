@@ -1,3 +1,6 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+# Copyright (c) 2022 Read the Docs Inc. All rights reserved.
+
 import os
 import sys
 
@@ -12,8 +15,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "BESS-KGE"
-copyright = "2023 Graphcore Ltd. All rights reserved"
-author = "Graphcore Research"
+copyright = "(c) 2023 Graphcore Ltd. All rights reserved"
+author = "Alberto Cattaneo"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
