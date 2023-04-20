@@ -8,7 +8,7 @@ import torch
 
 
 class BaseMetric(ABC):
-    # Reduction function to apply along the batch dimension.
+    #: Reduction function to apply along the batch dimension.
     reduction: Callable[[torch.Tensor], torch.Tensor]
 
     @abstractmethod
@@ -67,7 +67,7 @@ class HitsAtK(BaseMetric):
         return self.reduction((prediction_rank <= self.K).to(torch.float))
 
 
-# Metric str -> callable
+#: Metric str -> callable
 METRICS_DICT = {"mrr": ReciprocalRank, "hits@k": HitsAtK}
 
 

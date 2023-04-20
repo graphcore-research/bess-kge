@@ -26,7 +26,7 @@ class KGDataset:
     n_relation_type: int
 
     #: List of (h_ID, r_ID, t_ID) triples, for each part of the dataset;
-    # {part: int32[n_triple, {h,r,t}]}
+    #: {part: int32[n_triple, {h,r,t}]}
     triples: Dict[str, NDArray[np.int32]]
 
     #: Entity labels by ID; str[n_entity]
@@ -36,21 +36,23 @@ class KGDataset:
     relation_dict: Optional[List[str]]
 
     #: If entities have types, IDs are assumed to be clustered by type;
-    # {entity_type: int}
+    #: {entity_type: int}
     type_offsets: Optional[Dict[str, int]]
 
     #: IDs of (possibly triple-specific) negative heads;
-    # {part: int32[n_triple or 1, n_neg_heads]}
+    #: {part: int32[n_triple or 1, n_neg_heads]}
     neg_heads: Optional[Dict[str, NDArray[np.int32]]]
 
     #: IDs of (possibly triple-specific) negative heads;
-    # {part: int32[n_triple or 1, n_neg_tails]}
+    #: {part: int32[n_triple or 1, n_neg_tails]}
     neg_tails: Optional[Dict[str, NDArray[np.int32]]]
 
     @property
     def ht_types(self) -> Optional[Dict[str, NDArray[np.int32]]]:
-        # If entities have types, type IDs of triples' heads/tails
-        # {part: int32[n_triple, {h_type, t_type}]}
+        """
+        If entities have types, type IDs of triples' heads/tails;
+        {part: int32[n_triple, {h_type, t_type}]}
+        """
         if self.type_offsets:
             type_offsets = np.fromiter(self.type_offsets.values(), dtype=np.int32)
             types = {}
@@ -69,7 +71,9 @@ class KGDataset:
     @classmethod
     def build_biokg(cls, root: Path) -> "KGDataset":
         """
-        Build the OGB-BioKG dataset.
+        Build the OGB-BioKG dataset :cite:p:`OGB`
+
+        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg
 
         :param root:
             Path to dataset. If dataset is not present, download it

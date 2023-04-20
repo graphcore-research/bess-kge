@@ -20,37 +20,43 @@ class Sharding:
     #: Number of shards
     n_shard: int
 
-    #: Entity shard by global ID
-    # int32[n_entity]
+    #: Entity shard by global ID;
+    #: int32[n_entity]
     entity_to_shard: NDArray[np.int32]
 
-    #: Entity local ID on shard by global ID
-    # int32[n_entity]
+    #: Entity local ID on shard by global ID;
+    #: int32[n_entity]
     entity_to_idx: NDArray[np.int32]
 
-    #: Entity global ID by (shard, local_ID)
-    # int32[n_shard, max_entity_per_shard]
+    #: Entity global ID by (shard, local_ID);
+    #: int32[n_shard, max_entity_per_shard]
     shard_and_idx_to_entity: NDArray[np.int32]
 
-    #: Number of true entities (excluding padding) in each shard
-    # int64[n_shard]
+    #: Number of true entities (excluding padding) in each shard;
+    #: int64[n_shard]
     shard_counts: NDArray[np.int64]
 
-    #: Number of entities of each type on each shard
-    # int64[n_shard, n_types]
+    #: Number of entities of each type on each shard;
+    #: int64[n_shard, n_types]
     entity_type_counts: Optional[NDArray[np.int64]]
 
     #: Offsets for entities of same type on each shared
-    # (entities remain clustered by type also locally)
-    # int64[n_shard, n_types]
+    #: (entities remain clustered by type also locally);
+    #: int64[n_shard, n_types]
     entity_type_offsets: Optional[NDArray[np.int64]]
 
     @property
     def n_entity(self) -> int:
+        """
+        Number of entities in the KG.
+        """
         return len(self.entity_to_shard)
 
     @property
     def max_entity_per_shard(self) -> int:
+        """
+        Number of entities (including possibily one final padding) in each shard.
+        """
         return self.shard_and_idx_to_entity.shape[1]
 
     @classmethod
@@ -151,56 +157,56 @@ class Sharding:
 class PartitionedTripleSet:
     """
     A partitioned collection of triples.
-    If `partition_mode = 'h_shard'` (resp. `'t_shard'`) each triple is
-    assigned to one of `n_shard` partitions based on the
+    If :code:`partition_mode = 'h_shard'` (resp. :code:`partition_mode = 't_shard'`)
+    each triple is assigned to one of `n_shard` partitions based on the
     shard where the head (resp. tail) entity is stored.
-    If `partition_mode = 'ht_shardpair'`, each triple is assigned to one
-    of n_shard ** 2 partitions based on the shardpair (shard_h, shard_t).
+    If :code:`partition_mode = 'ht_shardpair'`, each triple is assigned to one
+    of `n_shard^2` partitions based on the shardpair `(shard_h, shard_t)`.
     Shardpairs are ordered as:
-    (0,0), (0,1), ..., (0,n_shard-1), (1,0), ..., (n_shard-1, n_shard-1).
+    `(0,0), (0,1), ..., (0, n_shard-1), (1,0), ..., (n_shard-1, n_shard-1)`.
     """
 
     #: Sharding of entities
     sharding: Sharding
 
-    #: Partitioning criterion for triples
-    # "h_shard", "t_shard", "ht_shardpair"
+    #: Partitioning criterion for triples;
+    #: "h_shard", "t_shard", "ht_shardpair"
     partition_mode: str
 
     #: If set is constructed from (h,r,?) (resp. (?,r,t)) queries,
-    # dummy tails (resp. heads) are added to make pairs into triples.
-    # "head", "tail", "none"
+    #: dummy tails (resp. heads) are added to make pairs into triples.
+    #: "head", "tail", "none"
     dummy: Optional[str]
 
-    #: h/r/t IDs for triples ordered by partition
-    # Local IDs for heads (resp. tails) and global IDs
-    # for tails (resp. heads) if partition_mode = "h_shard" (resp. "t_shard");
-    # local IDs for heads and tails if partition_mode = "ht_shardpair"
-    # int32[n_triple, {h,r,t}]
+    #: h/r/t IDs for triples ordered by partition.
+    #: Local IDs for heads (resp. tails) and global IDs
+    #: for tails (resp. heads) if partition_mode = "h_shard" (resp. "t_shard");
+    #: local IDs for heads and tails if partition_mode = "ht_shardpair"
+    #: int32[n_triple, {h,r,t}]
     triples: NDArray[np.int32]
 
-    #: Number of triples in each partition
-    # int64[n_shard] or int64[n_shard, n_shard]
+    #: Number of triples in each partition;
+    #: int64[n_shard] or int64[n_shard, n_shard]
     triple_counts: NDArray[np.int64]
 
-    #: Delimiting indices of ordered partitions
-    # int64[n_shard] or int64[n_shard, n_shard]
+    #: Delimiting indices of ordered partitions;
+    #: int64[n_shard] or int64[n_shard, n_shard]
     triple_offsets: NDArray[np.int64]
 
-    #: Sorting indices to order triples by partition
-    # int64[n_triple]
+    #: Sorting indices to order triples by partition;
+    #: int64[n_triple]
     triple_sort_idx: NDArray[np.int64]
 
-    #: Entity type IDs of triple head/tail
-    # int32[n_triple, {h_type, t_type}]
+    #: Entity type IDs of triple head/tail;
+    #: int32[n_triple, {h_type, t_type}]
     types: Optional[NDArray[np.int32]]
 
     #: Global IDs of (possibly triple-specific) negative heads;
-    # int32[n_triple or 1, n_neg_heads]
+    #: int32[n_triple or 1, n_neg_heads]
     neg_heads: Optional[NDArray[np.int32]]
 
     #: Global IDs of (possibly triple-specific) negative heads;
-    # int32[n_triple or 1, n_neg_tails]
+    #: int32[n_triple or 1, n_neg_tails]
     neg_tails: Optional[NDArray[np.int32]]
 
     @classmethod

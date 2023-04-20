@@ -10,7 +10,7 @@ BESS-KGE documentation
 
 .. toctree::
    :maxdepth: 2
-   :caption: API reference:
+   :caption: API reference
    :name: API_ref
 
    API_ref/dataset
@@ -23,6 +23,13 @@ BESS-KGE documentation
    API_ref/metric
    API_ref/embedding
    API_ref/utils
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Bibliography
+   :name: Bibliography
+
+   bibliography
 
 Indices and tables
 ==================

@@ -15,11 +15,11 @@ class ShardedNegativeSampler(ABC):
     Base class for sharded negative sampler.
     """
 
-    # Sample negatives per triple partition, instead of per triple
+    #: Sample negatives per triple partition, instead of per triple
     flat_negative_format: bool
-    # Sample negatives only from processing device
+    #: Sample negatives only from processing device
     local_sampling: bool
-    # "h", "t", "ht"
+    #: Which entity to corrupt; "h", "t", "ht"
     corruption_scheme: str
 
     @abstractmethod
@@ -512,7 +512,7 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
         :return padded_negatives: shape: (N, n_shard, padded_shard_length)
             The padded shard lists of negatives.
         :return mask: shape: (N, n_negative)
-            Indices of true negatives in `padded_negatives.view(N,-1)`.
+            Indices of true negatives in :code:`padded_negatives.view(N,-1)`.
         """
         mask_bool = (
             np.arange(padded_shard_length)[None, None, :] < shard_counts[..., None]

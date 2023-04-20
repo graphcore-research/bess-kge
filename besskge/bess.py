@@ -31,7 +31,7 @@ BAD_NEGATIVE_SCORE = -10000.0
 class BessKGE(torch.nn.Module, ABC):
     """
     Base class for distributed training and inference of KGE models, using
-    the distribution framework BESS [...].
+    the distribution framework BESS :cite:p:`BESS`.
     To be used in combination with a batch sampler based on a
     "ht_shardpair"-partitioned triple set.
     """
@@ -114,7 +114,7 @@ class BessKGE(torch.nn.Module, ABC):
 
         4) Compute loss/metrics.
 
-        Each device scores n_shard * positive_per_partition positive triples.
+        Each device scores `n_shard * positive_per_partition` positive triples.
 
         :param head: shape: (n_shard, positive_per_partition)
             Head indices.
@@ -124,7 +124,7 @@ class BessKGE(torch.nn.Module, ABC):
             Tail indices.
         :param negative: shape: (n_shard, B, padded_negative)
             Indices of negative entities,
-            with B = 1, 2 or n_shard * positive_per_partition.
+            with `B = 1, 2 or n_shard * positive_per_partition`.
         :param triple_weight: shape: (n_shard * positive_per_partition,) or ()
             Weights of positive triples.
         :param negative_mask: shape: (B, n_shard, padded_negative)
@@ -481,7 +481,7 @@ class TopKQueryBessKGE(torch.nn.Module):
     """
     Distributed scoring of (h, r, ?) or (?, r, t) queries (against
     all entities in the KG, or a query-specific set)
-    returning top-k most likely completions, based on BESS
+    returning top-k most likely completions, based on BESS :cite:p:`BESS`
     inference scheme.
     To be used in combination with a batch sampler based on a
     "h_shard"/"t_shard"-partitioned triple set.
@@ -599,7 +599,7 @@ class TopKQueryBessKGE(torch.nn.Module):
         :param negative_mask: shape: (n_shard, B, padded_negative)
             If candidates are provided, mask to discard padding
             negatives when computing best completions.
-            Requires the use of `mask_on_gather=True` in the candidate sampler
+            Requires the use of :code:`mask_on_gather=True` in the candidate sampler
             (see :class:`besskge.negative_sampler.TripleBasedShardedNegativeSampler`).
             Defaults to None.
         """

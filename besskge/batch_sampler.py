@@ -46,7 +46,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
         :param seed:
             The RNG seed.
         :param hrt_freq_weighting:
-            Use frequency-based triple weighting as in [...], defaults to False.
+            Use frequency-based triple weighting, defaults to False.
         :param weight_smoothing:
             Weight-smoothing parameter for frequency-based
             triple weigthing, defaults to 0.0.

@@ -10,9 +10,9 @@ class BaseLossFunction(torch.nn.Module, ABC):
     Base class for a loss function.
     """
 
-    # Use self-adversarial weighting of negative samples.
+    #: Use self-adversarial weighting of negative samples.
     negative_adversarial_sampling: bool
-    # Reciprocal temperature of self-adversarial weighting
+    #: Reciprocal temperature of self-adversarial weighting
     negative_adversarial_scale: float
 
     def get_negative_weights(self, negative_score: torch.Tensor) -> torch.Tensor:
@@ -23,7 +23,7 @@ class BaseLossFunction(torch.nn.Module, ABC):
             Scores of negative samples.
 
         :return: shape: (batch_size, n_negative)
-                if :attr:`BaseLossFunction.negative_adversarial_sampling` else ()
+            if :attr:`BaseLossFunction.negative_adversarial_sampling` else ()
             Weights of negative samples.
         """
         if self.negative_adversarial_sampling:
@@ -88,7 +88,7 @@ class MarginBasedLossFunction(BaseLossFunction, ABC):
 
 class LogSigmoidLoss(MarginBasedLossFunction):
     """
-    The log-sigmoid loss function (see [...]).
+    The log-sigmoid loss function (see :cite:p:`RotatE`).
     """
 
     # docstr-coverage: inherited
@@ -115,7 +115,7 @@ class LogSigmoidLoss(MarginBasedLossFunction):
 
 class MarginRankingLoss(MarginBasedLossFunction):
     """
-    The margin ranking (or pairwise hinge) loss function (see [...]).
+    The margin ranking (or pairwise hinge) loss function.
     """
 
     def __init__(

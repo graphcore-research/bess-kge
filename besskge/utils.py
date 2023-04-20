@@ -5,18 +5,18 @@ import torch
 
 def gather_indices(x: torch.Tensor, index: torch.Tensor) -> torch.Tensor:
     """
-    IPU-friendly gather function like torch.take_along_dim
+    IPU-friendly gather function like :func:`torch.take_along_dim`
     for 2-dimensional tensors (indices along dim=1).
 
     :param x: shape: (a, e)
     :param index: shape: (b, k)
     :return: shape: (b, k)
-        For all rows of `x`, take the `k` elements on
+        For all rows of :code:`x`, take the `k` elements on
         the row with the indices specified by
-        the corresponding row of `index`.
-        If `b == 1`, the same indices are gathered from all rows of `x`;
-        if `a == 1`, all rows in `index` gather from `x[0]`;
-        otherwise `a == b` is required.
+        the corresponding row of :code:`index`.
+        If :code:`b == 1`, the same indices are gathered from all rows of :code:`x`;
+        if :code:`a == 1`, all rows in :code:`index` gather from :code:`x[0]`;
+        otherwise :code:`a == b` is required.
     """
     bs, sq = x.shape
     _, mask_size = index.shape
@@ -32,9 +32,9 @@ def complex_multiplication(v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
     Batched complex multiplication.
 
     :param v1: shape: (a, 2*e)
-        `v1[:,:e]` real part, `v1[:,e:]` imaginary part.
+        :code:`v1[:,:e]` real part, :code:`v1[:,e:]` imaginary part.
     :param v2: shape: (a, 2*e)
-        `v2[:,:e]` real part, `v2[:,e:]` imaginary part.
+        :code:`v2[:,:e]` real part, :code:`v2[:,e:]` imaginary part.
     :return: shape: (a, 2*e)
         Row-wise complex multiplcation.
     """
@@ -53,9 +53,9 @@ def complex_rotation(v: torch.Tensor, r: torch.Tensor) -> torch.Tensor:
 
     :param v: shape: (a, 2*e)
         Complex tensor to rotate:
-        `v[:,:e]` real part, `v[:,e:]` imaginary part.
+        :code:`v[:,:e]` real part, :code:`v[:,e:]` imaginary part.
     :param r: shape: (a, e)
-        Rotate `v[k]` by .. math:: e^{i \pi r[k]}
+        Rotate :code:`v[k]` by :math:`e^{i \pi r[k]}`
     :return: shape: (a, 2*e)
         Row-wise rotated tensors.
     """

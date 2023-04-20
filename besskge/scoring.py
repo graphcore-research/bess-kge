@@ -22,8 +22,10 @@ class BaseScoreFunction(torch.nn.Module, ABC):
 
     #: Share negative entities to construct negative samples
     negative_sample_sharing: bool
+
     #: Relation embedding table
     entity_embedding: torch.nn.Parameter
+
     #: Relation embedding table
     relation_embedding: torch.nn.Parameter
 
@@ -44,7 +46,7 @@ class BaseScoreFunction(torch.nn.Module, ABC):
         :param tail_emb: shape: (batch_size, embedding_size)
             Embeddings of tail entities in batch.
 
-        :return: shape (batch_size,)
+        :return: shape: (batch_size,)
             Scores of batch triples.
         """
         raise NotImplementedError
@@ -66,9 +68,9 @@ class BaseScoreFunction(torch.nn.Module, ABC):
         :param tail_emb: shape: (batch_size, embedding_size)
             Embedding of tail entities in batch.
 
-        :return: shape: (batch_size, B * n_heads) if
-                :attr:`BaseScoreFunction.negative_sample_sharing`
-                else (batch_size, n_heads)
+        :return: shape: (batch_size, B * n_heads)
+            if :attr:`BaseScoreFunction.negative_sample_sharing`
+            else (batch_size, n_heads).
             Scores of broadcasted triples.
         """
         raise NotImplementedError
@@ -90,9 +92,9 @@ class BaseScoreFunction(torch.nn.Module, ABC):
         :param tail_emb: shape: (B, n_tails, embedding_size) with B = 1, batch_size
             Embedding of tail entities.
 
-        :return: shape: (batch_size, B * n_tails) if
-                :attr:`BaseScoreFunction.negative_sample_sharing`
-                else (batch_size, n_tails)
+        :return: shape: (batch_size, B * n_tails)
+            if :attr:`BaseScoreFunction.negative_sample_sharing`
+            else (batch_size, n_tails)
             Scores of broadcasted triples.
         """
         raise NotImplementedError
@@ -222,7 +224,7 @@ class MatrixDecompositionScoreFunction(BaseScoreFunction, ABC):
 
 class TransE(DistanceBasedScoreFunction):
     """
-    TransE scoring function (see [...]).
+    TransE scoring function :cite:p:`TransE`.
     """
 
     def __init__(
@@ -302,7 +304,7 @@ class TransE(DistanceBasedScoreFunction):
 
 class RotatE(DistanceBasedScoreFunction):
     """
-    RotatE scoring function (see [...]).
+    RotatE scoring function :cite:p:`RotatE`.
     """
 
     def __init__(
@@ -392,7 +394,7 @@ class RotatE(DistanceBasedScoreFunction):
 
 class DistMult(MatrixDecompositionScoreFunction):
     """
-    DistMult scoring function (see [...]).
+    DistMult scoring function :cite:p:`DistMult`.
     """
 
     def __init__(
@@ -467,7 +469,7 @@ class DistMult(MatrixDecompositionScoreFunction):
 
 class ComplEx(MatrixDecompositionScoreFunction):
     """
-    ComplEx scoring function (see [...]).
+    ComplEx scoring function :cite:p:`ComplEx`.
     """
 
     def __init__(
