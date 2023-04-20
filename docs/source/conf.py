@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "BESS-KGE"
-copyright = "Copyright (c) 2023 Graphcore Ltd. All rights reserved."
+copyright = "2023 Graphcore Ltd. All rights reserved"
 author = "Graphcore Research"
 
 # -- General configuration ---------------------------------------------------
