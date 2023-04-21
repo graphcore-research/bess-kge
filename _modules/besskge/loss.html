@@ -92,7 +92,7 @@
     <span class="c1"># Use self-adversarial weighting of negative samples.</span>
     <span class="n">negative_adversarial_sampling</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="c1"># Reciprocal temperature of self-adversarial weighting</span>
-    <span class="n">negative_adversarial_scale</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">negative_adversarial_scale</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
 
 <div class="viewcode-block" id="BaseLossFunction.get_negative_weights"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.BaseLossFunction.get_negative_weights">[docs]</a>    <span class="k">def</span> <span class="nf">get_negative_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">negative_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -107,11 +107,15 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_adversarial_sampling</span><span class="p">:</span>
             <span class="n">negative_weights</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">negative_adversarial_scale</span> <span class="o">*</span> <span class="n">negative_score</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">negative_adversarial_scale</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">negative_score</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+                <span class="o">*</span> <span class="n">negative_score</span><span class="p">,</span>
+                <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">negative_weights</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
-                <span class="mf">1.0</span> <span class="o">/</span> <span class="n">negative_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span>
+                <span class="mf">1.0</span> <span class="o">/</span> <span class="n">negative_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">device</span><span class="o">=</span><span class="n">negative_score</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">negative_weights</span></div>
 
@@ -161,8 +165,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MarginBasedLossFunction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">negative_adversarial_sampling</span> <span class="o">=</span> <span class="n">negative_adversarial_sampling</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">negative_adversarial_scale</span> <span class="o">=</span> <span class="n">negative_adversarial_scale</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">=</span> <span class="n">margin</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">negative_adversarial_scale</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
+            <span class="n">negative_adversarial_scale</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">margin</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">margin</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="LogSigmoidLoss"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.LogSigmoidLoss">[docs]</a><span class="k">class</span> <span class="nc">LogSigmoidLoss</span><span class="p">(</span><span class="n">MarginBasedLossFunction</span><span class="p">):</span>
@@ -179,17 +185,17 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
         <span class="n">negative_score_weights</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_negative_weights</span><span class="p">(</span><span class="n">negative_score</span><span class="p">)</span>
         <span class="n">positive_score_logs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">logsigmoid</span><span class="p">(</span>
-            <span class="n">positive_score</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">margin</span>
+            <span class="n">positive_score</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">margin</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">positive_score</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">negative_score_logs</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">logsigmoid</span><span class="p">(</span>
-            <span class="o">-</span><span class="n">negative_score</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">margin</span>
+            <span class="o">-</span><span class="n">negative_score</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">margin</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">negative_score</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">negative_score_reduced</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
             <span class="n">negative_score_weights</span> <span class="o">*</span> <span class="n">negative_score_logs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
-            <span class="n">triple_weight</span> <span class="o">*</span> <span class="p">(</span><span class="n">positive_score_logs</span> <span class="o">+</span> <span class="n">negative_score_reduced</span><span class="p">)</span>
-        <span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
+            <span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">triple_weight</span><span class="o">.</span><span class="n">device</span>
+        <span class="p">)</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">triple_weight</span> <span class="o">*</span> <span class="p">(</span><span class="n">positive_score_logs</span> <span class="o">+</span> <span class="n">negative_score_reduced</span><span class="p">))</span></div></div>
 
 
 <div class="viewcode-block" id="MarginRankingLoss"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.MarginRankingLoss">[docs]</a><span class="k">class</span> <span class="nc">MarginRankingLoss</span><span class="p">(</span><span class="n">MarginBasedLossFunction</span><span class="p">):</span>

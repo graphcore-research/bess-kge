@@ -355,7 +355,9 @@
         <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">reduce_embedding</span><span class="p">(</span><span class="n">head_emb</span> <span class="o">+</span> <span class="n">relation_emb</span> <span class="o">-</span> <span class="n">tail_emb</span><span class="p">)</span></div>
 
     <span class="c1"># docstr-coverage: inherited</span>
@@ -365,7 +367,9 @@
         <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span><span class="n">tail_emb</span> <span class="o">-</span> <span class="n">relation_emb</span><span class="p">,</span> <span class="n">head_emb</span><span class="p">)</span></div>
 
     <span class="c1"># docstr-coverage: inherited</span>
@@ -375,7 +379,9 @@
         <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span><span class="n">head_emb</span> <span class="o">+</span> <span class="n">relation_emb</span><span class="p">,</span> <span class="n">tail_emb</span><span class="p">)</span></div></div>
 
 
@@ -439,7 +445,9 @@
         <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">reduce_embedding</span><span class="p">(</span>
             <span class="n">complex_rotation</span><span class="p">(</span><span class="n">head_emb</span><span class="p">,</span> <span class="n">relation_emb</span><span class="p">)</span> <span class="o">-</span> <span class="n">tail_emb</span>
         <span class="p">)</span></div>
@@ -451,7 +459,9 @@
         <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span>
             <span class="n">complex_rotation</span><span class="p">(</span><span class="n">tail_emb</span><span class="p">,</span> <span class="o">-</span><span class="n">relation_emb</span><span class="p">),</span> <span class="n">head_emb</span>
         <span class="p">)</span></div>
@@ -463,7 +473,9 @@
         <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span>
             <span class="n">complex_rotation</span><span class="p">(</span><span class="n">head_emb</span><span class="p">,</span> <span class="n">relation_emb</span><span class="p">),</span> <span class="n">tail_emb</span>
         <span class="p">)</span></div></div>
@@ -520,7 +532,9 @@
         <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce_embedding</span><span class="p">(</span><span class="n">head_emb</span> <span class="o">*</span> <span class="n">relation_emb</span> <span class="o">*</span> <span class="n">tail_emb</span><span class="p">)</span></div>
 
     <span class="c1"># docstr-coverage: inherited</span>
@@ -530,7 +544,9 @@
         <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span><span class="n">relation_emb</span> <span class="o">*</span> <span class="n">tail_emb</span><span class="p">,</span> <span class="n">head_emb</span><span class="p">)</span></div>
 
     <span class="c1"># docstr-coverage: inherited</span>
@@ -540,7 +556,9 @@
         <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span><span class="n">head_emb</span> <span class="o">*</span> <span class="n">relation_emb</span><span class="p">,</span> <span class="n">tail_emb</span><span class="p">)</span></div></div>
 
 
@@ -598,7 +616,9 @@
         <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce_embedding</span><span class="p">(</span>
             <span class="n">complex_multiplication</span><span class="p">(</span><span class="n">head_emb</span><span class="p">,</span> <span class="n">relation_emb</span><span class="p">)</span> <span class="o">*</span> <span class="n">tail_emb</span>
         <span class="p">)</span></div>
@@ -610,7 +630,9 @@
         <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
         <span class="n">cutpoint</span> <span class="o">=</span> <span class="n">relation_emb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span>
         <span class="n">relation_emb</span><span class="p">[:,</span> <span class="n">cutpoint</span><span class="p">:]</span> <span class="o">=</span> <span class="o">-</span><span class="n">relation_emb</span><span class="p">[:,</span> <span class="n">cutpoint</span><span class="p">:]</span>  <span class="c1"># conjugate relations</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span>
@@ -624,7 +646,9 @@
         <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="n">relation_emb</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">[</span><span class="n">relation_id</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)]</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_score</span><span class="p">(</span>
             <span class="n">complex_multiplication</span><span class="p">(</span><span class="n">head_emb</span><span class="p">,</span> <span class="n">relation_emb</span><span class="p">),</span> <span class="n">tail_emb</span>
         <span class="p">)</span></div></div>

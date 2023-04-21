@@ -118,7 +118,7 @@
 
     <span class="c1"># docstr-coverage: inherited</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction_rank</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">prediction_rank</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduction</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">prediction_rank</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="HitsAtK"><a class="viewcode-back" href="../../API_ref/metric.html#besskge.metric.HitsAtK">[docs]</a><span class="k">class</span> <span class="nc">HitsAtK</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
@@ -237,13 +237,17 @@
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;average&quot;</span><span class="p">:</span>
             <span class="n">n_better_opt</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">neg_score</span> <span class="o">&gt;</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
             <span class="n">n_better_pess</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">neg_score</span> <span class="o">&gt;=</span> <span class="n">pos_score</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
-            <span class="n">n_better</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_better_opt</span> <span class="o">+</span> <span class="n">n_better_pess</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">n_better</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
+                <span class="mf">0.5</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">n_better_opt</span><span class="o">.</span><span class="n">device</span>
+            <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_better_opt</span> <span class="o">+</span> <span class="n">n_better_pess</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worst_rank_infty</span><span class="p">:</span>
                 <span class="n">mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span>
                     <span class="n">n_better_opt</span> <span class="o">==</span> <span class="n">n_negative</span><span class="p">,</span> <span class="n">n_better_pess</span> <span class="o">==</span> <span class="n">n_negative</span>
                 <span class="p">)</span>
 
-        <span class="n">batch_rank</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="n">n_better</span>
+        <span class="n">batch_rank</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">n_better</span><span class="o">.</span><span class="n">device</span><span class="p">)</span> <span class="o">+</span> <span class="n">n_better</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worst_rank_infty</span><span class="p">:</span>
             <span class="n">batch_rank</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">inf</span>
 
@@ -277,12 +281,12 @@
         <span class="n">worst_rank</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">inf</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worst_rank_infty</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_negative</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">ranks</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
             <span class="n">ground_truth</span> <span class="o">==</span> <span class="n">neg_indices</span><span class="p">,</span>
-            <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_negative</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">device</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
-                <span class="n">torch</span><span class="o">.</span><span class="n">float32</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+                <span class="mi">1</span><span class="p">,</span> <span class="n">n_negative</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">ground_truth</span><span class="o">.</span><span class="n">device</span>
             <span class="p">),</span>
             <span class="n">worst_rank</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="n">batch_rank</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">ranks</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">batch_rank</span> <span class="o">=</span> <span class="n">ranks</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="p">{</span><span class="n">m_name</span><span class="p">:</span> <span class="n">m_fn</span><span class="p">(</span><span class="n">batch_rank</span><span class="p">)</span> <span class="k">for</span> <span class="n">m_name</span><span class="p">,</span> <span class="n">m_fn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div></div>
 </pre></div>

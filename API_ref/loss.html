@@ -72,6 +72,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#besskge.loss.MarginRankingLoss"><code class="docutils literal notranslate"><span class="pre">MarginRankingLoss</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.loss.MarginRankingLoss.forward"><code class="docutils literal notranslate"><span class="pre">MarginRankingLoss.forward()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.loss.MarginRankingLoss.margin"><code class="docutils literal notranslate"><span class="pre">MarginRankingLoss.margin</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.loss.MarginRankingLoss.negative_adversarial_sampling"><code class="docutils literal notranslate"><span class="pre">MarginRankingLoss.negative_adversarial_sampling</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.loss.MarginRankingLoss.negative_adversarial_scale"><code class="docutils literal notranslate"><span class="pre">MarginRankingLoss.negative_adversarial_scale</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.loss.MarginRankingLoss.training"><code class="docutils literal notranslate"><span class="pre">MarginRankingLoss.training</span></code></a></li>
@@ -169,7 +170,7 @@ Scores of negative samples.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.BaseLossFunction.negative_adversarial_scale">
-<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#besskge.loss.BaseLossFunction.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.BaseLossFunction.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -210,7 +211,7 @@ Weights of positive triples.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.LogSigmoidLoss.negative_adversarial_scale">
-<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#besskge.loss.LogSigmoidLoss.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.LogSigmoidLoss.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -232,7 +233,7 @@ Weights of positive triples.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.MarginBasedLossFunction.negative_adversarial_scale">
-<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#besskge.loss.MarginBasedLossFunction.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.MarginBasedLossFunction.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -272,13 +273,18 @@ Weights of positive triples.</p></li>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.loss.MarginRankingLoss.margin">
+<span class="sig-name descname"><span class="pre">margin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></em><a class="headerlink" href="#besskge.loss.MarginRankingLoss.margin" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.MarginRankingLoss.negative_adversarial_sampling">
 <span class="sig-name descname"><span class="pre">negative_adversarial_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.loss.MarginRankingLoss.negative_adversarial_sampling" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.MarginRankingLoss.negative_adversarial_scale">
-<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#besskge.loss.MarginRankingLoss.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.MarginRankingLoss.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
