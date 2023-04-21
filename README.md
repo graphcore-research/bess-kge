@@ -1,15 +1,16 @@
 # BESS-KGE
 ![Continuous integration](https://github.com/graphcore-research/bess-kge/actions/workflows/ci.yaml/badge.svg)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [**Install guide**](#usage)
-| [**Tutorials**](#tutorials-and-examples)
+| [**Tutorials**](#paperspace-notebook-tutorials)
 | [**Documentation**](https://symmetrical-adventure-69267rm.pages.github.io/)
 
 
 BESS-KGE is a PyTorch library for Knowledge Graph Embedding models on IPU implementing the distribution framework [BESS](https://arxiv.org/abs/2211.12281), with embedding tables stored in IPU SRAM.
 
 ## Features and limitations
+
+
 
 ### BESS distribution framework
 ### Modules
@@ -23,11 +24,15 @@ BESS-KGE is a PyTorch library for Knowledge Graph Embedding models on IPU implem
 | [`besskge.batch_sampler`](besskge/batch_sampler.py) | Sample batches of positive and negative triples for each processing device, according to the BESS distribution scheme.|
 | [`besskge.scoring`](besskge/scoring.py) | Functions used to score positive and negative triples for different KGE models, e.g. TransE, ComplEx, RotatE, DistMult.|
 | [`besskge.loss`](besskge/loss.py) | Functions used to compute the batch loss based on positive and negative scores, e.g. log-sigmoid loss, margin ranking loss.|
-| [`besskge.metric`](besskge/metric.py) | Functions used to compute metrics for the KGE model predictions, e.g. MRR, Hits@K.|
+| [`besskge.metric`](besskge/metric.py) | Functions used to compute metrics for the predictions of KGE models, e.g. MRR, Hits@K.|
 | [`besskge.bess`](besskge/bess.py) | PyTorch modules implementing the BESS distribution scheme for KGE training and inference on multiple IPUs. |
 | [`besskge.utils`](besskge/utils.py) | General puropose utilities.|
 
 ### Known limitations
+
+* BESS-KGE supports distribution up to 16 IPUs.
+* Storing embeddings in SRAM introduces limitations on the size of the embedding tables, and therefore on the entity count in the KG. Using the optimizer Adam, float32 weights and an embedding size of 128, this limit can be quantified in ~4M entities when sharding tables across 16 IPUs.
+* `besskge.bess.TopKQueryBessKGE` currently cannot be used with distance-based scoring functions (e.g. TransE, RotatE).
 
 ## Usage
 
@@ -75,4 +80,4 @@ Copyright (c) 2023 Graphcore Ltd. Licensed under the MIT License.
 
 The included code is released under an MIT license, (see [LICENSE](LICENSE)).
 
-See [NOTICE.md](NOTICE.md) for further details.
+See [NOTICE.md](NOTICE.md) for dependencies and further details.

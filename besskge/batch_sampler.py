@@ -77,6 +77,11 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
             self.positive_per_partition = self.shard_bs
         if self.duplicate_batch:
             self.positive_per_partition //= 2
+        if self.negative_sampler.corruption_scheme == "ht":
+            # Each partition is split in two halves, so we need positive_per_partition
+            # to be even.
+            self.positive_per_partition = (self.positive_per_partition // 2) * 2
+
         # Total number of triples sampled from each partition at each call
         self.partition_sample_size = self.batches_per_step * self.positive_per_partition
 

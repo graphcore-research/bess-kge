@@ -13,7 +13,7 @@ class BaseLossFunction(torch.nn.Module, ABC):
     #: Use self-adversarial weighting of negative samples.
     negative_adversarial_sampling: bool
     #: Reciprocal temperature of self-adversarial weighting
-    negative_adversarial_scale: float
+    negative_adversarial_scale: torch.Tensor
 
     def get_negative_weights(self, negative_score: torch.Tensor) -> torch.Tensor:
         """
@@ -28,7 +28,9 @@ class BaseLossFunction(torch.nn.Module, ABC):
         """
         if self.negative_adversarial_sampling:
             negative_weights = torch.nn.functional.softmax(
-                self.negative_adversarial_scale * negative_score, dim=-1
+                self.negative_adversarial_scale.to(negative_score.device)
+                * negative_score,
+                dim=-1,
             ).detach()
         else:
             negative_weights = torch.tensor(
@@ -82,7 +84,9 @@ class MarginBasedLossFunction(BaseLossFunction, ABC):
         """
         super(MarginBasedLossFunction, self).__init__()
         self.negative_adversarial_sampling = negative_adversarial_sampling
-        self.negative_adversarial_scale = negative_adversarial_scale
+        self.negative_adversarial_scale = torch.tensor(
+            negative_adversarial_scale, dtype=torch.float32
+        )
         self.margin = margin
 
 

@@ -121,13 +121,16 @@ class KGDataset:
     @classmethod
     def build_yago310(cls, root: Path) -> "KGDataset":
         """
-        Build the YAGO-310 dataset.
+        Build the YAGO3-10 dataset.
+        This is the subgraph of the YAGO3 KG :cite:p:`YAGO3` containing only
+        entities which have at least 10 relations associated to them.
+        First used in :cite:p:`ConvE`.
 
         :param root:
             Path to dataset. If dataset is not present, download it
             at this path.
 
-        :return: YAGO-310 KGDataset.
+        :return: YAGO3-10 KGDataset.
         """
 
         if not (
@@ -135,6 +138,7 @@ class KGDataset:
             and root.joinpath("valid.txt").is_file()
             and root.joinpath("test.txt").is_file()
         ):
+            print("Dowloading dataset...")
             res = requests.get(
                 url="https://github.com/TimDettmers/ConvE/raw/master/YAGO3-10.tar.gz"
             )
