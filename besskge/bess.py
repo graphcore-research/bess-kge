@@ -173,7 +173,9 @@ class BessKGE(torch.nn.Module, ABC):
                 ).flatten(end_dim=1)
 
             # Kill scores of padding negatives
-            negative_score += BAD_NEGATIVE_SCORE * (~negative_mask)
+            negative_score += torch.tensor(
+                BAD_NEGATIVE_SCORE, dtype=torch.float32, device=negative_mask.device
+            ) * (~negative_mask)
 
         out_dict: Dict[str, Union[torch.Tensor, Dict[str, torch.Tensor]]] = dict()
 
@@ -613,7 +615,9 @@ class TopKQueryBessKGE(torch.nn.Module):
         candidate: torch.Tensor
         if negative is None:
             candidate = torch.arange(
-                self.sharding.max_entity_per_shard, device=relation.device
+                self.sharding.max_entity_per_shard,
+                dtype=torch.int32,
+                device=relation.device,
             )
         else:
             assert negative_mask is not None
@@ -638,7 +642,11 @@ class TopKQueryBessKGE(torch.nn.Module):
         ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
             mask = slide_idx < candidate.shape[-1]
             slide_idx = torch.where(
-                mask, slide_idx, torch.tensor([candidate.shape[-1] - 1]).to(torch.int32)
+                mask,
+                slide_idx,
+                torch.tensor(
+                    [candidate.shape[-1] - 1], dtype=torch.int32, device=mask.device
+                ),
             )
             if negative_mask is not None:
                 mask = torch.logical_and(mask, gather_indices(negative_mask, slide_idx))
@@ -664,7 +672,9 @@ class TopKQueryBessKGE(torch.nn.Module):
                     negative_embedding,
                 )
 
-            negative_score += BAD_NEGATIVE_SCORE * (
+            negative_score += torch.tensor(
+                BAD_NEGATIVE_SCORE, dtype=torch.float32, device=mask.device
+            ) * (
                 ~mask
             )  # shape (n_shard * shard_bs, ws)
             top_k_scores = torch.topk(
@@ -678,7 +688,10 @@ class TopKQueryBessKGE(torch.nn.Module):
             return (
                 cast(torch.Tensor, top_k_scores.values),  # mypy check
                 curr_idx,
-                slide_idx + self.window_size,
+                slide_idx
+                + torch.tensor(
+                    self.window_size, dtype=torch.int32, device=slide_idx.device
+                ),
             )
 
         n_rep = int(np.ceil(candidate.shape[-1] / self.window_size))
@@ -686,14 +699,18 @@ class TopKQueryBessKGE(torch.nn.Module):
             fill_value=BAD_NEGATIVE_SCORE,
             size=(n_shard * shard_bs, n_best),
             requires_grad=False,
+            dtype=torch.float32,
+            device=candidate.device,
         )
         best_curr_idx = torch.full(
             fill_value=self.sharding.max_entity_per_shard,
             size=(n_shard * shard_bs, n_best),
             requires_grad=False,
-        ).to(torch.int32)
+            dtype=torch.int32,
+            device=candidate.device,
+        )
         slide_idx = (
-            torch.arange(self.window_size, device=relation.device)
+            torch.arange(self.window_size, dtype=torch.int32, device=relation.device)
             .to(torch.int32)
             .reshape(1, -1)
         )
@@ -726,19 +743,21 @@ class TopKQueryBessKGE(torch.nn.Module):
         )
 
         # Discard padding shard entities
-        best_score += BAD_NEGATIVE_SCORE * (
+        best_score += torch.tensor(
+            BAD_NEGATIVE_SCORE, dtype=torch.float32, device=best_idx.device
+        ) * (
             best_idx
             >= torch.from_numpy(self.sharding.shard_counts)[:, None, None].to(
-                device=best_idx.device
+                dtype=torch.int32, device=best_idx.device
             )
         )
 
         # Best global indices
         best_global_idx = (
             gather_indices(
-                torch.from_numpy(self.sharding.shard_and_idx_to_entity).to(
-                    device=best_idx.device
-                ),
+                torch.from_numpy(
+                    self.sharding.shard_and_idx_to_entity,
+                ).to(dtype=torch.int32, device=best_idx.device),
                 best_idx.reshape(self.sharding.n_shard, -1),
             )
             .reshape(*best_idx.shape)
