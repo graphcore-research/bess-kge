@@ -75,7 +75,7 @@ Additional variations of the BESS distribution scheme are detailed in the [docum
 
 ### Modules
 
-All APIs are documented [here]((https://symmetrical-adventure-69267rm.pages.github.io/)).
+All APIs are documented [here](https://symmetrical-adventure-69267rm.pages.github.io/).
 
 | API | Functions 
 | --- | --- |
