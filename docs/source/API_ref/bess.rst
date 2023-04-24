@@ -13,9 +13,9 @@ across workers, as it is usually much smaller.
    **Figure 1**. Entity table sharding across :math:`n=3` workers.
 
 The entity sharding induces a partitioning of the triples in the
-dataset, according to the shard-pair of head entity and tail entity. At
+dataset, according to the shardpair of head entity and tail entity. At
 execution time (for both training and inference) batches are constructed
-by sampling triples uniformly from each of the :math:`n^2` shard-pairs.
+by sampling triples uniformly from each of the :math:`n^2` shardpairs.
 Negative entities, used to corrupt the head or tail of a triple in order
 to construct negative samples, are also sampled in a balanced way to ensure
 a variety that is beneficial to the final embedding quality.
@@ -81,7 +81,8 @@ shared through AllToAll collectives and scored. The difference lies in how negat
 sending negative embeddings to the query's worker, all queries are replicated on each device through an AllGather
 collective, scored against the (partial) set of negatives stored on the device and then the scores are
 sent to the correct worker via a new, balanced AllToAll. 
-This allows us to communicate negative **scores** instead of negative embeddings, which is cheaper.
+This allows us to communicate negative **scores** instead of negative embeddings, which is cheaper, although it
+requires additional collective communications between devices.
 
 .. figure:: ../images/allgather.jpg
    :width: 700px
