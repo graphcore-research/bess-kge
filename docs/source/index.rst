@@ -8,6 +8,8 @@ BESS-KGE documentation
 
 .. automodule:: besskge
 
+   For an overview of the different distribution schemes used by BESS, see :ref:`BESS modules`.
+
 .. toctree::
    :maxdepth: 2
    :caption: API reference

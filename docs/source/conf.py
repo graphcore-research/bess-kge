@@ -33,6 +33,7 @@ extensions = [
     "sphinx_automodapi.automodapi",
     "sphinx_automodapi.smart_resolver",
     "sphinxcontrib.bibtex",
+    "sphinx.ext.autosectionlabel",
 ]
 numpydoc_show_class_members = False
 todo_include_todos = True

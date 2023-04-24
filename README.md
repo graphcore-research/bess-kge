@@ -26,7 +26,7 @@ When distributing the workload over $n$ workers (=IPUs), BESS randomly splits th
   <img src="docs/source/images/embedding_sharding.jpg" height=250>
   <figcaption>
   
-  **Figure 1**. Entity table sharding across $n=3$ workers
+  **Figure 1**. Entity table sharding across $n=3$ workers.
   
   </figcaption>
 </figure>
@@ -36,8 +36,7 @@ The entity sharding induces a partitioning of the triples in the dataset, accord
 
 <div id="figure2" align="center">
 <figure>
-  <img src="docs/source/images/pos_triple_sharding.jpg" height=350>
-  <img src="docs/source/images/negative_tails.jpg" height=350>
+  <img src="docs/source/images/batch_together.jpg" width=700>
   <figcaption>
   
   **Figure 2**. *Left*: a batch is made of $n^2=9$ blocks, each containing the same number of triples. The head embeddings of triples in block $(i,j)$ are stored on worker $i$, the tail embeddings on worker $j$, for $i,j = 0,1,2$. *Right*: the negative entities used to corrupt triples in block $(i,j)$ are sampled in equal number from all of the $n$ shards (this may require padding). In this example, negative samples are constructed by corrupting tails.
@@ -50,7 +49,7 @@ This batch cook-up scheme allows us to balance workload and communication across
 
 <div align="center">
 <figure>
-  <img src="docs/source/images/gather.jpg" height=400>
+  <img src="docs/source/images/gather.jpg" width=650>
   <figcaption>
   
   **Figure 3**. The required embeddings are gathered from the IPUs' SRAM. Each worker needs to retrieve the head embeddings for $n$ positive triple blocks, and the same for tail embeddings (the $3 + 3$ triangles of same colour in [Figure 2 (left)](#figure2)). In addition to that, the worker gathers the portion (=$1/3$) stored in its memory of the negative tails needed by all of the $n^2$ blocks.
@@ -63,7 +62,7 @@ The batch in [Figure 2](#figure2) can then be reconstrcuted by sharing the embed
 
 <div align="center">
 <figure>
-  <img src="docs/source/images/alltoall.jpg" height=550>
+  <img src="docs/source/images/alltoall.jpg" width=650>
   <figcaption>
   
   **Figure 4**. Embeddings of positive and negative tails are exchanged between workers with an AllToAll collective (red arrows), which effectively transposes rows and columns of the $n^2$ blocks in the picture. After this exchange, each worker has the correct $n$ blocks of positive triples and $n$ blocks of negative tails to compute positive and negative scores.
@@ -71,6 +70,9 @@ The batch in [Figure 2](#figure2) can then be reconstrcuted by sharing the embed
   </figcaption>
 </figure>
 </div>
+
+BESS-KGE also supports alternative distribution schemes, as detailed in the [documentation](https://symmetrical-adventure-69267rm.pages.github.io/API_ref/bess.html).
+
 ### Modules
 
 All APIs are documented [here]((https://symmetrical-adventure-69267rm.pages.github.io/)).
