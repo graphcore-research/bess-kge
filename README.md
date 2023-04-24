@@ -11,9 +11,9 @@ BESS-KGE is a PyTorch library for Knowledge Graph Embedding models on IPU implem
 ## Features and limitations
 
 Shallow KGE models are typically memory-bound, as little compute needs to be performed to score (h,r,t) triples once the embeddings of entities and relation types used in the batch have been retrieved. 
-BESS (Balanced Entity Sampling and Sharing) is a KGE distribution framework designed to maximize bandwith for gathering the embeddings, by 
+BESS (Balanced Entity Sampling and Sharing) is a KGE distribution framework designed to maximize bandwith for gathering embeddings, by 
 * storing them in fast-access IPU on-chip memory;
-* minimizing communication time for sharing embeddings between workers, leveraging balanced collective operators over high-bandwith IPU-IPU links.
+* minimizing communication time for sharing embeddings between workers, leveraging balanced collective operators over high-bandwidth IPU-links.
 
 This allows BESS-KGE to achieve high throughput for both training and inference.
 
@@ -32,14 +32,14 @@ When distributing the workload over $n$ workers (=IPUs), BESS randomly splits th
 </figure>
 </div>
 
-The entity sharding induces a partitioning of the triples in the dataset, according to the shard-pair of head entity and tail entity. At execution time (for both training and inference) batches are constructed by sampling triples uniformly from each of the $n^2$ shard-pairs. Negative entities, used to corrupt the head or tail of a triple in order to construct negative samples, are also sampled in a balanced way.
+The entity sharding induces a partitioning of the triples in the dataset, according to the shard-pair of head entity and tail entity. At execution time (for both training and inference) batches are constructed by sampling triples uniformly from each of the $n^2$ shard-pairs. Negative entities, used to corrupt the head or tail of a triple to construct negative samples, are also sampled in a balanced way to ensure a variety that is beneficial to the final embedding quality.
 
 <div id="figure2" align="center">
 <figure>
   <img src="docs/source/images/batch_together.jpg" width=700>
   <figcaption>
   
-  **Figure 2**. *Left*: a batch is made of $n^2=9$ blocks, each containing the same number of triples. The head embeddings of triples in block $(i,j)$ are stored on worker $i$, the tail embeddings on worker $j$, for $i,j = 0,1,2$. *Right*: the negative entities used to corrupt triples in block $(i,j)$ are sampled in equal number from all of the $n$ shards (this may require padding). In this example, negative samples are constructed by corrupting tails.
+  **Figure 2**. *Left*: a batch is made of $n^2=9$ blocks, each containing the same number of triples. The head embeddings of triples in block $(i,j)$ are stored on worker $i$, the tail embeddings on worker $j$, for $i,j = 0,1,2$. *Right*: the negative entities used to corrupt triples in block $(i,j)$ are sampled in equal number from all of the $n$ shards. In this example, negative samples are constructed by corrupting tails.
   
   </figcaption>
 </figure>
@@ -65,13 +65,13 @@ The batch in [Figure 2](#figure2) can then be reconstrcuted by sharing the embed
   <img src="docs/source/images/alltoall.jpg" width=650>
   <figcaption>
   
-  **Figure 4**. Embeddings of positive and negative tails are exchanged between workers with an AllToAll collective (red arrows), which effectively transposes rows and columns of the $n^2$ blocks in the picture. After this exchange, each worker has the correct $n$ blocks of positive triples and $n$ blocks of negative tails to compute positive and negative scores.
+  **Figure 4**. Embeddings of positive and negative tails are exchanged between workers with an AllToAll collective (red arrows), which effectively transposes rows and columns of the $n^2$ blocks in the picture. After this exchange, each worker (vertical column) has the correct $n$ blocks of positive triples and $n$ blocks of negative tails to compute positive and negative scores.
   
   </figcaption>
 </figure>
 </div>
 
-BESS-KGE also supports alternative distribution schemes, as detailed in the [documentation](https://symmetrical-adventure-69267rm.pages.github.io/API_ref/bess.html).
+Additional variations of the BESS distribution scheme are detailed in the [documentation](https://symmetrical-adventure-69267rm.pages.github.io/API_ref/bess.html).
 
 ### Modules
 

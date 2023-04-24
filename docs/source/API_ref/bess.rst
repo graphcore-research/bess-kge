@@ -17,7 +17,8 @@ dataset, according to the shard-pair of head entity and tail entity. At
 execution time (for both training and inference) batches are constructed
 by sampling triples uniformly from each of the :math:`n^2` shard-pairs.
 Negative entities, used to corrupt the head or tail of a triple in order
-to construct negative samples, are also sampled in a balanced way.
+to construct negative samples, are also sampled in a balanced way to ensure
+a variety that is beneficial to the final embedding quality.
 
 .. _figure2:
 
@@ -30,8 +31,8 @@ to construct negative samples, are also sampled in a balanced way.
    in block :math:`(i,j)` are stored on worker :math:`i`, the tail
    embeddings on worker :math:`j`, for :math:`i,j = 0,1,2`. *Right*: the
    negative entities used to corrupt triples in block :math:`(i,j)` are
-   sampled in equal number from all of the :math:`n` shards (this may
-   require padding). In this example, negative samples are constructed
+   sampled in equal number from all of the :math:`n` shards (possibly with
+   padding at inference time). In this example, negative samples are constructed
    by corrupting tails.
 
 
@@ -95,7 +96,7 @@ This allows us to communicate negative **scores** instead of negative embeddings
 
    **Figure 6**. Using a final AllToAll (red arrows) the partial negative **scores** are put back on the worker
    where the head embeddings came from. After this, each worker has the complete set of negative scores for each
-   of the :math:`n` triple blocks it has to score.
+   of the :math:`n` triple blocks it is responsible for.
 
 
 .. automodule:: besskge.bess
