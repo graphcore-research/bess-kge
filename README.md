@@ -21,7 +21,8 @@ This allows BESS-KGE to achieve high throughput for both training and inference.
 
 When distributing the workload over $n$ workers (=IPUs), BESS randomly splits the entity embedding table in $n$ shards of equal size, each of which is stored in one of the workers' memory. The embedding table for relation types, on the other hand, is replicated across workers, as it is usually much smaller.
 
-<figure align="center">
+<div align="center">
+<figure>
   <img src="docs/source/images/embedding_sharding.jpg" height=250>
   <figcaption>
   
@@ -29,11 +30,12 @@ When distributing the workload over $n$ workers (=IPUs), BESS randomly splits th
   
   </figcaption>
 </figure>
+</div>
 
 The entity sharding induces a partitioning of the triples in the dataset, according to the shard-pair of head entity and tail entity. At execution time (for both training and inference) batches are constructed by sampling triples uniformly from each of the $n^2$ shard-pairs. Negative entities, used to corrupt the head or tail of a triple in order to construct negative samples, are also sampled in a balanced way.
 
-<div id="figure2">
-<figure align="center">
+<div id="figure2" align="center">
+<figure>
   <img src="docs/source/images/pos_triple_sharding.jpg" height=350>
   <img src="docs/source/images/negative_tails.jpg" height=350>
   <figcaption>
@@ -46,7 +48,8 @@ The entity sharding induces a partitioning of the triples in the dataset, accord
 
 This batch cook-up scheme allows us to balance workload and communication across workers. First, each worker needs to gather the same number of embeddings from its on-chip memory, both for positive and negative samples. These include the embeddings neeeded by the worker itself, and the embeddings needed by its peers.
 
-<figure align="center">
+<div align="center">
+<figure>
   <img src="docs/source/images/gather.jpg" height=400>
   <figcaption>
   
@@ -54,10 +57,12 @@ This batch cook-up scheme allows us to balance workload and communication across
   
   </figcaption>
 </figure>
+</div>
 
 The batch in [Figure 2](#figure2) can then be reconstrcuted by sharing the embeddings of positive **tails** and negative entities between workers through a balanced AllToAll collective operator. Head embeddings remain inplace, as each triple block is then scored on the worker where the head embedding is stored.
 
-<figure align="center">
+<div align="center">
+<figure>
   <img src="docs/source/images/alltoall.jpg" height=550>
   <figcaption>
   
@@ -65,7 +70,7 @@ The batch in [Figure 2](#figure2) can then be reconstrcuted by sharing the embed
   
   </figcaption>
 </figure>
-
+</div>
 ### Modules
 
 All APIs are documented [here]((https://symmetrical-adventure-69267rm.pages.github.io/)).
