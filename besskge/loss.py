@@ -165,7 +165,9 @@ class MarginRankingLoss(MarginBasedLossFunction):
     ) -> torch.Tensor:
         negative_score_weights = self.get_negative_weights(negative_score)
         combined_score = self.activation(
-            negative_score - positive_score.unsqueeze(1) + self.margin
+            negative_score
+            - positive_score.unsqueeze(1)
+            + self.margin.to(positive_score.device)
         )
         combined_score_reduced = torch.sum(
             negative_score_weights * combined_score, dim=-1

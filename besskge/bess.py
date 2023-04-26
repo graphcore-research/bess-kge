@@ -22,7 +22,6 @@ from besskge.negative_sampler import (
     TripleBasedShardedNegativeSampler,
 )
 from besskge.scoring import BaseScoreFunction
-from besskge.sharding import Sharding
 from besskge.utils import gather_indices
 
 BAD_NEGATIVE_SCORE = -10000.0

@@ -135,7 +135,6 @@ def test_bess_inference(
 
     # Define model with custom embedding tables
     inf_model = model(
-        sharding=sharding,
         negative_sampler=test_ns,
         score_fn=score_fn,
         return_scores=True,
@@ -356,7 +355,6 @@ def test_bess_topk_prediction(
 
     inf_model = TopKQueryBessKGE(
         k=k,
-        sharding=sharding,
         candidate_sampler=test_ns,
         score_fn=score_fn,
         evaluation=None,
