@@ -64,7 +64,7 @@ def initialize_entity_embedding(
         Entity embedding size. Can be omitted if passing
         embedding table.
 
-    :return:
+    :return: shape: (n_shard, max_ent_per_shard, embedding_size)
         Entity embedding table.
     """
 
@@ -157,3 +157,34 @@ def initialize_relation_embedding(
         initializer.initialize(relation_embedding)
 
     return relation_embedding
+
+
+def refactor_embedding_sharding(
+    entity_embedding: torch.nn.Parameter,
+    old_sharding: Sharding,
+    new_sharding: Sharding,
+) -> torch.nn.Parameter:
+    """
+    Refactor sharded entity embedding table to pass from
+    one entity sharding to a different one.
+
+    :param entity_embedding: shape: (n_shard_old, max_ent_per_shard_old, embedding_size)
+        Entity embedding table sharded according to old_sharding.
+    :param old_sharding:
+        The current entity sharding.
+    :param new_sharding:
+        The new entity sharding.
+
+    :return: shape: (n_shard_new, max_ent_per_shard_new, embedding_size)
+        The refactored entity embedding table, sharded according
+        to new_sharding.
+    """
+
+    embedding_table = entity_embedding.detach()
+    unsharded_table = embedding_table[
+        old_sharding.entity_to_shard, old_sharding.entity_to_idx
+    ]
+
+    return initialize_entity_embedding(
+        initializer=unsharded_table, sharding=new_sharding
+    )

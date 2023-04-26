@@ -5,6 +5,7 @@ __pycache__/
 .venv*/
 .vscode/
 third_party/
+wandb/
 .coverage*
 docs/build/
 docs/source/api

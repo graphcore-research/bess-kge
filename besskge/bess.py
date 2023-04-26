@@ -38,7 +38,6 @@ class BessKGE(torch.nn.Module, ABC):
 
     def __init__(
         self,
-        sharding: Sharding,
         negative_sampler: ShardedNegativeSampler,
         score_fn: BaseScoreFunction,
         loss_fn: Optional[BaseLossFunction] = None,
@@ -48,8 +47,6 @@ class BessKGE(torch.nn.Module, ABC):
         """
         Initialize BESS-KGE module.
 
-        :param sharding:
-            The entity sharding.
         :param negative_sampler:
             Sampler of negative entities.
         :param score_fn:
@@ -64,7 +61,7 @@ class BessKGE(torch.nn.Module, ABC):
             Defaults to False.
         """
         super().__init__()
-        self.sharding = sharding
+        self.sharding = score_fn.sharding
         self.negative_sampler = negative_sampler
         self.score_fn = score_fn
         self.loss_fn = loss_fn
@@ -501,7 +498,6 @@ class TopKQueryBessKGE(torch.nn.Module):
     def __init__(
         self,
         k: int,
-        sharding: Sharding,
         candidate_sampler: Union[
             TripleBasedShardedNegativeSampler, PlaceholderNegativeSampler
         ],
@@ -515,8 +511,6 @@ class TopKQueryBessKGE(torch.nn.Module):
 
         :param k:
             For each query return the top-k most likely predictions.
-        :param sharding:
-            The entity sharding.
         :param candidate_sampler:
             Sampler of candidate entities to score against queries.
             Use :class:`besskge.negative_sampler.PlaceholderNegativeSampler`
@@ -537,7 +531,7 @@ class TopKQueryBessKGE(torch.nn.Module):
             Defaults to 100.
         """
         super().__init__()
-        self.sharding = sharding
+        self.sharding = score_fn.sharding
         self.negative_sampler = candidate_sampler
         self.score_fn = score_fn
         self.evaluation = evaluation
@@ -636,6 +630,12 @@ class TopKQueryBessKGE(torch.nn.Module):
         n_best = self.k + 1
 
         relation_all = all_gather(relation, n_shard)
+        if self.negative_sampler.corruption_scheme == "h":
+            tail_embedding = self.entity_embedding[tail]
+            tail_embedding_all = all_gather(tail_embedding, n_shard)
+        elif self.negative_sampler.corruption_scheme == "t":
+            head_embedding = self.entity_embedding[head]
+            head_embedding_all = all_gather(head_embedding, n_shard)
 
         def loop_body(
             curr_score: torch.Tensor, curr_idx: torch.Tensor, slide_idx: torch.Tensor
@@ -656,16 +656,12 @@ class TopKQueryBessKGE(torch.nn.Module):
             negative_embedding = self.entity_embedding[neg_ent_idx]
 
             if self.negative_sampler.corruption_scheme == "h":
-                tail_embedding = self.entity_embedding[tail]
-                tail_embedding_all = all_gather(tail_embedding, n_shard)
                 negative_score = self.score_fn.score_heads(
                     negative_embedding,
                     relation_all.flatten(end_dim=1),
                     tail_embedding_all.flatten(end_dim=1),
                 )
             elif self.negative_sampler.corruption_scheme == "t":
-                head_embedding = self.entity_embedding[head]
-                head_embedding_all = all_gather(head_embedding, n_shard)
                 negative_score = self.score_fn.score_tails(
                     head_embedding_all.flatten(end_dim=1),
                     relation_all.flatten(end_dim=1),
@@ -724,13 +720,6 @@ class TopKQueryBessKGE(torch.nn.Module):
                 slide_idx,
             ],
         )  # shape (total_bs, n_best)
-
-        # for _ in range(n_rep):
-        #     best_curr_score, best_curr_idx, slide_idx = loop_body(
-        #         best_curr_score,
-        #         best_curr_idx,
-        #         slide_idx,
-        #     )
 
         # Send back queries to original shard
         best_score = all_to_all(

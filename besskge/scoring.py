@@ -10,6 +10,7 @@ from besskge.embedding import (
     EmbeddingInitializer,
     initialize_entity_embedding,
     initialize_relation_embedding,
+    refactor_embedding_sharding,
 )
 from besskge.sharding import Sharding
 from besskge.utils import complex_multiplication, complex_rotation
@@ -22,6 +23,9 @@ class BaseScoreFunction(torch.nn.Module, ABC):
 
     #: Share negative entities to construct negative samples
     negative_sample_sharing: bool
+
+    #: Sharding of entities
+    sharding: Sharding
 
     #: Relation embedding table
     entity_embedding: torch.nn.Parameter
@@ -109,6 +113,24 @@ class BaseScoreFunction(torch.nn.Module, ABC):
         see :meth:`BaseScoreFunction.score_triple`
         """
         return self.score_triple(head_emb, relation_id, tail_emb)
+
+    def update_sharding(
+        self,
+        new_sharding: Sharding,
+    ) -> None:
+        """
+        Change the sharding of the entity embedding table.
+
+        :param new_sharding:
+            The new entity sharding.
+        """
+        self.entity_embedding = refactor_embedding_sharding(
+            entity_embedding=self.entity_embedding,
+            old_sharding=self.sharding,
+            new_sharding=new_sharding,
+        )
+
+        self.sharding = new_sharding
 
 
 class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
@@ -261,8 +283,10 @@ class TransE(DistanceBasedScoreFunction):
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
         )
 
+        self.sharding = sharding
+
         self.entity_embedding = initialize_entity_embedding(
-            entity_initializer, sharding, embedding_size
+            entity_initializer, self.sharding, embedding_size
         )
         self.relation_embedding = initialize_relation_embedding(
             relation_initializer, n_relation_type, embedding_size
@@ -348,8 +372,10 @@ class RotatE(DistanceBasedScoreFunction):
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
         )
 
+        self.sharding = sharding
+
         self.entity_embedding = initialize_entity_embedding(
-            entity_initializer, sharding, embedding_size
+            entity_initializer, self.sharding, embedding_size
         )
         self.relation_embedding = initialize_relation_embedding(
             relation_initializer, n_relation_type, embedding_size // 2
@@ -438,8 +464,10 @@ class DistMult(MatrixDecompositionScoreFunction):
         """
         super(DistMult, self).__init__(negative_sample_sharing=negative_sample_sharing)
 
+        self.sharding = sharding
+
         self.entity_embedding = initialize_entity_embedding(
-            entity_initializer, sharding, embedding_size
+            entity_initializer, self.sharding, embedding_size
         )
         self.relation_embedding = initialize_relation_embedding(
             relation_initializer, n_relation_type, embedding_size
@@ -519,8 +547,10 @@ class ComplEx(MatrixDecompositionScoreFunction):
         """
         super(ComplEx, self).__init__(negative_sample_sharing=negative_sample_sharing)
 
+        self.sharding = sharding
+
         self.entity_embedding = initialize_entity_embedding(
-            entity_initializer, sharding, embedding_size
+            entity_initializer, self.sharding, embedding_size
         )
         self.relation_embedding = initialize_relation_embedding(
             relation_initializer, n_relation_type, embedding_size
