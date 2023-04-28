@@ -24,7 +24,7 @@ from besskge.negative_sampler import (
 from besskge.scoring import BaseScoreFunction
 from besskge.utils import gather_indices
 
-BAD_NEGATIVE_SCORE = -10000.0
+BAD_NEGATIVE_SCORE = -50000.0
 
 
 class BessKGE(torch.nn.Module, ABC):
@@ -96,6 +96,7 @@ class BessKGE(torch.nn.Module, ABC):
         relation: torch.Tensor,
         tail: torch.Tensor,
         negative: torch.Tensor,
+        triple_mask: Optional[torch.Tensor] = None,
         triple_weight: Optional[torch.Tensor] = None,
         negative_mask: Optional[torch.Tensor] = None,
     ) -> Dict[str, Any]:
@@ -118,6 +119,9 @@ class BessKGE(torch.nn.Module, ABC):
             Relation indices.
         :param tail: shape: (n_shard, positive_per_partition)
             Tail indices.
+        :param triple_mask: shape: (n_shard, positive_per_partition)
+            Mask to filter the triples in the microbatch
+            before computing metrics.
         :param negative: shape: (n_shard, B, padded_negative)
             Indices of negative entities,
             with `B = 1, 2 or n_shard * positive_per_partition`.
@@ -170,7 +174,9 @@ class BessKGE(torch.nn.Module, ABC):
 
             # Kill scores of padding negatives
             negative_score += torch.tensor(
-                BAD_NEGATIVE_SCORE, dtype=torch.float32, device=negative_mask.device
+                BAD_NEGATIVE_SCORE,
+                dtype=negative_score.dtype,
+                device=negative_mask.device,
             ) * (~negative_mask)
 
         out_dict: Dict[str, Union[torch.Tensor, Dict[str, torch.Tensor]]] = dict()
@@ -181,9 +187,10 @@ class BessKGE(torch.nn.Module, ABC):
             )
 
         if self.loss_fn:
+            # Losses are always computed in FP32
             loss = self.loss_fn(
-                positive_score,
-                negative_score,
+                positive_score.to(dtype=torch.float32),
+                negative_score.to(dtype=torch.float32),
                 triple_weight,
             )
 
@@ -192,10 +199,17 @@ class BessKGE(torch.nn.Module, ABC):
             )
 
         if self.evaluation:
+            if triple_mask is not None:
+                triple_mask = triple_mask.flatten()
             with torch.no_grad():
+                batch_rank = self.evaluation.ranks_from_scores(
+                    positive_score, negative_score
+                )
+                if self.evaluation.return_ranks:
+                    out_dict.update(ranks=batch_rank)
                 out_dict.update(
-                    metrics=self.evaluation.metrics_from_scores(
-                        positive_score, negative_score
+                    metrics=self.evaluation.stacked_metrics_from_ranks(
+                        batch_rank, triple_mask
                     )
                 )
 
@@ -566,6 +580,7 @@ class TopKQueryBessKGE(torch.nn.Module):
         head: Optional[torch.Tensor] = None,
         tail: Optional[torch.Tensor] = None,
         negative: Optional[torch.Tensor] = None,
+        triple_mask: Optional[torch.Tensor] = None,
         negative_mask: Optional[torch.Tensor] = None,
     ) -> Dict[str, Any]:
         """
@@ -591,6 +606,9 @@ class TopKQueryBessKGE(torch.nn.Module):
             or specific for each query in the batch (B=shard_bs).
             If None, score each query against all entities in the KG.
             Defaults to None.
+        :param triple_mask: shape: (shard_bs,)
+            Mask to filter the triples in the microbatch
+            before computing metrics. Defaults to None.
         :param negative_mask: shape: (n_shard, B, padded_negative)
             If candidates are provided, mask to discard padding
             negatives when computing best completions.
@@ -668,9 +686,9 @@ class TopKQueryBessKGE(torch.nn.Module):
                 )
 
             negative_score += torch.tensor(
-                BAD_NEGATIVE_SCORE, dtype=torch.float32, device=mask.device
-            ) * (
-                ~mask
+                BAD_NEGATIVE_SCORE, dtype=negative_score.dtype, device=mask.device
+            ) * (~mask).to(
+                dtype=negative_score.dtype
             )  # shape (n_shard * shard_bs, ws)
             top_k_scores = torch.topk(
                 torch.concat([negative_score, curr_score], dim=1),
@@ -694,7 +712,7 @@ class TopKQueryBessKGE(torch.nn.Module):
             fill_value=BAD_NEGATIVE_SCORE,
             size=(n_shard * shard_bs, n_best),
             requires_grad=False,
-            dtype=torch.float32,
+            dtype=self.score_fn.entity_embedding.dtype,
             device=candidate.device,
         )
         best_curr_idx = torch.full(
@@ -732,7 +750,7 @@ class TopKQueryBessKGE(torch.nn.Module):
 
         # Discard padding shard entities
         best_score += torch.tensor(
-            BAD_NEGATIVE_SCORE, dtype=torch.float32, device=best_idx.device
+            BAD_NEGATIVE_SCORE, dtype=best_score.dtype, device=best_idx.device
         ) * (
             best_idx
             >= torch.from_numpy(self.sharding.shard_counts)[:, None, None].to(
@@ -766,16 +784,24 @@ class TopKQueryBessKGE(torch.nn.Module):
             out_dict.update(topk_scores=topk_final.values)
 
         if self.evaluation:
-            ground_truth = (
-                tail if self.negative_sampler.corruption_scheme == "t" else head
-            )
-            assert (
-                ground_truth is not None
-            ), "Evaluation requires providing ground truth entities"
-            out_dict.update(
-                metrics=self.evaluation.metrics_from_indices(
+            if triple_mask is not None:
+                triple_mask = triple_mask.flatten()
+            with torch.no_grad():
+                ground_truth = (
+                    tail if self.negative_sampler.corruption_scheme == "t" else head
+                )
+                assert (
+                    ground_truth is not None
+                ), "Evaluation requires providing ground truth entities"
+                batch_rank = self.evaluation.ranks_from_indices(
                     ground_truth, topk_global_id
                 )
-            )
+                if self.evaluation.return_ranks:
+                    out_dict.update(ranks=batch_rank)
+                out_dict.update(
+                    metrics=self.evaluation.stacked_metrics_from_ranks(
+                        batch_rank, triple_mask
+                    )
+                )
 
         return out_dict
