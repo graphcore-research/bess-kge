@@ -62,5 +62,12 @@ def complex_rotation(v: torch.Tensor, r: torch.Tensor) -> torch.Tensor:
     :return: shape: (a, 2*e)
         Row-wise rotated tensors.
     """
-    r_complex = torch.concat([torch.cos(r), torch.sin(r)], dim=-1)
+    # Always compute sin and cos in fp16, as faster on IPU
+    if r.dtype == torch.float32:
+        r_cos = torch.cos(r.to(dtype=torch.float16)).to(dtype=torch.float32)
+        r_sin = torch.sin(r.to(dtype=torch.float16)).to(dtype=torch.float32)
+    else:
+        r_cos = torch.cos(r)
+        r_sin = torch.sin(r)
+    r_complex = torch.concat([r_cos, r_sin], dim=-1)
     return complex_multiplication(v, r_complex)

@@ -94,7 +94,6 @@ All APIs are documented [here](https://symmetrical-adventure-69267rm.pages.githu
 
 * BESS-KGE supports distribution up to 16 IPUs.
 * Storing embeddings in SRAM introduces limitations on the size of the embedding tables, and therefore on the entity count in the KG. Using the optimizer Adam, float32 weights and an embedding size of 128, this limit can be quantified in ~4M entities when sharding tables across 16 IPUs.
-* No support for FP16 weights.
 * `besskge.bess.TopKQueryBessKGE` currently cannot be used with distance-based scoring functions (e.g. TransE, RotatE).
 
 ## Usage

@@ -8,6 +8,8 @@ import torch
 class BaseLossFunction(torch.nn.Module, ABC):
     """
     Base class for a loss function.
+
+    Losses are always computed in FP32.
     """
 
     #: Use self-adversarial weighting of negative samples.

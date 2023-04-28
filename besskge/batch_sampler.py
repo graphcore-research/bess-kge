@@ -259,6 +259,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
             worker_init_fn=self.worker_init_fn,
             mode=poptorch.DataLoaderMode.Async,
             async_options={
+                "early_preload": True,
                 "buffer_size": buffer_size,
                 "sharing_strategy": poptorch.SharingStrategy.SharedMemory,
             },
