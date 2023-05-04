@@ -178,6 +178,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
                 "step shard ... triple -> step shard (... triple)",
             )
             triple_weight /= np.sum(triple_weight, axis=-1, keepdims=True)
+            triple_weight *= self.shard_bs
             batch_dict.update(triple_weight=triple_weight.astype(np.float32))
 
         if self.return_triple_idx:

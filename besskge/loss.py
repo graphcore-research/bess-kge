@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 
+import numpy as np
 import torch
 
 
@@ -16,6 +17,8 @@ class BaseLossFunction(torch.nn.Module, ABC):
     negative_adversarial_sampling: bool
     #: Reciprocal temperature of self-adversarial weighting
     negative_adversarial_scale: torch.Tensor
+    #: Loss scaling factor, might be needed when using FP16 weights
+    loss_scale: torch.Tensor
 
     def get_negative_weights(self, negative_score: torch.Tensor) -> torch.Tensor:
         """
@@ -75,6 +78,7 @@ class MarginBasedLossFunction(BaseLossFunction, ABC):
         margin: float,
         negative_adversarial_sampling: bool,
         negative_adversarial_scale: float = 1.0,
+        loss_scale: float = 1.0,
     ) -> None:
         """
         Initialize margin-based loss function.
@@ -85,12 +89,15 @@ class MarginBasedLossFunction(BaseLossFunction, ABC):
             see :class:`BaseLossFunction`
         :param negative_adversarial_scale:
             see :class:`BaseLossFunction`
+        :param loss_scale:
+            see :class:`BaseLossFunction`
         """
         super(MarginBasedLossFunction, self).__init__()
         self.negative_adversarial_sampling = negative_adversarial_sampling
         self.negative_adversarial_scale = torch.tensor(
             negative_adversarial_scale, dtype=torch.float32
         )
+        self.loss_scale = torch.tensor(loss_scale, dtype=torch.float32)
         self.margin: torch.Tensor = torch.tensor(margin, dtype=torch.float32)
 
 
@@ -116,9 +123,10 @@ class LogSigmoidLoss(MarginBasedLossFunction):
         negative_score_reduced = torch.sum(
             negative_score_weights * negative_score_logs, dim=-1
         )
-        return torch.tensor(
+        loss = torch.tensor(
             -0.5, dtype=torch.float32, device=triple_weight.device
         ) * torch.sum(triple_weight * (positive_score_logs + negative_score_reduced))
+        return self.loss_scale.to(device=loss.device) * loss
 
 
 class MarginRankingLoss(MarginBasedLossFunction):
@@ -131,6 +139,7 @@ class MarginRankingLoss(MarginBasedLossFunction):
         margin: float,
         negative_adversarial_sampling: bool,
         negative_adversarial_scale: float = 1.0,
+        loss_scale: float = 1.0,
         activation_function: str = "relu",
     ) -> None:
         """
@@ -139,9 +148,11 @@ class MarginRankingLoss(MarginBasedLossFunction):
         :param margin:
             see :meth:`MarginBasedLossFunction.__init__`
         :param negative_adversarial_sampling:
-            see :meth:`BaseLossFunction.__init__`
+            see :class:`BaseLossFunction`
         :param negative_adversarial_scale:
-            see :meth:`BaseLossFunction.__init__`
+            see :class:`BaseLossFunction`
+        :param loss_scale:
+            see :class:`BaseLossFunction`
         :param activation_function:
             Activation function in loss computation, defaults to "relu".
         """
@@ -149,6 +160,7 @@ class MarginRankingLoss(MarginBasedLossFunction):
             margin,
             negative_adversarial_sampling,
             negative_adversarial_scale,
+            loss_scale,
         )
         if activation_function == "relu":
             self.activation = torch.nn.functional.relu
@@ -174,4 +186,61 @@ class MarginRankingLoss(MarginBasedLossFunction):
         combined_score_reduced = torch.sum(
             negative_score_weights * combined_score, dim=-1
         )
-        return torch.sum(triple_weight * combined_score_reduced)
+        loss = torch.sum(triple_weight * combined_score_reduced)
+        return self.loss_scale.to(device=loss.device) * loss
+
+
+class SampledSoftmaxCrossEntropyLoss(BaseLossFunction):
+    """
+    The sampled softmax cross entropy loss (see :cite:p:`large_vocabulary` and
+    :cite:p:`BESS`).
+    """
+
+    def __init__(
+        self,
+        n_entity: int,
+        loss_scale: float = 1.0,
+    ) -> None:
+        """
+        Initialize the sampled softmax cross entropy loss.
+
+        :param n_entity:
+            The total number of entities in the KG.
+        :param loss_scale:
+            see :class:`BaseLossFunction`
+        """
+        super(SampledSoftmaxCrossEntropyLoss, self).__init__()
+        self.negative_adversarial_sampling = False
+        self.negative_adversarial_scale = torch.tensor(0.0, dtype=torch.float32)
+        self.loss_scale = torch.tensor(loss_scale, dtype=torch.float32)
+        self.n_entity = n_entity
+
+    # docstr-coverage: inherited
+    def forward(
+        self,
+        positive_score: torch.Tensor,
+        negative_score: torch.Tensor,
+        triple_weight: torch.Tensor,
+    ) -> torch.Tensor:
+        # Before computing the cross entropy, scores are adjusted by
+        # `log(1 / E(count(candidate == class)))`, which is
+        # constant over all negative classes and zero for the target class.
+        negative_score += torch.tensor(
+            np.log(self.n_entity - 1) - np.log(negative_score.shape[1]),
+            device=negative_score.device,
+            dtype=negative_score.dtype,
+        )
+
+        cross_entropy_score = torch.nn.functional.cross_entropy(
+            input=torch.concat([positive_score.unsqueeze(1), negative_score], dim=-1),
+            target=torch.full_like(
+                positive_score,
+                fill_value=0,
+                dtype=torch.int32,
+                device=positive_score.device,
+            ),
+            reduction="none",
+        )
+        loss = torch.sum(triple_weight * cross_entropy_score)
+
+        return self.loss_scale.to(device=loss.device) * loss

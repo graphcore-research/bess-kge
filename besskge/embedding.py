@@ -29,20 +29,38 @@ class EmbeddingInitializer(ABC):
         raise NotImplementedError
 
 
-class MarginBasedInitializer(EmbeddingInitializer):
-    def __init__(self, margin: float):
+class UniformInitializer(EmbeddingInitializer):
+    def __init__(self, range_scale: float = 1.0):
         """
-        Margin-based initialization scheme.
+        Initialize embeddings according to uniform distribution
+        in the range `[-range_scale / embedding_size, + range_scale / embedding_size]`.
 
-        :param margin:
-            The margin used in the loss function.
+        :param range_scale:
+            Scaling factor for the range.
         """
-        self.margin = margin
+        self.range_scale = range_scale
 
     # docstr-coverage: inherited
     def initialize(self, embedding_table: torch.nn.Parameter) -> None:
-        embedding_range = self.margin / embedding_table.shape[-1]
+        embedding_range = self.range_scale / embedding_table.shape[-1]
         torch.nn.init.uniform_(embedding_table, -embedding_range, embedding_range)
+
+
+class NormalInitializer(EmbeddingInitializer):
+    def __init__(self, std_scale: float = 1.0):
+        """
+        Initialize embeddings according to normal distribution with
+        mean 0 and standard deviation `std_scale / embedding_size`.
+
+        :param std_scale:
+            Scaling factor for standard deviation.
+        """
+        self.std_scale = std_scale
+
+    # docstr-coverage: inherited
+    def initialize(self, embedding_table: torch.nn.Parameter) -> None:
+        std = self.std_scale / embedding_table.shape[-1]
+        torch.nn.init.normal_(embedding_table, std=std)
 
 
 def initialize_entity_embedding(

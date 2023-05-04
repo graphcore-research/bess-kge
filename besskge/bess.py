@@ -1,6 +1,5 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
-import warnings
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, Tuple, Union, cast
 
@@ -42,6 +41,7 @@ class BessKGE(torch.nn.Module, ABC):
         loss_fn: Optional[BaseLossFunction] = None,
         evaluation: Optional[Evaluation] = None,
         return_scores: bool = False,
+        augment_negative: bool = False,
     ) -> None:
         """
         Initialize BESS-KGE module.
@@ -58,6 +58,10 @@ class BessKGE(torch.nn.Module, ABC):
         :param return_scores:
             Return positive and negative scores of batches to host.
             Defaults to False.
+        :param augment_negative:
+            Augment sampled negative entities with the head/tails
+            (according to the corruption scheme) of other positive triples
+            in the microbatch. Defaults to False.
         """
         super().__init__()
         self.sharding = score_fn.sharding
@@ -66,16 +70,31 @@ class BessKGE(torch.nn.Module, ABC):
         self.loss_fn = loss_fn
         self.evaluation = evaluation
         self.return_scores = return_scores
+        self.augment_negative = augment_negative
         if not (loss_fn or evaluation or return_scores):
             raise ValueError(
                 "Nothing to return. At least one between loss_fn,"
                 " evaluation or return_scores needs to be != None"
             )
 
+        if self.augment_negative:
+            assert (
+                score_fn.negative_sample_sharing
+            ), "Negative augmentation requires negative sample sharing"
+            assert not isinstance(
+                self, ScoreMovingBessKGE
+            ), "ScoreMovingBessKGE does not support negative augmentation"
         if negative_sampler.flat_negative_format:
             assert (
                 score_fn.negative_sample_sharing
             ), "Using flat negative format requires negative sample sharing"
+        elif score_fn.negative_sample_sharing and isinstance(
+            self.negative_sampler, TripleBasedShardedNegativeSampler
+        ):
+            raise ValueError(
+                "Negative sample sharing cannot be used"
+                " with non-flat triple-specific negatives"
+            )
 
         self.entity_embedding = self.score_fn.entity_embedding
         self.entity_embedding_size: int = self.score_fn.entity_embedding.shape[-1]
@@ -113,21 +132,21 @@ class BessKGE(torch.nn.Module, ABC):
 
         Each device scores `n_shard * positive_per_partition` positive triples.
 
-        :param head: shape: (n_shard, positive_per_partition)
+        :param head: shape: (1, n_shard, positive_per_partition)
             Head indices.
-        :param relation: shape: (n_shard, positive_per_partition)
+        :param relation: shape: (1, n_shard, positive_per_partition)
             Relation indices.
-        :param tail: shape: (n_shard, positive_per_partition)
+        :param tail: shape: (1, n_shard, positive_per_partition)
             Tail indices.
-        :param triple_mask: shape: (n_shard, positive_per_partition)
+        :param triple_mask: shape: (1, n_shard, positive_per_partition)
             Mask to filter the triples in the microbatch
             before computing metrics.
-        :param negative: shape: (n_shard, B, padded_negative)
+        :param negative: shape: (1, n_shard, B, padded_negative)
             Indices of negative entities,
             with `B = 1, 2 or n_shard * positive_per_partition`.
-        :param triple_weight: shape: (n_shard * positive_per_partition,) or ()
+        :param triple_weight: shape: (1, n_shard * positive_per_partition,) or (1,)
             Weights of positive triples.
-        :param negative_mask: shape: (B, n_shard, padded_negative)
+        :param negative_mask: shape: (1, B, n_shard, padded_negative)
             Mask to identify padding negatives, to discard when computing metrics.
 
         :return:
@@ -135,7 +154,7 @@ class BessKGE(torch.nn.Module, ABC):
         """
         if triple_weight is None:
             triple_weight = torch.tensor(
-                [1.0 / head.numel()],
+                [1.0],
                 dtype=torch.float32,
                 requires_grad=False,
                 device="ipu",
@@ -172,11 +191,50 @@ class BessKGE(torch.nn.Module, ABC):
                     dim=1,
                 ).flatten(end_dim=1)
 
+        if self.augment_negative:
+            step = (
+                1
+                if self.negative_sampler.flat_negative_format
+                else 1 + negative.shape[0] * negative.shape[2]
+            )
+            aug_mask = (
+                torch.arange(
+                    negative_score.shape[1],
+                    device=negative_score.device,
+                    dtype=torch.int,
+                )[None, :]
+                == step
+                * torch.arange(
+                    negative_score.shape[0],
+                    device=negative_score.device,
+                    dtype=torch.int,
+                )[:, None]
+            )
+            if self.negative_sampler.corruption_scheme == "ht":
+                aug_mask = (
+                    aug_mask[: aug_mask.shape[0] // 2, :]
+                    .reshape(relation.shape[0], relation.shape[1] // 2, -1)
+                    .repeat(1, 2, 1)
+                    .flatten(end_dim=1)
+                )
+            if negative_mask is not None:
+                aug_mask[:, -negative_mask.shape[1] :] = ~negative_mask
+
+            # Discard score of true head/tail from negative scores
+            negative_score += (
+                torch.tensor(
+                    BAD_NEGATIVE_SCORE,
+                    dtype=negative_score.dtype,
+                    device=negative_score.device,
+                )
+                * aug_mask
+            )
+        elif negative_mask is not None:
             # Kill scores of padding negatives
             negative_score += torch.tensor(
                 BAD_NEGATIVE_SCORE,
                 dtype=negative_score.dtype,
-                device=negative_mask.device,
+                device=negative_score.device,
             ) * (~negative_mask)
 
         out_dict: Dict[str, Union[torch.Tensor, Dict[str, torch.Tensor]]] = dict()
@@ -189,14 +247,11 @@ class BessKGE(torch.nn.Module, ABC):
         if self.loss_fn:
             # Losses are always computed in FP32
             loss = self.loss_fn(
-                positive_score.to(dtype=torch.float32),
-                negative_score.to(dtype=torch.float32),
+                positive_score.float(),
+                negative_score.float(),
                 triple_weight,
             )
-
-            out_dict.update(
-                loss=poptorch.identity_loss(loss, reduction="none"),
-            )
+            out_dict.update(loss=poptorch.identity_loss(loss, reduction="none"))
 
         if self.evaluation:
             if triple_mask is not None:
@@ -304,12 +359,32 @@ class EmbeddingMovingBessKGE(BessKGE):
         )
 
         if self.negative_sampler.corruption_scheme == "h":
+            if self.augment_negative:
+                negative_embedding = torch.concat(
+                    [
+                        head_embedding.view(
+                            negative_embedding.shape[0], -1, self.entity_embedding_size
+                        ),
+                        negative_embedding,
+                    ],
+                    dim=1,
+                )
             negative_score = self.score_fn.score_heads(
                 negative_embedding,
                 relation.flatten(end_dim=1),
                 tail_embedding.flatten(end_dim=1),
             )
         elif self.negative_sampler.corruption_scheme == "t":
+            if self.augment_negative:
+                negative_embedding = torch.concat(
+                    [
+                        tail_embedding.view(
+                            negative_embedding.shape[0], -1, self.entity_embedding_size
+                        ),
+                        negative_embedding,
+                    ],
+                    dim=1,
+                )
             negative_score = self.score_fn.score_tails(
                 head_embedding.flatten(end_dim=1),
                 relation.flatten(end_dim=1),
@@ -319,6 +394,16 @@ class EmbeddingMovingBessKGE(BessKGE):
             cut_point = relation.shape[1] // 2
             relation_half1, relation_half2 = torch.split(
                 relation,
+                cut_point,
+                dim=1,
+            )
+            head_half1, head_half2 = torch.split(
+                head_embedding,
+                cut_point,
+                dim=1,
+            )
+            tail_half1, tail_half2 = torch.split(
+                tail_embedding,
                 cut_point,
                 dim=1,
             )
@@ -333,15 +418,37 @@ class EmbeddingMovingBessKGE(BessKGE):
                 negative_heads, negative_tails = torch.split(
                     negative_embedding, cut_point, dim=1
                 )
+                negative_heads = negative_heads.flatten(end_dim=1)
+                negative_tails = negative_tails.flatten(end_dim=1)
+            if self.augment_negative:
+                negative_heads = torch.concat(
+                    [
+                        head_half1.view(
+                            negative_heads.shape[0], -1, self.entity_embedding_size
+                        ),
+                        negative_heads,
+                    ],
+                    dim=1,
+                )
+                negative_tails = torch.concat(
+                    [
+                        tail_half2.view(
+                            negative_tails.shape[0], -1, self.entity_embedding_size
+                        ),
+                        negative_tails,
+                    ],
+                    dim=1,
+                )
+
             negative_score_heads = self.score_fn.score_heads(
-                negative_heads.flatten(end_dim=1),
+                negative_heads,
                 relation_half1.flatten(end_dim=1),
-                tail_embedding[:, :cut_point, :].flatten(end_dim=1),
+                tail_half1.flatten(end_dim=1),
             )
             negative_score_tails = self.score_fn.score_tails(
-                head_embedding[:, cut_point:, :].flatten(end_dim=1),
+                head_half2.flatten(end_dim=1),
                 relation_half2.flatten(end_dim=1),
-                negative_tails.flatten(end_dim=1),
+                negative_tails,
             )
             negative_score = torch.concat(
                 [
@@ -369,7 +476,7 @@ class ScoreMovingBessKGE(BessKGE):
     value documented in :class:`EmbeddingMovingBessKGE` and, if using negative
     sample sharing, multiply that by n_shard.
 
-    Does not support local sampling.
+    Does not support local sampling or negative augmentation.
     """
 
     # docstr-coverage: inherited
@@ -557,9 +664,9 @@ class TopKQueryBessKGE(torch.nn.Module):
                 score_fn.negative_sample_sharing
             ), "Using flat negative format requires negative sample sharing"
         elif score_fn.negative_sample_sharing:
-            warnings.warn(
-                "Negative sample sharing is being used"
-                " with triple-specific negatives"
+            raise ValueError(
+                "Negative sample sharing cannot be used"
+                " with non-flat triple-specific negatives"
             )
 
         if self.negative_sampler.corruption_scheme not in ["h", "t"]:

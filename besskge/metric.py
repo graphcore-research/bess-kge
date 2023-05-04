@@ -2,7 +2,7 @@
 
 import re
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, Optional, cast
 
 import torch
 
@@ -84,7 +84,7 @@ class Evaluation:
         :param metric_list:
             List of metrics to compute. Currently supports "mrr" and "hits@K".
         :param mode:
-            "Optimistic"/"pessimistic"/"average" metrics from scores.
+            "optimistic"/"pessimistic"/"average" metrics from scores.
             Defaults to "average".
         :param worst_rank_infty:
             Assign a prediction rank of infinity as worst possible rank
@@ -123,8 +123,9 @@ class Evaluation:
         self, pos_score: torch.Tensor, candidate_score: torch.Tensor
     ) -> torch.Tensor:
         """
-        Compute the prediction rank from the score of the positive triple (ground truth) and
-        the scores of triples completed with the candidate entities.
+        Compute the prediction rank from the score of the positive triple
+        (ground truth) and the scores of triples corrupted with
+        the candidate entities.
 
         :param pos_score: shape: (batch_size,)
             Scores of positive triples.
@@ -132,7 +133,8 @@ class Evaluation:
             Scores of candidate triples.
 
         :return:
-            The rank of the positive score among the ordered scores of the candidate triples.
+            The rank of the positive score among the ordered scores
+            of the candidate triples.
         """
         batch_size, n_negative = candidate_score.shape
         pos_score = pos_score.reshape(-1, 1)
@@ -206,7 +208,7 @@ class Evaluation:
             worst_rank,
         )
         batch_rank = ranks.min(dim=-1)[0]
-        return batch_rank
+        return cast(torch.Tensor, batch_rank)
 
     def dict_metrics_from_ranks(
         self, batch_rank: torch.Tensor, triple_mask: Optional[torch.Tensor] = None

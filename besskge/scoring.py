@@ -184,7 +184,7 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
         embedding_size = v1.shape[-1]
         if self.negative_sample_sharing:
             score = pea.distance_matrix(
-                v1, v2.reshape(-1, embedding_size), p=self.scoring_norm
+                v1, v2.view(-1, embedding_size), p=self.scoring_norm
             )
         else:
             score = self.reduce_embedding(v1.unsqueeze(1) - v2)
