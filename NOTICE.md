@@ -2,9 +2,9 @@ Copyright (c) 2023 Graphcore Ltd. Licensed under the MIT License.
 
 The included code is released under an MIT license, (see [LICENSE](LICENSE)).
 
-The OGBL-BioKG Dataset is licensed under CC-0.
+The ogbl-biokg and ogbl-wikikg2 datasets are licensed under CC-0.
 
-The [YAGO3 Dataset](https://yago-knowledge.org/downloads/yago-3) by the [YAGO team](https://yago-knowledge.org/contributors) of the [Max-Planck Institute for Informatics](https://www.mpi-inf.mpg.de/home/) and [Telcom Paris](https://www.telecom-paris.fr/) is licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+The [YAGO3 dataset](https://yago-knowledge.org/downloads/yago-3) by the [YAGO team](https://yago-knowledge.org/contributors) of the [Max-Planck Institute for Informatics](https://www.mpi-inf.mpg.de/home/) and [Telcom Paris](https://www.telecom-paris.fr/) is licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 
 See [requirements.txt](requirements.txt) and [requirements-dev.txt](requirements-dev.txt) for dependencies.
 
