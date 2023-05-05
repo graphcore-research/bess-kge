@@ -40,7 +40,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="API_ref/dataset.html">KG Datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API_ref/sharding.html">Sharding utilities</a></li>
@@ -52,6 +52,10 @@
 <li class="toctree-l1"><a class="reference internal" href="API_ref/metric.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API_ref/embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API_ref/utils.html">General-purpose utility functions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -83,8 +87,16 @@
 <p>BESS-KGE is a Python package for Knowledge Graph Embedding on IPUs using
 <a class="reference external" href="https://github.com/graphcore/poptorch">PopTorch</a> and the distributed framework
 <a class="reference external" href="https://arxiv.org/abs/2211.12281">BESS</a>.</p>
+<p>Shallow KGE models are typically memory-bound, as little compute needs to be performed to score (h,r,t) triples once the embeddings of entities and relation types used in the batch have been retrieved.</p>
+<p>BESS (Balanced Entity Sampling and Sharing) is a KGE distribution framework designed to maximize bandwith for gathering embeddings, by</p>
+<ul class="simple">
+<li><p>storing them in fast-access IPU on-chip memory;</p></li>
+<li><p>minimizing communication time for sharing embeddings between workers, leveraging balanced collective operators over high-bandwidth IPU-links.</p></li>
+</ul>
+<p>This allows BESS-KGE to achieve high throughput for both training and inference.</p>
+<p>For an overview of the different distribution schemes used by BESS, see <a class="reference internal" href="API_ref/bess.html#bess-modules"><span class="std std-ref">BESS modules</span></a>.</p>
 <div class="toctree-wrapper compound" id="api-ref">
-<p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+<p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="API_ref/dataset.html">KG Datasets</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="API_ref/dataset.html#besskge.dataset.KGDataset"><code class="docutils literal notranslate"><span class="pre">KGDataset</span></code></a></li>
@@ -131,20 +143,24 @@
 <li class="toctree-l2"><a class="reference internal" href="API_ref/loss.html#besskge.loss.LogSigmoidLoss"><code class="docutils literal notranslate"><span class="pre">LogSigmoidLoss</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="API_ref/loss.html#besskge.loss.MarginBasedLossFunction"><code class="docutils literal notranslate"><span class="pre">MarginBasedLossFunction</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="API_ref/loss.html#besskge.loss.MarginRankingLoss"><code class="docutils literal notranslate"><span class="pre">MarginRankingLoss</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="API_ref/loss.html#besskge.loss.SampledSoftmaxCrossEntropyLoss"><code class="docutils literal notranslate"><span class="pre">SampledSoftmaxCrossEntropyLoss</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="API_ref/metric.html">Metrics</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="API_ref/metric.html#besskge.metric.BaseMetric"><code class="docutils literal notranslate"><span class="pre">BaseMetric</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="API_ref/metric.html#besskge.metric.Evaluation"><code class="docutils literal notranslate"><span class="pre">Evaluation</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="API_ref/metric.html#besskge.metric.HitsAtK"><code class="docutils literal notranslate"><span class="pre">HitsAtK</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="API_ref/metric.html#besskge.metric.METRICS_DICT"><code class="docutils literal notranslate"><span class="pre">METRICS_DICT</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="API_ref/metric.html#besskge.metric.ReciprocalRank"><code class="docutils literal notranslate"><span class="pre">ReciprocalRank</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="API_ref/embedding.html">Embedding utilities</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="API_ref/embedding.html#besskge.embedding.EmbeddingInitializer"><code class="docutils literal notranslate"><span class="pre">EmbeddingInitializer</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/embedding.html#besskge.embedding.MarginBasedInitializer"><code class="docutils literal notranslate"><span class="pre">MarginBasedInitializer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="API_ref/embedding.html#besskge.embedding.NormalInitializer"><code class="docutils literal notranslate"><span class="pre">NormalInitializer</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="API_ref/embedding.html#besskge.embedding.UniformInitializer"><code class="docutils literal notranslate"><span class="pre">UniformInitializer</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="API_ref/embedding.html#besskge.embedding.initialize_entity_embedding"><code class="docutils literal notranslate"><span class="pre">initialize_entity_embedding()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="API_ref/embedding.html#besskge.embedding.initialize_relation_embedding"><code class="docutils literal notranslate"><span class="pre">initialize_relation_embedding()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="API_ref/embedding.html#besskge.embedding.refactor_embedding_sharding"><code class="docutils literal notranslate"><span class="pre">refactor_embedding_sharding()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="API_ref/utils.html">General-purpose utility functions</a><ul>
@@ -153,6 +169,12 @@
 <li class="toctree-l2"><a class="reference internal" href="API_ref/utils.html#besskge.utils.gather_indices"><code class="docutils literal notranslate"><span class="pre">gather_indices()</span></code></a></li>
 </ul>
 </li>
+</ul>
+</div>
+<div class="toctree-wrapper compound" id="bibliography">
+<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
 </ul>
 </div>
 </section>
@@ -175,7 +197,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Graphcore Research.</p>
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

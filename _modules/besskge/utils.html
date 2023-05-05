@@ -38,7 +38,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
@@ -50,6 +50,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -84,18 +88,18 @@
 
 <div class="viewcode-block" id="gather_indices"><a class="viewcode-back" href="../../API_ref/utils.html#besskge.utils.gather_indices">[docs]</a><span class="k">def</span> <span class="nf">gather_indices</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    IPU-friendly gather function like torch.take_along_dim</span>
+<span class="sd">    IPU-friendly gather function like :func:`torch.take_along_dim`</span>
 <span class="sd">    for 2-dimensional tensors (indices along dim=1).</span>
 
 <span class="sd">    :param x: shape: (a, e)</span>
 <span class="sd">    :param index: shape: (b, k)</span>
 <span class="sd">    :return: shape: (b, k)</span>
-<span class="sd">        For all rows of `x`, take the `k` elements on</span>
+<span class="sd">        For all rows of :code:`x`, take the `k` elements on</span>
 <span class="sd">        the row with the indices specified by</span>
-<span class="sd">        the corresponding row of `index`.</span>
-<span class="sd">        If `b == 1`, the same indices are gathered from all rows of `x`;</span>
-<span class="sd">        if `a == 1`, all rows in `index` gather from `x[0]`;</span>
-<span class="sd">        otherwise `a == b` is required.</span>
+<span class="sd">        the corresponding row of :code:`index`.</span>
+<span class="sd">        If :code:`b == 1`, the same indices are gathered from all rows of :code:`x`;</span>
+<span class="sd">        if :code:`a == 1`, all rows in :code:`index` gather from :code:`x[0]`;</span>
+<span class="sd">        otherwise :code:`a == b` is required.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bs</span><span class="p">,</span> <span class="n">sq</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">mask_size</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">shape</span>
@@ -114,9 +118,9 @@
 <span class="sd">    Batched complex multiplication.</span>
 
 <span class="sd">    :param v1: shape: (a, 2*e)</span>
-<span class="sd">        `v1[:,:e]` real part, `v1[:,e:]` imaginary part.</span>
+<span class="sd">        :code:`v1[:,:e]` real part, :code:`v1[:,e:]` imaginary part.</span>
 <span class="sd">    :param v2: shape: (a, 2*e)</span>
-<span class="sd">        `v2[:,:e]` real part, `v2[:,e:]` imaginary part.</span>
+<span class="sd">        :code:`v2[:,:e]` real part, :code:`v2[:,e:]` imaginary part.</span>
 <span class="sd">    :return: shape: (a, 2*e)</span>
 <span class="sd">        Row-wise complex multiplcation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -135,13 +139,20 @@
 
 <span class="sd">    :param v: shape: (a, 2*e)</span>
 <span class="sd">        Complex tensor to rotate:</span>
-<span class="sd">        `v[:,:e]` real part, `v[:,e:]` imaginary part.</span>
+<span class="sd">        :code:`v[:,:e]` real part, :code:`v[:,e:]` imaginary part.</span>
 <span class="sd">    :param r: shape: (a, e)</span>
-<span class="sd">        Rotate `v[k]` by .. math:: e^{i \pi r[k]}</span>
+<span class="sd">        Rotate :code:`v[k]` by :math:`e^{i \pi r[k]}`</span>
 <span class="sd">    :return: shape: (a, 2*e)</span>
 <span class="sd">        Row-wise rotated tensors.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">r_complex</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">torch</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">r</span><span class="p">),</span> <span class="n">torch</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">r</span><span class="p">)],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># Always compute sin and cos in fp16, as faster on IPU</span>
+    <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
+        <span class="n">r_cos</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">r_sin</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float16</span><span class="p">))</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">r_cos</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="n">r_sin</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="n">r_complex</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">r_cos</span><span class="p">,</span> <span class="n">r_sin</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">complex_multiplication</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">r_complex</span><span class="p">)</span></div>
 </pre></div>
 
@@ -152,7 +163,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Graphcore Research.</p>
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

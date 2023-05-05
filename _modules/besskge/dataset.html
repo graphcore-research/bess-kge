@@ -38,7 +38,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
@@ -50,6 +50,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -88,6 +92,7 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">ogb.linkproppred</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">NDArray</span>
 
@@ -105,7 +110,7 @@
     <span class="n">n_relation_type</span><span class="p">:</span> <span class="nb">int</span>
 
     <span class="c1">#: List of (h_ID, r_ID, t_ID) triples, for each part of the dataset;</span>
-    <span class="c1"># {part: int32[n_triple, {h,r,t}]}</span>
+    <span class="c1">#: {part: int32[n_triple, {h,r,t}]}</span>
     <span class="n">triples</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]</span>
 
     <span class="c1">#: Entity labels by ID; str[n_entity]</span>
@@ -115,21 +120,23 @@
     <span class="n">relation_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
 
     <span class="c1">#: If entities have types, IDs are assumed to be clustered by type;</span>
-    <span class="c1"># {entity_type: int}</span>
+    <span class="c1">#: {entity_type: int}</span>
     <span class="n">type_offsets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span>
 
     <span class="c1">#: IDs of (possibly triple-specific) negative heads;</span>
-    <span class="c1"># {part: int32[n_triple or 1, n_neg_heads]}</span>
+    <span class="c1">#: {part: int32[n_triple or 1, n_neg_heads]}</span>
     <span class="n">neg_heads</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]]</span>
 
     <span class="c1">#: IDs of (possibly triple-specific) negative heads;</span>
-    <span class="c1"># {part: int32[n_triple or 1, n_neg_tails]}</span>
+    <span class="c1">#: {part: int32[n_triple or 1, n_neg_tails]}</span>
     <span class="n">neg_tails</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">ht_types</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]]:</span>
-        <span class="c1"># If entities have types, type IDs of triples&#39; heads/tails</span>
-        <span class="c1"># {part: int32[n_triple, {h_type, t_type}]}</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If entities have types, type IDs of triples&#39; heads/tails;</span>
+<span class="sd">        {part: int32[n_triple, {h_type, t_type}]}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_offsets</span><span class="p">:</span>
             <span class="n">type_offsets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromiter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type_offsets</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
             <span class="n">types</span> <span class="o">=</span> <span class="p">{}</span>
@@ -148,13 +155,15 @@
 <div class="viewcode-block" id="KGDataset.build_biokg"><a class="viewcode-back" href="../../API_ref/dataset.html#besskge.dataset.KGDataset.build_biokg">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_biokg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Build the OGB-BioKG dataset.</span>
+<span class="sd">        Build the ogbl-biokg dataset :cite:p:`OGB`</span>
+
+<span class="sd">        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg</span>
 
 <span class="sd">        :param root:</span>
 <span class="sd">            Path to dataset. If dataset is not present, download it</span>
 <span class="sd">            at this path.</span>
 
-<span class="sd">        :return: OGB-BioKG KGDataset.</span>
+<span class="sd">        :return: ogbl-biokg KGDataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">ogb</span><span class="o">.</span><span class="n">linkproppred</span><span class="o">.</span><span class="n">LinkPropPredDataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ogbl-biokg&quot;</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
         <span class="n">split_edge</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_edge_split</span><span class="p">()</span>
@@ -182,12 +191,74 @@
                 <span class="n">neg_heads</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="o">=</span> <span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;head_neg&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">h_type_offsets</span><span class="p">[</span><span class="n">h_type_idx</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">]</span>
                 <span class="n">neg_tails</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="o">=</span> <span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;tail_neg&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">t_type_offsets</span><span class="p">[</span><span class="n">t_type_idx</span><span class="p">][:,</span> <span class="kc">None</span><span class="p">]</span>
 
+        <span class="n">ent_dict</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">type_offsets</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">ent_dict</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ogbl_biokg/mapping/</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_entidx2name.csv.gz&quot;</span><span class="p">))</span>
+                <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;ent idx&quot;</span><span class="p">)[</span><span class="s2">&quot;ent name&quot;</span><span class="p">]</span>
+                <span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="n">rel_dict</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;ogbl_biokg/mapping/relidx2relname.csv.gz&quot;</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;rel idx&quot;</span><span class="p">)[</span><span class="s2">&quot;rel name&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">)</span>
+
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">n_entity</span><span class="o">=</span><span class="n">n_entity</span><span class="p">,</span>
             <span class="n">n_relation_type</span><span class="o">=</span><span class="n">n_relation_type</span><span class="p">,</span>
-            <span class="n">entity_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">relation_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">entity_dict</span><span class="o">=</span><span class="n">ent_dict</span><span class="p">,</span>
+            <span class="n">relation_dict</span><span class="o">=</span><span class="n">rel_dict</span><span class="p">,</span>
             <span class="n">type_offsets</span><span class="o">=</span><span class="n">type_offsets</span><span class="p">,</span>
+            <span class="n">triples</span><span class="o">=</span><span class="n">triples</span><span class="p">,</span>
+            <span class="n">neg_heads</span><span class="o">=</span><span class="n">neg_heads</span><span class="p">,</span>
+            <span class="n">neg_tails</span><span class="o">=</span><span class="n">neg_tails</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="KGDataset.build_wikikg2"><a class="viewcode-back" href="../../API_ref/dataset.html#besskge.dataset.KGDataset.build_wikikg2">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">build_wikikg2</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build the ogbl-wikikg2 dataset :cite:p:`OGB`</span>
+
+<span class="sd">        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2</span>
+
+<span class="sd">        :param root:</span>
+<span class="sd">            Path to dataset. If dataset is not present, download it</span>
+<span class="sd">            at this path.</span>
+
+<span class="sd">        :return: ogbl-wikikg2 KGDataset.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">ogb</span><span class="o">.</span><span class="n">linkproppred</span><span class="o">.</span><span class="n">LinkPropPredDataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ogbl-wikikg2&quot;</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
+        <span class="n">split_data</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_edge_split</span><span class="p">()</span>
+
+        <span class="n">triples</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">neg_heads</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">neg_tails</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">part</span><span class="p">,</span> <span class="n">hrt</span> <span class="ow">in</span> <span class="n">split_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">triples</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;head&quot;</span><span class="p">],</span> <span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;relation&quot;</span><span class="p">],</span> <span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;tail&quot;</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">part</span> <span class="o">!=</span> <span class="s2">&quot;train&quot;</span><span class="p">:</span>
+                <span class="n">neg_heads</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="o">=</span> <span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;head_neg&quot;</span><span class="p">]</span>
+                <span class="n">neg_tails</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="o">=</span> <span class="n">hrt</span><span class="p">[</span><span class="s2">&quot;tail_neg&quot;</span><span class="p">]</span>
+
+        <span class="n">ent_dict</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;ogbl_wikikg2/mapping/nodeidx2entityid.csv.gz&quot;</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;node idx&quot;</span><span class="p">)[</span><span class="s2">&quot;entity id&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">rel_dict</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;ogbl_wikikg2/mapping/reltype2relid.csv.gz&quot;</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;reltype&quot;</span><span class="p">)[</span><span class="s2">&quot;rel id&quot;</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">n_entity</span><span class="o">=</span><span class="n">dataset</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s2">&quot;num_nodes&quot;</span><span class="p">],</span>
+            <span class="n">n_relation_type</span><span class="o">=</span><span class="n">split_data</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;relation&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">entity_dict</span><span class="o">=</span><span class="n">ent_dict</span><span class="p">,</span>
+            <span class="n">relation_dict</span><span class="o">=</span><span class="n">rel_dict</span><span class="p">,</span>
+            <span class="n">type_offsets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">triples</span><span class="o">=</span><span class="n">triples</span><span class="p">,</span>
             <span class="n">neg_heads</span><span class="o">=</span><span class="n">neg_heads</span><span class="p">,</span>
             <span class="n">neg_tails</span><span class="o">=</span><span class="n">neg_tails</span><span class="p">,</span>
@@ -196,13 +267,18 @@
 <div class="viewcode-block" id="KGDataset.build_yago310"><a class="viewcode-back" href="../../API_ref/dataset.html#besskge.dataset.KGDataset.build_yago310">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_yago310</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Build the YAGO-310 dataset.</span>
+<span class="sd">        Build the YAGO3-10 dataset.</span>
+<span class="sd">        This is the subgraph of the YAGO3 KG :cite:p:`YAGO3` containing only</span>
+<span class="sd">        entities which have at least 10 relations associated to them.</span>
+<span class="sd">        First used in :cite:p:`ConvE`.</span>
+
+<span class="sd">        .. seealso:: https://yago-knowledge.org/downloads/yago-3</span>
 
 <span class="sd">        :param root:</span>
 <span class="sd">            Path to dataset. If dataset is not present, download it</span>
 <span class="sd">            at this path.</span>
 
-<span class="sd">        :return: YAGO-310 KGDataset.</span>
+<span class="sd">        :return: YAGO3-10 KGDataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
@@ -210,6 +286,7 @@
             <span class="ow">and</span> <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;valid.txt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
             <span class="ow">and</span> <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;test.txt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
         <span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dowloading dataset...&quot;</span><span class="p">)</span>
             <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
                 <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://github.com/TimDettmers/ConvE/raw/master/YAGO3-10.tar.gz&quot;</span>
             <span class="p">)</span>
@@ -327,7 +404,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Graphcore Research.</p>
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

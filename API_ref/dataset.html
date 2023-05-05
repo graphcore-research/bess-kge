@@ -41,11 +41,12 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">KG Datasets</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#besskge.dataset.KGDataset"><code class="docutils literal notranslate"><span class="pre">KGDataset</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.dataset.KGDataset.build_biokg"><code class="docutils literal notranslate"><span class="pre">KGDataset.build_biokg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.dataset.KGDataset.build_wikikg2"><code class="docutils literal notranslate"><span class="pre">KGDataset.build_wikikg2()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.dataset.KGDataset.build_yago310"><code class="docutils literal notranslate"><span class="pre">KGDataset.build_yago310()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.dataset.KGDataset.entity_dict"><code class="docutils literal notranslate"><span class="pre">KGDataset.entity_dict</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.dataset.KGDataset.ht_types"><code class="docutils literal notranslate"><span class="pre">KGDataset.ht_types</span></code></a></li>
@@ -71,6 +72,10 @@
 <li class="toctree-l1"><a class="reference internal" href="metric.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">General-purpose utility functions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -107,7 +112,11 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.dataset.KGDataset.build_biokg">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_biokg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/dataset.html#KGDataset.build_biokg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.dataset.KGDataset.build_biokg" title="Permalink to this definition"></a></dt>
-<dd><p>Build the OGB-BioKG dataset.</p>
+<dd><p>Build the ogbl-biokg dataset <span id="id1">[<a class="reference internal" href="../bibliography.html#id11" title="Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, and Jure Leskovec. Open graph benchmark: datasets for machine learning on graphs. In Advances in Neural Information Processing Systems 33: Annual Conference on Neural Information Processing Systems 2020, NeurIPS 2020. 2020.">HFZ+20</a>]</span></p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg">https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg</a></p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>root</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to dataset. If dataset is not present, download it
@@ -117,7 +126,29 @@ at this path.</p>
 <dd class="field-even"><p><a class="reference internal" href="#besskge.dataset.KGDataset" title="besskge.dataset.KGDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGDataset</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>OGB-BioKG KGDataset.</p>
+<dd class="field-odd"><p>ogbl-biokg KGDataset.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.dataset.KGDataset.build_wikikg2">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_wikikg2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/dataset.html#KGDataset.build_wikikg2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.dataset.KGDataset.build_wikikg2" title="Permalink to this definition"></a></dt>
+<dd><p>Build the ogbl-wikikg2 dataset <span id="id2">[<a class="reference internal" href="../bibliography.html#id11" title="Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, and Jure Leskovec. Open graph benchmark: datasets for machine learning on graphs. In Advances in Neural Information Processing Systems 33: Annual Conference on Neural Information Processing Systems 2020, NeurIPS 2020. 2020.">HFZ+20</a>]</span></p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2">https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2</a></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>root</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to dataset. If dataset is not present, download it
+at this path.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#besskge.dataset.KGDataset" title="besskge.dataset.KGDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGDataset</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ogbl-wikikg2 KGDataset.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -125,7 +156,14 @@ at this path.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.dataset.KGDataset.build_yago310">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_yago310</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/dataset.html#KGDataset.build_yago310"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.dataset.KGDataset.build_yago310" title="Permalink to this definition"></a></dt>
-<dd><p>Build the YAGO-310 dataset.</p>
+<dd><p>Build the YAGO3-10 dataset.
+This is the subgraph of the YAGO3 KG <span id="id3">[<a class="reference internal" href="../bibliography.html#id28" title="Farzaneh Mahdisoltani, Joanna Biega, and Fabian M. Suchanek. YAGO3: A knowledge base from multilingual wikipedias. In Seventh Biennial Conference on Innovative Data Systems Research, CIDR 2015, Asilomar, CA, USA, January 4-7, 2015, Online Proceedings. 2015.">MBS15</a>]</span> containing only
+entities which have at least 10 relations associated to them.
+First used in <span id="id4">[<a class="reference internal" href="../bibliography.html#id29" title="Tim Dettmers, Minervini Pasquale, Stenetorp Pontus, and Sebastian Riedel. Convolutional 2d knowledge graph embeddings. In Proceedings of the 32th AAAI Conference on Artificial Intelligence, 1811–1818. 2018.">DPPR18</a>]</span>.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://yago-knowledge.org/downloads/yago-3">https://yago-knowledge.org/downloads/yago-3</a></p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>root</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to dataset. If dataset is not present, download it
@@ -135,7 +173,7 @@ at this path.</p>
 <dd class="field-even"><p><a class="reference internal" href="#besskge.dataset.KGDataset" title="besskge.dataset.KGDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGDataset</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>YAGO-310 KGDataset.</p>
+<dd class="field-odd"><p>YAGO3-10 KGDataset.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -149,7 +187,9 @@ at this path.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="besskge.dataset.KGDataset.ht_types">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ht_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dtype</span><span class="p"><span class="pre">[</span></span><span class="pre">int32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#besskge.dataset.KGDataset.ht_types" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>If entities have types, type IDs of triples’ heads/tails;
+{part: int32[n_triple, {h_type, t_type}]}</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.dataset.KGDataset.load">
@@ -183,12 +223,16 @@ at this path.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.dataset.KGDataset.neg_heads">
 <span class="sig-name descname"><span class="pre">neg_heads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code><span class="pre">]]]]</span></em><a class="headerlink" href="#besskge.dataset.KGDataset.neg_heads" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>IDs of (possibly triple-specific) negative heads;
+{part: int32[n_triple or 1, n_neg_heads]}</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.dataset.KGDataset.neg_tails">
 <span class="sig-name descname"><span class="pre">neg_tails</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code><span class="pre">]]]]</span></em><a class="headerlink" href="#besskge.dataset.KGDataset.neg_tails" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>IDs of (possibly triple-specific) negative heads;
+{part: int32[n_triple or 1, n_neg_tails]}</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.dataset.KGDataset.relation_dict">
@@ -213,12 +257,16 @@ at this path.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.dataset.KGDataset.triples">
 <span class="sig-name descname"><span class="pre">triples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code><span class="pre">]]]</span></em><a class="headerlink" href="#besskge.dataset.KGDataset.triples" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>List of (h_ID, r_ID, t_ID) triples, for each part of the dataset;
+{part: int32[n_triple, {h,r,t}]}</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.dataset.KGDataset.type_offsets">
 <span class="sig-name descname"><span class="pre">type_offsets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">]]</span></em><a class="headerlink" href="#besskge.dataset.KGDataset.type_offsets" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>If entities have types, IDs are assumed to be clustered by type;
+{entity_type: int}</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -235,7 +283,7 @@ at this path.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Graphcore Research.</p>
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

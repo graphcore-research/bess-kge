@@ -38,7 +38,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
@@ -50,6 +50,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -108,20 +112,38 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
 
-<div class="viewcode-block" id="MarginBasedInitializer"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.MarginBasedInitializer">[docs]</a><span class="k">class</span> <span class="nc">MarginBasedInitializer</span><span class="p">(</span><span class="n">EmbeddingInitializer</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">margin</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
+<div class="viewcode-block" id="UniformInitializer"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.UniformInitializer">[docs]</a><span class="k">class</span> <span class="nc">UniformInitializer</span><span class="p">(</span><span class="n">EmbeddingInitializer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">range_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Margin-based initialization scheme.</span>
+<span class="sd">        Initialize embeddings according to uniform distribution</span>
+<span class="sd">        in the range `[-range_scale / embedding_size, + range_scale / embedding_size]`.</span>
 
-<span class="sd">        :param margin:</span>
-<span class="sd">            The margin used in the loss function.</span>
+<span class="sd">        :param range_scale:</span>
+<span class="sd">            Scaling factor for the range.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">=</span> <span class="n">margin</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">range_scale</span> <span class="o">=</span> <span class="n">range_scale</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
-<div class="viewcode-block" id="MarginBasedInitializer.initialize"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.MarginBasedInitializer.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">embedding_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">/</span> <span class="n">embedding_table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<div class="viewcode-block" id="UniformInitializer.initialize"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.UniformInitializer.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">embedding_range</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">range_scale</span> <span class="o">/</span> <span class="n">embedding_table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="n">embedding_table</span><span class="p">,</span> <span class="o">-</span><span class="n">embedding_range</span><span class="p">,</span> <span class="n">embedding_range</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="NormalInitializer"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.NormalInitializer">[docs]</a><span class="k">class</span> <span class="nc">NormalInitializer</span><span class="p">(</span><span class="n">EmbeddingInitializer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">std_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize embeddings according to normal distribution with</span>
+<span class="sd">        mean 0 and standard deviation `std_scale / embedding_size`.</span>
+
+<span class="sd">        :param std_scale:</span>
+<span class="sd">            Scaling factor for standard deviation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">std_scale</span> <span class="o">=</span> <span class="n">std_scale</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="NormalInitializer.initialize"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.NormalInitializer.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">std_scale</span> <span class="o">/</span> <span class="n">embedding_table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">embedding_table</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">std</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="initialize_entity_embedding"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.initialize_entity_embedding">[docs]</a><span class="k">def</span> <span class="nf">initialize_entity_embedding</span><span class="p">(</span>
@@ -133,7 +155,7 @@
 <span class="sd">    Initialize entity embedding table.</span>
 
 <span class="sd">    :param initializer:</span>
-<span class="sd">        Embedding table or embedding intializer. If providing</span>
+<span class="sd">        Embedding table or embedding initializer. If providing</span>
 <span class="sd">        embedding table, this can either be sharded</span>
 <span class="sd">        (shape: (n_shard, max_entity_per_shard, embedding_size))</span>
 <span class="sd">        or unsharded (shape: (n_entity, embedding_size)).</span>
@@ -143,7 +165,7 @@
 <span class="sd">        Entity embedding size. Can be omitted if passing</span>
 <span class="sd">        embedding table.</span>
 
-<span class="sd">    :return:</span>
+<span class="sd">    :return: shape: (n_shard, max_ent_per_shard, embedding_size)</span>
 <span class="sd">        Entity embedding table.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -163,12 +185,12 @@
                     <span class="s2">&quot;Number of rows of table provided for initialization&quot;</span>
                     <span class="s2">&quot; different from number of entities.&quot;</span>
                 <span class="p">)</span>
-            <span class="n">intializer_sharded</span> <span class="o">=</span> <span class="n">initializer</span><span class="p">[</span>
+            <span class="n">initializer_sharded</span> <span class="o">=</span> <span class="n">initializer</span><span class="p">[</span>
                 <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
                     <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">sharding</span><span class="o">.</span><span class="n">shard_and_idx_to_entity</span><span class="p">,</span> <span class="n">sharding</span><span class="o">.</span><span class="n">n_entity</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="p">)</span>
             <span class="p">]</span>
-            <span class="n">entity_embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">intializer_sharded</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
+            <span class="n">entity_embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">initializer_sharded</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Table for initialization needs to be 2- or 3-dimensional&quot;</span><span class="p">)</span>
 
@@ -205,7 +227,7 @@
 <span class="sd">    Initialize relation embedding table.</span>
 
 <span class="sd">    :param initializer:</span>
-<span class="sd">        Embedding table or embedding intializer.</span>
+<span class="sd">        Embedding table or embedding initializer.</span>
 <span class="sd">    :param n_relation_type:</span>
 <span class="sd">        Number of relation types.</span>
 <span class="sd">    :param embedding_size:</span>
@@ -236,6 +258,37 @@
         <span class="n">initializer</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="n">relation_embedding</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">relation_embedding</span></div>
+
+
+<div class="viewcode-block" id="refactor_embedding_sharding"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.refactor_embedding_sharding">[docs]</a><span class="k">def</span> <span class="nf">refactor_embedding_sharding</span><span class="p">(</span>
+    <span class="n">entity_embedding</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">,</span>
+    <span class="n">old_sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
+    <span class="n">new_sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Refactor sharded entity embedding table to pass from</span>
+<span class="sd">    one entity sharding to a different one.</span>
+
+<span class="sd">    :param entity_embedding: shape: (n_shard_old, max_ent_per_shard_old, embedding_size)</span>
+<span class="sd">        Entity embedding table sharded according to old_sharding.</span>
+<span class="sd">    :param old_sharding:</span>
+<span class="sd">        The current entity sharding.</span>
+<span class="sd">    :param new_sharding:</span>
+<span class="sd">        The new entity sharding.</span>
+
+<span class="sd">    :return: shape: (n_shard_new, max_ent_per_shard_new, embedding_size)</span>
+<span class="sd">        The refactored entity embedding table, sharded according</span>
+<span class="sd">        to new_sharding.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">embedding_table</span> <span class="o">=</span> <span class="n">entity_embedding</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+    <span class="n">unsharded_table</span> <span class="o">=</span> <span class="n">embedding_table</span><span class="p">[</span>
+        <span class="n">old_sharding</span><span class="o">.</span><span class="n">entity_to_shard</span><span class="p">,</span> <span class="n">old_sharding</span><span class="o">.</span><span class="n">entity_to_idx</span>
+    <span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">initialize_entity_embedding</span><span class="p">(</span>
+        <span class="n">initializer</span><span class="o">=</span><span class="n">unsharded_table</span><span class="p">,</span> <span class="n">sharding</span><span class="o">=</span><span class="n">new_sharding</span>
+    <span class="p">)</span></div>
 </pre></div>
 
            </div>
@@ -245,7 +298,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Graphcore Research.</p>
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -41,7 +41,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="dataset.html">KG Datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sharding.html">Sharding utilities</a></li>
@@ -56,15 +56,24 @@
 <li class="toctree-l3"><a class="reference internal" href="#besskge.embedding.EmbeddingInitializer.initialize"><code class="docutils literal notranslate"><span class="pre">EmbeddingInitializer.initialize()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#besskge.embedding.MarginBasedInitializer"><code class="docutils literal notranslate"><span class="pre">MarginBasedInitializer</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#besskge.embedding.MarginBasedInitializer.initialize"><code class="docutils literal notranslate"><span class="pre">MarginBasedInitializer.initialize()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.embedding.NormalInitializer"><code class="docutils literal notranslate"><span class="pre">NormalInitializer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.embedding.NormalInitializer.initialize"><code class="docutils literal notranslate"><span class="pre">NormalInitializer.initialize()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.embedding.UniformInitializer"><code class="docutils literal notranslate"><span class="pre">UniformInitializer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#besskge.embedding.UniformInitializer.initialize"><code class="docutils literal notranslate"><span class="pre">UniformInitializer.initialize()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#besskge.embedding.initialize_entity_embedding"><code class="docutils literal notranslate"><span class="pre">initialize_entity_embedding()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#besskge.embedding.initialize_relation_embedding"><code class="docutils literal notranslate"><span class="pre">initialize_relation_embedding()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#besskge.embedding.refactor_embedding_sharding"><code class="docutils literal notranslate"><span class="pre">refactor_embedding_sharding()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">General-purpose utility functions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -115,12 +124,32 @@
 </dd></dl>
 
 <dl class="py class">
-<dt class="sig sig-object py" id="besskge.embedding.MarginBasedInitializer">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.embedding.</span></span><span class="sig-name descname"><span class="pre">MarginBasedInitializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">margin</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/embedding.html#MarginBasedInitializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.embedding.MarginBasedInitializer" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="besskge.embedding.NormalInitializer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.embedding.</span></span><span class="sig-name descname"><span class="pre">NormalInitializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">std_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/embedding.html#NormalInitializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.embedding.NormalInitializer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#besskge.embedding.EmbeddingInitializer" title="besskge.embedding.EmbeddingInitializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmbeddingInitializer</span></code></a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="besskge.embedding.MarginBasedInitializer.initialize">
-<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding_table</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/embedding.html#MarginBasedInitializer.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.embedding.MarginBasedInitializer.initialize" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="besskge.embedding.NormalInitializer.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding_table</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/embedding.html#NormalInitializer.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.embedding.NormalInitializer.initialize" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize embedding table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>embedding_table</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code>) – The embedding table to initialize (in-place)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="besskge.embedding.UniformInitializer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.embedding.</span></span><span class="sig-name descname"><span class="pre">UniformInitializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">range_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/embedding.html#UniformInitializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.embedding.UniformInitializer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#besskge.embedding.EmbeddingInitializer" title="besskge.embedding.EmbeddingInitializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmbeddingInitializer</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.embedding.UniformInitializer.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding_table</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/embedding.html#UniformInitializer.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.embedding.UniformInitializer.initialize" title="Permalink to this definition"></a></dt>
 <dd><p>Initialize embedding table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -141,7 +170,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>initializer</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <a class="reference internal" href="#besskge.embedding.EmbeddingInitializer" title="besskge.embedding.EmbeddingInitializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmbeddingInitializer</span></code></a>]) – Embedding table or embedding intializer. If providing
+<li><p><strong>initializer</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <a class="reference internal" href="#besskge.embedding.EmbeddingInitializer" title="besskge.embedding.EmbeddingInitializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmbeddingInitializer</span></code></a>]) – Embedding table or embedding initializer. If providing
 embedding table, this can either be sharded
 (shape: (n_shard, max_entity_per_shard, embedding_size))
 or unsharded (shape: (n_entity, embedding_size)).</p></li>
@@ -154,7 +183,8 @@ embedding table.</p></li>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Entity embedding table.</p>
+<dd class="field-odd"><p>shape: (n_shard, max_ent_per_shard, embedding_size)
+Entity embedding table.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -166,7 +196,7 @@ embedding table.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>initializer</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <a class="reference internal" href="#besskge.embedding.EmbeddingInitializer" title="besskge.embedding.EmbeddingInitializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmbeddingInitializer</span></code></a>]) – Embedding table or embedding intializer.</p></li>
+<li><p><strong>initializer</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <a class="reference internal" href="#besskge.embedding.EmbeddingInitializer" title="besskge.embedding.EmbeddingInitializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmbeddingInitializer</span></code></a>]) – Embedding table or embedding initializer.</p></li>
 <li><p><strong>n_relation_type</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of relation types.</p></li>
 <li><p><strong>embedding_size</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Relation embedding size. Can be omitted if passing
 embedding table.</p></li>
@@ -177,6 +207,31 @@ embedding table.</p></li>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Relation embedding table.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="besskge.embedding.refactor_embedding_sharding">
+<span class="sig-prename descclassname"><span class="pre">besskge.embedding.</span></span><span class="sig-name descname"><span class="pre">refactor_embedding_sharding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_embedding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_sharding</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/embedding.html#refactor_embedding_sharding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.embedding.refactor_embedding_sharding" title="Permalink to this definition"></a></dt>
+<dd><p>Refactor sharded entity embedding table to pass from
+one entity sharding to a different one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entity_embedding</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code>) – shape: (n_shard_old, max_ent_per_shard_old, embedding_size)
+Entity embedding table sharded according to old_sharding.</p></li>
+<li><p><strong>old_sharding</strong> (<a class="reference internal" href="sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – The current entity sharding.</p></li>
+<li><p><strong>new_sharding</strong> (<a class="reference internal" href="sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – The new entity sharding.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>shape: (n_shard_new, max_ent_per_shard_new, embedding_size)
+The refactored entity embedding table, sharded according
+to new_sharding.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -194,7 +249,7 @@ embedding table.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Graphcore Research.</p>
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

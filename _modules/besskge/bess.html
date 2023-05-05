@@ -38,7 +38,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
@@ -50,6 +50,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -79,7 +83,6 @@
   <h1>Source code for besskge.bess</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) 2023 Graphcore Ltd. All rights reserved.</span>
 
-<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
 
@@ -101,34 +104,31 @@
     <span class="n">TripleBasedShardedNegativeSampler</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">besskge.scoring</span> <span class="kn">import</span> <span class="n">BaseScoreFunction</span>
-<span class="kn">from</span> <span class="nn">besskge.sharding</span> <span class="kn">import</span> <span class="n">Sharding</span>
 <span class="kn">from</span> <span class="nn">besskge.utils</span> <span class="kn">import</span> <span class="n">gather_indices</span>
 
-<span class="n">BAD_NEGATIVE_SCORE</span> <span class="o">=</span> <span class="o">-</span><span class="mf">10000.0</span>
+<span class="n">BAD_NEGATIVE_SCORE</span> <span class="o">=</span> <span class="o">-</span><span class="mf">50000.0</span>
 
 
 <div class="viewcode-block" id="BessKGE"><a class="viewcode-back" href="../../API_ref/bess.html#besskge.bess.BessKGE">[docs]</a><span class="k">class</span> <span class="nc">BessKGE</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for distributed training and inference of KGE models, using</span>
-<span class="sd">    the distribution framework BESS [...].</span>
+<span class="sd">    the distribution framework BESS :cite:p:`BESS`.</span>
 <span class="sd">    To be used in combination with a batch sampler based on a</span>
 <span class="sd">    &quot;ht_shardpair&quot;-partitioned triple set.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
         <span class="n">negative_sampler</span><span class="p">:</span> <span class="n">ShardedNegativeSampler</span><span class="p">,</span>
         <span class="n">score_fn</span><span class="p">:</span> <span class="n">BaseScoreFunction</span><span class="p">,</span>
         <span class="n">loss_fn</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseLossFunction</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">evaluation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">return_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">augment_negative</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize BESS-KGE module.</span>
 
-<span class="sd">        :param sharding:</span>
-<span class="sd">            The entity sharding.</span>
 <span class="sd">        :param negative_sampler:</span>
 <span class="sd">            Sampler of negative entities.</span>
 <span class="sd">        :param score_fn:</span>
@@ -141,24 +141,43 @@
 <span class="sd">        :param return_scores:</span>
 <span class="sd">            Return positive and negative scores of batches to host.</span>
 <span class="sd">            Defaults to False.</span>
+<span class="sd">        :param augment_negative:</span>
+<span class="sd">            Augment sampled negative entities with the head/tails</span>
+<span class="sd">            (according to the corruption scheme) of other positive triples</span>
+<span class="sd">            in the microbatch. Defaults to False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span> <span class="o">=</span> <span class="n">sharding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span> <span class="o">=</span> <span class="n">score_fn</span><span class="o">.</span><span class="n">sharding</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span> <span class="o">=</span> <span class="n">negative_sampler</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span> <span class="o">=</span> <span class="n">score_fn</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loss_fn</span> <span class="o">=</span> <span class="n">loss_fn</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">evaluation</span> <span class="o">=</span> <span class="n">evaluation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">return_scores</span> <span class="o">=</span> <span class="n">return_scores</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">augment_negative</span> <span class="o">=</span> <span class="n">augment_negative</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">loss_fn</span> <span class="ow">or</span> <span class="n">evaluation</span> <span class="ow">or</span> <span class="n">return_scores</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Nothing to return. At least one between loss_fn,&quot;</span>
                 <span class="s2">&quot; evaluation or return_scores needs to be != None&quot;</span>
             <span class="p">)</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">augment_negative</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">score_fn</span><span class="o">.</span><span class="n">negative_sample_sharing</span>
+            <span class="p">),</span> <span class="s2">&quot;Negative augmentation requires negative sample sharing&quot;</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">ScoreMovingBessKGE</span>
+            <span class="p">),</span> <span class="s2">&quot;ScoreMovingBessKGE does not support negative augmentation&quot;</span>
         <span class="k">if</span> <span class="n">negative_sampler</span><span class="o">.</span><span class="n">flat_negative_format</span><span class="p">:</span>
             <span class="k">assert</span> <span class="p">(</span>
                 <span class="n">score_fn</span><span class="o">.</span><span class="n">negative_sample_sharing</span>
             <span class="p">),</span> <span class="s2">&quot;Using flat negative format requires negative sample sharing&quot;</span>
+        <span class="k">elif</span> <span class="n">score_fn</span><span class="o">.</span><span class="n">negative_sample_sharing</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="p">,</span> <span class="n">TripleBasedShardedNegativeSampler</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Negative sample sharing cannot be used&quot;</span>
+                <span class="s2">&quot; with non-flat triple-specific negatives&quot;</span>
+            <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">entity_embedding</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -179,6 +198,7 @@
         <span class="n">relation</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">tail</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
         <span class="n">negative</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">triple_mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">triple_weight</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">negative_mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -193,20 +213,23 @@
 
 <span class="sd">        4) Compute loss/metrics.</span>
 
-<span class="sd">        Each device scores n_shard * positive_per_partition positive triples.</span>
+<span class="sd">        Each device scores `n_shard * positive_per_partition` positive triples.</span>
 
-<span class="sd">        :param head: shape: (n_shard, positive_per_partition)</span>
+<span class="sd">        :param head: shape: (1, n_shard, positive_per_partition)</span>
 <span class="sd">            Head indices.</span>
-<span class="sd">        :param relation: shape: (n_shard, positive_per_partition)</span>
+<span class="sd">        :param relation: shape: (1, n_shard, positive_per_partition)</span>
 <span class="sd">            Relation indices.</span>
-<span class="sd">        :param tail: shape: (n_shard, positive_per_partition)</span>
+<span class="sd">        :param tail: shape: (1, n_shard, positive_per_partition)</span>
 <span class="sd">            Tail indices.</span>
-<span class="sd">        :param negative: shape: (n_shard, B, padded_negative)</span>
+<span class="sd">        :param triple_mask: shape: (1, n_shard, positive_per_partition)</span>
+<span class="sd">            Mask to filter the triples in the microbatch</span>
+<span class="sd">            before computing metrics.</span>
+<span class="sd">        :param negative: shape: (1, n_shard, B, padded_negative)</span>
 <span class="sd">            Indices of negative entities,</span>
-<span class="sd">            with B = 1, 2 or n_shard * positive_per_partition.</span>
-<span class="sd">        :param triple_weight: shape: (n_shard * positive_per_partition,) or ()</span>
+<span class="sd">            with `B = 1, 2 or n_shard * positive_per_partition`.</span>
+<span class="sd">        :param triple_weight: shape: (1, n_shard * positive_per_partition,) or (1,)</span>
 <span class="sd">            Weights of positive triples.</span>
-<span class="sd">        :param negative_mask: shape: (B, n_shard, padded_negative)</span>
+<span class="sd">        :param negative_mask: shape: (1, B, n_shard, padded_negative)</span>
 <span class="sd">            Mask to identify padding negatives, to discard when computing metrics.</span>
 
 <span class="sd">        :return:</span>
@@ -214,7 +237,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">triple_weight</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">triple_weight</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
-                <span class="p">[</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">head</span><span class="o">.</span><span class="n">numel</span><span class="p">()],</span>
+                <span class="p">[</span><span class="mf">1.0</span><span class="p">],</span>
                 <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
                 <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                 <span class="n">device</span><span class="o">=</span><span class="s2">&quot;ipu&quot;</span><span class="p">,</span>
@@ -251,9 +274,50 @@
                     <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">augment_negative</span><span class="p">:</span>
+            <span class="n">step</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">flat_negative_format</span>
+                <span class="k">else</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">negative</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">negative</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">aug_mask</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+                    <span class="n">negative_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                    <span class="n">device</span><span class="o">=</span><span class="n">negative_score</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int</span><span class="p">,</span>
+                <span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="o">==</span> <span class="n">step</span>
+                <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span>
+                    <span class="n">negative_score</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="n">device</span><span class="o">=</span><span class="n">negative_score</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int</span><span class="p">,</span>
+                <span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;ht&quot;</span><span class="p">:</span>
+                <span class="n">aug_mask</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">aug_mask</span><span class="p">[:</span> <span class="n">aug_mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:]</span>
+                    <span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">relation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">relation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">negative_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">aug_mask</span><span class="p">[:,</span> <span class="o">-</span><span class="n">negative_mask</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">:]</span> <span class="o">=</span> <span class="o">~</span><span class="n">negative_mask</span>
+
+            <span class="c1"># Discard score of true head/tail from negative scores</span>
+            <span class="n">negative_score</span> <span class="o">+=</span> <span class="p">(</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
+                    <span class="n">BAD_NEGATIVE_SCORE</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="n">negative_score</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+                    <span class="n">device</span><span class="o">=</span><span class="n">negative_score</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">*</span> <span class="n">aug_mask</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">negative_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Kill scores of padding negatives</span>
             <span class="n">negative_score</span> <span class="o">+=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
-                <span class="n">BAD_NEGATIVE_SCORE</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">negative_mask</span><span class="o">.</span><span class="n">device</span>
+                <span class="n">BAD_NEGATIVE_SCORE</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">negative_score</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+                <span class="n">device</span><span class="o">=</span><span class="n">negative_score</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
             <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="o">~</span><span class="n">negative_mask</span><span class="p">)</span>
 
         <span class="n">out_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
@@ -264,21 +328,26 @@
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_fn</span><span class="p">:</span>
+            <span class="c1"># Losses are always computed in FP32</span>
             <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_fn</span><span class="p">(</span>
-                <span class="n">positive_score</span><span class="p">,</span>
-                <span class="n">negative_score</span><span class="p">,</span>
+                <span class="n">positive_score</span><span class="o">.</span><span class="n">float</span><span class="p">(),</span>
+                <span class="n">negative_score</span><span class="o">.</span><span class="n">float</span><span class="p">(),</span>
                 <span class="n">triple_weight</span><span class="p">,</span>
             <span class="p">)</span>
-
-            <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="n">loss</span><span class="o">=</span><span class="n">poptorch</span><span class="o">.</span><span class="n">identity_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">),</span>
-            <span class="p">)</span>
+            <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">loss</span><span class="o">=</span><span class="n">poptorch</span><span class="o">.</span><span class="n">identity_loss</span><span class="p">(</span><span class="n">loss</span><span class="p">,</span> <span class="n">reduction</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluation</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">triple_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">triple_mask</span> <span class="o">=</span> <span class="n">triple_mask</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+                <span class="n">batch_rank</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">ranks_from_scores</span><span class="p">(</span>
+                    <span class="n">positive_score</span><span class="p">,</span> <span class="n">negative_score</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">return_ranks</span><span class="p">:</span>
+                    <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ranks</span><span class="o">=</span><span class="n">batch_rank</span><span class="p">)</span>
                 <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                    <span class="n">metrics</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">metrics_from_scores</span><span class="p">(</span>
-                        <span class="n">positive_score</span><span class="p">,</span> <span class="n">negative_score</span>
+                    <span class="n">metrics</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">stacked_metrics_from_ranks</span><span class="p">(</span>
+                        <span class="n">batch_rank</span><span class="p">,</span> <span class="n">triple_mask</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
 
@@ -373,12 +442,32 @@
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">augment_negative</span><span class="p">:</span>
+                <span class="n">negative_embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">head_embedding</span><span class="o">.</span><span class="n">view</span><span class="p">(</span>
+                            <span class="n">negative_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding_size</span>
+                        <span class="p">),</span>
+                        <span class="n">negative_embedding</span><span class="p">,</span>
+                    <span class="p">],</span>
+                    <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="n">negative_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_heads</span><span class="p">(</span>
                 <span class="n">negative_embedding</span><span class="p">,</span>
                 <span class="n">relation</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                 <span class="n">tail_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">augment_negative</span><span class="p">:</span>
+                <span class="n">negative_embedding</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">tail_embedding</span><span class="o">.</span><span class="n">view</span><span class="p">(</span>
+                            <span class="n">negative_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding_size</span>
+                        <span class="p">),</span>
+                        <span class="n">negative_embedding</span><span class="p">,</span>
+                    <span class="p">],</span>
+                    <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
             <span class="n">negative_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_tails</span><span class="p">(</span>
                 <span class="n">head_embedding</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                 <span class="n">relation</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
@@ -388,6 +477,16 @@
             <span class="n">cut_point</span> <span class="o">=</span> <span class="n">relation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span>
             <span class="n">relation_half1</span><span class="p">,</span> <span class="n">relation_half2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
                 <span class="n">relation</span><span class="p">,</span>
+                <span class="n">cut_point</span><span class="p">,</span>
+                <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">head_half1</span><span class="p">,</span> <span class="n">head_half2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+                <span class="n">head_embedding</span><span class="p">,</span>
+                <span class="n">cut_point</span><span class="p">,</span>
+                <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">tail_half1</span><span class="p">,</span> <span class="n">tail_half2</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+                <span class="n">tail_embedding</span><span class="p">,</span>
                 <span class="n">cut_point</span><span class="p">,</span>
                 <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
             <span class="p">)</span>
@@ -402,15 +501,37 @@
                 <span class="n">negative_heads</span><span class="p">,</span> <span class="n">negative_tails</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
                     <span class="n">negative_embedding</span><span class="p">,</span> <span class="n">cut_point</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span>
                 <span class="p">)</span>
+                <span class="n">negative_heads</span> <span class="o">=</span> <span class="n">negative_heads</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">negative_tails</span> <span class="o">=</span> <span class="n">negative_tails</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">augment_negative</span><span class="p">:</span>
+                <span class="n">negative_heads</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">head_half1</span><span class="o">.</span><span class="n">view</span><span class="p">(</span>
+                            <span class="n">negative_heads</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding_size</span>
+                        <span class="p">),</span>
+                        <span class="n">negative_heads</span><span class="p">,</span>
+                    <span class="p">],</span>
+                    <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">negative_tails</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                    <span class="p">[</span>
+                        <span class="n">tail_half2</span><span class="o">.</span><span class="n">view</span><span class="p">(</span>
+                            <span class="n">negative_tails</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding_size</span>
+                        <span class="p">),</span>
+                        <span class="n">negative_tails</span><span class="p">,</span>
+                    <span class="p">],</span>
+                    <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>
+
             <span class="n">negative_score_heads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_heads</span><span class="p">(</span>
-                <span class="n">negative_heads</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">negative_heads</span><span class="p">,</span>
                 <span class="n">relation_half1</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-                <span class="n">tail_embedding</span><span class="p">[:,</span> <span class="p">:</span><span class="n">cut_point</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">tail_half1</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
             <span class="p">)</span>
             <span class="n">negative_score_tails</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_tails</span><span class="p">(</span>
-                <span class="n">head_embedding</span><span class="p">[:,</span> <span class="n">cut_point</span><span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">head_half2</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                 <span class="n">relation_half2</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-                <span class="n">negative_tails</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">negative_tails</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">negative_score</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
                 <span class="p">[</span>
@@ -438,7 +559,7 @@
 <span class="sd">    value documented in :class:`EmbeddingMovingBessKGE` and, if using negative</span>
 <span class="sd">    sample sharing, multiply that by n_shard.</span>
 
-<span class="sd">    Does not support local sampling.</span>
+<span class="sd">    Does not support local sampling or negative augmentation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
@@ -562,7 +683,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Distributed scoring of (h, r, ?) or (?, r, t) queries (against</span>
 <span class="sd">    all entities in the KG, or a query-specific set)</span>
-<span class="sd">    returning top-k most likely completions, based on BESS</span>
+<span class="sd">    returning top-k most likely completions, based on BESS :cite:p:`BESS`</span>
 <span class="sd">    inference scheme.</span>
 <span class="sd">    To be used in combination with a batch sampler based on a</span>
 <span class="sd">    &quot;h_shard&quot;/&quot;t_shard&quot;-partitioned triple set.</span>
@@ -580,7 +701,6 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
         <span class="n">candidate_sampler</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
             <span class="n">TripleBasedShardedNegativeSampler</span><span class="p">,</span> <span class="n">PlaceholderNegativeSampler</span>
         <span class="p">],</span>
@@ -594,8 +714,6 @@
 
 <span class="sd">        :param k:</span>
 <span class="sd">            For each query return the top-k most likely predictions.</span>
-<span class="sd">        :param sharding:</span>
-<span class="sd">            The entity sharding.</span>
 <span class="sd">        :param candidate_sampler:</span>
 <span class="sd">            Sampler of candidate entities to score against queries.</span>
 <span class="sd">            Use :class:`besskge.negative_sampler.PlaceholderNegativeSampler`</span>
@@ -616,7 +734,7 @@
 <span class="sd">            Defaults to 100.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span> <span class="o">=</span> <span class="n">sharding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span> <span class="o">=</span> <span class="n">score_fn</span><span class="o">.</span><span class="n">sharding</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span> <span class="o">=</span> <span class="n">candidate_sampler</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span> <span class="o">=</span> <span class="n">score_fn</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">evaluation</span> <span class="o">=</span> <span class="n">evaluation</span>
@@ -629,9 +747,9 @@
                 <span class="n">score_fn</span><span class="o">.</span><span class="n">negative_sample_sharing</span>
             <span class="p">),</span> <span class="s2">&quot;Using flat negative format requires negative sample sharing&quot;</span>
         <span class="k">elif</span> <span class="n">score_fn</span><span class="o">.</span><span class="n">negative_sample_sharing</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="s2">&quot;Negative sample sharing is being used&quot;</span>
-                <span class="s2">&quot; with triple-specific negatives&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Negative sample sharing cannot be used&quot;</span>
+                <span class="s2">&quot; with non-flat triple-specific negatives&quot;</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">]:</span>
@@ -652,6 +770,7 @@
         <span class="n">head</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">tail</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">negative</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">triple_mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">negative_mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -677,10 +796,13 @@
 <span class="sd">            or specific for each query in the batch (B=shard_bs).</span>
 <span class="sd">            If None, score each query against all entities in the KG.</span>
 <span class="sd">            Defaults to None.</span>
+<span class="sd">        :param triple_mask: shape: (shard_bs,)</span>
+<span class="sd">            Mask to filter the triples in the microbatch</span>
+<span class="sd">            before computing metrics. Defaults to None.</span>
 <span class="sd">        :param negative_mask: shape: (n_shard, B, padded_negative)</span>
 <span class="sd">            If candidates are provided, mask to discard padding</span>
 <span class="sd">            negatives when computing best completions.</span>
-<span class="sd">            Requires the use of `mask_on_gather=True` in the candidate sampler</span>
+<span class="sd">            Requires the use of :code:`mask_on_gather=True` in the candidate sampler</span>
 <span class="sd">            (see :class:`besskge.negative_sampler.TripleBasedShardedNegativeSampler`).</span>
 <span class="sd">            Defaults to None.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -715,6 +837,12 @@
         <span class="n">n_best</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">+</span> <span class="mi">1</span>
 
         <span class="n">relation_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">relation</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
+            <span class="n">tail_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="p">[</span><span class="n">tail</span><span class="p">]</span>
+            <span class="n">tail_embedding_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">tail_embedding</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
+            <span class="n">head_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="p">[</span><span class="n">head</span><span class="p">]</span>
+            <span class="n">head_embedding_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">head_embedding</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">loop_body</span><span class="p">(</span>
             <span class="n">curr_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">curr_idx</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">slide_idx</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
@@ -735,16 +863,12 @@
             <span class="n">negative_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="p">[</span><span class="n">neg_ent_idx</span><span class="p">]</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
-                <span class="n">tail_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="p">[</span><span class="n">tail</span><span class="p">]</span>
-                <span class="n">tail_embedding_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">tail_embedding</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
                 <span class="n">negative_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_heads</span><span class="p">(</span>
                     <span class="n">negative_embedding</span><span class="p">,</span>
                     <span class="n">relation_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                     <span class="n">tail_embedding_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                 <span class="p">)</span>
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
-                <span class="n">head_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="p">[</span><span class="n">head</span><span class="p">]</span>
-                <span class="n">head_embedding_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">head_embedding</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
                 <span class="n">negative_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_tails</span><span class="p">(</span>
                     <span class="n">head_embedding_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
                     <span class="n">relation_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
@@ -752,9 +876,9 @@
                 <span class="p">)</span>
 
             <span class="n">negative_score</span> <span class="o">+=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
-                <span class="n">BAD_NEGATIVE_SCORE</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">mask</span><span class="o">.</span><span class="n">device</span>
-            <span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
-                <span class="o">~</span><span class="n">mask</span>
+                <span class="n">BAD_NEGATIVE_SCORE</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">negative_score</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">mask</span><span class="o">.</span><span class="n">device</span>
+            <span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="o">~</span><span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">negative_score</span><span class="o">.</span><span class="n">dtype</span>
             <span class="p">)</span>  <span class="c1"># shape (n_shard * shard_bs, ws)</span>
             <span class="n">top_k_scores</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">topk</span><span class="p">(</span>
                 <span class="n">torch</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">negative_score</span><span class="p">,</span> <span class="n">curr_score</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
@@ -778,7 +902,7 @@
             <span class="n">fill_value</span><span class="o">=</span><span class="n">BAD_NEGATIVE_SCORE</span><span class="p">,</span>
             <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">n_shard</span> <span class="o">*</span> <span class="n">shard_bs</span><span class="p">,</span> <span class="n">n_best</span><span class="p">),</span>
             <span class="n">requires_grad</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
             <span class="n">device</span><span class="o">=</span><span class="n">candidate</span><span class="o">.</span><span class="n">device</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">best_curr_idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
@@ -804,13 +928,6 @@
             <span class="p">],</span>
         <span class="p">)</span>  <span class="c1"># shape (total_bs, n_best)</span>
 
-        <span class="c1"># for _ in range(n_rep):</span>
-        <span class="c1">#     best_curr_score, best_curr_idx, slide_idx = loop_body(</span>
-        <span class="c1">#         best_curr_score,</span>
-        <span class="c1">#         best_curr_idx,</span>
-        <span class="c1">#         slide_idx,</span>
-        <span class="c1">#     )</span>
-
         <span class="c1"># Send back queries to original shard</span>
         <span class="n">best_score</span> <span class="o">=</span> <span class="n">all_to_all</span><span class="p">(</span>
             <span class="n">best_curr_score</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_shard</span><span class="p">,</span> <span class="n">shard_bs</span><span class="p">,</span> <span class="n">n_best</span><span class="p">),</span>
@@ -823,7 +940,7 @@
 
         <span class="c1"># Discard padding shard entities</span>
         <span class="n">best_score</span> <span class="o">+=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
-            <span class="n">BAD_NEGATIVE_SCORE</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">best_idx</span><span class="o">.</span><span class="n">device</span>
+            <span class="n">BAD_NEGATIVE_SCORE</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">best_score</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">best_idx</span><span class="o">.</span><span class="n">device</span>
         <span class="p">)</span> <span class="o">*</span> <span class="p">(</span>
             <span class="n">best_idx</span>
             <span class="o">&gt;=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">shard_counts</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span><span class="o">.</span><span class="n">to</span><span class="p">(</span>
@@ -857,17 +974,25 @@
             <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">topk_scores</span><span class="o">=</span><span class="n">topk_final</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluation</span><span class="p">:</span>
-            <span class="n">ground_truth</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">tail</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span> <span class="k">else</span> <span class="n">head</span>
-            <span class="p">)</span>
-            <span class="k">assert</span> <span class="p">(</span>
-                <span class="n">ground_truth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="p">),</span> <span class="s2">&quot;Evaluation requires providing ground truth entities&quot;</span>
-            <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                <span class="n">metrics</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">metrics_from_indices</span><span class="p">(</span>
+            <span class="k">if</span> <span class="n">triple_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">triple_mask</span> <span class="o">=</span> <span class="n">triple_mask</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+                <span class="n">ground_truth</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">tail</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span> <span class="k">else</span> <span class="n">head</span>
+                <span class="p">)</span>
+                <span class="k">assert</span> <span class="p">(</span>
+                    <span class="n">ground_truth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="p">),</span> <span class="s2">&quot;Evaluation requires providing ground truth entities&quot;</span>
+                <span class="n">batch_rank</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">ranks_from_indices</span><span class="p">(</span>
                     <span class="n">ground_truth</span><span class="p">,</span> <span class="n">topk_global_id</span>
                 <span class="p">)</span>
-            <span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">return_ranks</span><span class="p">:</span>
+                    <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">ranks</span><span class="o">=</span><span class="n">batch_rank</span><span class="p">)</span>
+                <span class="n">out_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="n">metrics</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">evaluation</span><span class="o">.</span><span class="n">stacked_metrics_from_ranks</span><span class="p">(</span>
+                        <span class="n">batch_rank</span><span class="p">,</span> <span class="n">triple_mask</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">out_dict</span></div></div>
 </pre></div>
@@ -879,7 +1004,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Graphcore Research.</p>
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

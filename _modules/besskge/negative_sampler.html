@@ -38,7 +38,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
@@ -50,6 +50,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -94,11 +98,11 @@
 <span class="sd">    Base class for sharded negative sampler.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Sample negatives per triple partition, instead of per triple</span>
+    <span class="c1">#: Sample negatives per triple partition, instead of per triple</span>
     <span class="n">flat_negative_format</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="c1"># Sample negatives only from processing device</span>
+    <span class="c1">#: Sample negatives only from processing device</span>
     <span class="n">local_sampling</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="c1"># &quot;h&quot;, &quot;t&quot;, &quot;ht&quot;</span>
+    <span class="c1">#: Which entity to corrupt; &quot;h&quot;, &quot;t&quot;, &quot;ht&quot;</span>
     <span class="n">corruption_scheme</span><span class="p">:</span> <span class="nb">str</span>
 
     <span class="nd">@abstractmethod</span>
@@ -591,7 +595,7 @@
 <span class="sd">        :return padded_negatives: shape: (N, n_shard, padded_shard_length)</span>
 <span class="sd">            The padded shard lists of negatives.</span>
 <span class="sd">        :return mask: shape: (N, n_negative)</span>
-<span class="sd">            Indices of true negatives in `padded_negatives.view(N,-1)`.</span>
+<span class="sd">            Indices of true negatives in :code:`padded_negatives.view(N,-1)`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mask_bool</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">padded_shard_length</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">&lt;</span> <span class="n">shard_counts</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
@@ -652,7 +656,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Graphcore Research.</p>
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -15,9 +15,11 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Bibliography" href="../bibliography.html" />
     <link rel="prev" title="Embedding utilities" href="embedding.html" /> 
 </head>
 
@@ -40,7 +42,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="dataset.html">KG Datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sharding.html">Sharding utilities</a></li>
@@ -57,6 +59,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#besskge.utils.gather_indices"><code class="docutils literal notranslate"><span class="pre">gather_indices()</span></code></a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -93,9 +99,9 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>v1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, 2*e)
-<cite>v1[:,:e]</cite> real part, <cite>v1[:,e:]</cite> imaginary part.</p></li>
+<code class="code docutils literal notranslate"><span class="pre">v1[:,:e]</span></code> real part, <code class="code docutils literal notranslate"><span class="pre">v1[:,e:]</span></code> imaginary part.</p></li>
 <li><p><strong>v2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, 2*e)
-<cite>v2[:,:e]</cite> real part, <cite>v2[:,e:]</cite> imaginary part.</p></li>
+<code class="code docutils literal notranslate"><span class="pre">v2[:,:e]</span></code> real part, <code class="code docutils literal notranslate"><span class="pre">v2[:,e:]</span></code> imaginary part.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -117,9 +123,9 @@ Row-wise complex multiplcation.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>v</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, 2*e)
 Complex tensor to rotate:
-<cite>v[:,:e]</cite> real part, <cite>v[:,e:]</cite> imaginary part.</p></li>
+<code class="code docutils literal notranslate"><span class="pre">v[:,:e]</span></code> real part, <code class="code docutils literal notranslate"><span class="pre">v[:,e:]</span></code> imaginary part.</p></li>
 <li><p><strong>r</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, e)
-Rotate <cite>v[k]</cite> by .. math:: e^{i pi r[k]}</p></li>
+Rotate <code class="code docutils literal notranslate"><span class="pre">v[k]</span></code> by <span class="math notranslate nohighlight">\(e^{i \pi r[k]}\)</span></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -135,7 +141,7 @@ Row-wise rotated tensors.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="besskge.utils.gather_indices">
 <span class="sig-prename descclassname"><span class="pre">besskge.utils.</span></span><span class="sig-name descname"><span class="pre">gather_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/utils.html#gather_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.utils.gather_indices" title="Permalink to this definition"></a></dt>
-<dd><p>IPU-friendly gather function like torch.take_along_dim
+<dd><p>IPU-friendly gather function like <code class="xref py py-func docutils literal notranslate"><span class="pre">torch.take_along_dim()</span></code>
 for 2-dimensional tensors (indices along dim=1).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -149,12 +155,12 @@ for 2-dimensional tensors (indices along dim=1).</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (b, k)
-For all rows of <cite>x</cite>, take the <cite>k</cite> elements on
+For all rows of <code class="code docutils literal notranslate"><span class="pre">x</span></code>, take the <cite>k</cite> elements on
 the row with the indices specified by
-the corresponding row of <cite>index</cite>.
-If <cite>b == 1</cite>, the same indices are gathered from all rows of <cite>x</cite>;
-if <cite>a == 1</cite>, all rows in <cite>index</cite> gather from <cite>x[0]</cite>;
-otherwise <cite>a == b</cite> is required.</p>
+the corresponding row of <code class="code docutils literal notranslate"><span class="pre">index</span></code>.
+If <code class="code docutils literal notranslate"><span class="pre">b</span> <span class="pre">==</span> <span class="pre">1</span></code>, the same indices are gathered from all rows of <code class="code docutils literal notranslate"><span class="pre">x</span></code>;
+if <code class="code docutils literal notranslate"><span class="pre">a</span> <span class="pre">==</span> <span class="pre">1</span></code>, all rows in <code class="code docutils literal notranslate"><span class="pre">index</span></code> gather from <code class="code docutils literal notranslate"><span class="pre">x[0]</span></code>;
+otherwise <code class="code docutils literal notranslate"><span class="pre">a</span> <span class="pre">==</span> <span class="pre">b</span></code> is required.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -166,12 +172,13 @@ otherwise <cite>a == b</cite> is required.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="embedding.html" class="btn btn-neutral float-left" title="Embedding utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../bibliography.html" class="btn btn-neutral float-right" title="Bibliography" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Graphcore Research.</p>
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

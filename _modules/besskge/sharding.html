@@ -38,7 +38,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
@@ -50,6 +50,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
         </div>
@@ -99,37 +103,43 @@
     <span class="c1">#: Number of shards</span>
     <span class="n">n_shard</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="c1">#: Entity shard by global ID</span>
-    <span class="c1"># int32[n_entity]</span>
+    <span class="c1">#: Entity shard by global ID;</span>
+    <span class="c1">#: int32[n_entity]</span>
     <span class="n">entity_to_shard</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]</span>
 
-    <span class="c1">#: Entity local ID on shard by global ID</span>
-    <span class="c1"># int32[n_entity]</span>
+    <span class="c1">#: Entity local ID on shard by global ID;</span>
+    <span class="c1">#: int32[n_entity]</span>
     <span class="n">entity_to_idx</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]</span>
 
-    <span class="c1">#: Entity global ID by (shard, local_ID)</span>
-    <span class="c1"># int32[n_shard, max_entity_per_shard]</span>
+    <span class="c1">#: Entity global ID by (shard, local_ID);</span>
+    <span class="c1">#: int32[n_shard, max_entity_per_shard]</span>
     <span class="n">shard_and_idx_to_entity</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]</span>
 
-    <span class="c1">#: Number of true entities (excluding padding) in each shard</span>
-    <span class="c1"># int64[n_shard]</span>
+    <span class="c1">#: Number of true entities (excluding padding) in each shard;</span>
+    <span class="c1">#: int64[n_shard]</span>
     <span class="n">shard_counts</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]</span>
 
-    <span class="c1">#: Number of entities of each type on each shard</span>
-    <span class="c1"># int64[n_shard, n_types]</span>
+    <span class="c1">#: Number of entities of each type on each shard;</span>
+    <span class="c1">#: int64[n_shard, n_types]</span>
     <span class="n">entity_type_counts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]]</span>
 
     <span class="c1">#: Offsets for entities of same type on each shared</span>
-    <span class="c1"># (entities remain clustered by type also locally)</span>
-    <span class="c1"># int64[n_shard, n_types]</span>
+    <span class="c1">#: (entities remain clustered by type also locally);</span>
+    <span class="c1">#: int64[n_shard, n_types]</span>
     <span class="n">entity_type_offsets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">n_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of entities in the KG.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entity_to_shard</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">max_entity_per_shard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Number of entities (including possibily one final padding) in each shard.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shard_and_idx_to_entity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
 <div class="viewcode-block" id="Sharding.create"><a class="viewcode-back" href="../../API_ref/sharding.html#besskge.sharding.Sharding.create">[docs]</a>    <span class="nd">@classmethod</span>
@@ -230,56 +240,56 @@
 <span class="k">class</span> <span class="nc">PartitionedTripleSet</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A partitioned collection of triples.</span>
-<span class="sd">    If `partition_mode = &#39;h_shard&#39;` (resp. `&#39;t_shard&#39;`) each triple is</span>
-<span class="sd">    assigned to one of `n_shard` partitions based on the</span>
+<span class="sd">    If :code:`partition_mode = &#39;h_shard&#39;` (resp. :code:`partition_mode = &#39;t_shard&#39;`)</span>
+<span class="sd">    each triple is assigned to one of `n_shard` partitions based on the</span>
 <span class="sd">    shard where the head (resp. tail) entity is stored.</span>
-<span class="sd">    If `partition_mode = &#39;ht_shardpair&#39;`, each triple is assigned to one</span>
-<span class="sd">    of n_shard ** 2 partitions based on the shardpair (shard_h, shard_t).</span>
+<span class="sd">    If :code:`partition_mode = &#39;ht_shardpair&#39;`, each triple is assigned to one</span>
+<span class="sd">    of `n_shard^2` partitions based on the shardpair `(shard_h, shard_t)`.</span>
 <span class="sd">    Shardpairs are ordered as:</span>
-<span class="sd">    (0,0), (0,1), ..., (0,n_shard-1), (1,0), ..., (n_shard-1, n_shard-1).</span>
+<span class="sd">    `(0,0), (0,1), ..., (0, n_shard-1), (1,0), ..., (n_shard-1, n_shard-1)`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1">#: Sharding of entities</span>
     <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span>
 
-    <span class="c1">#: Partitioning criterion for triples</span>
-    <span class="c1"># &quot;h_shard&quot;, &quot;t_shard&quot;, &quot;ht_shardpair&quot;</span>
+    <span class="c1">#: Partitioning criterion for triples;</span>
+    <span class="c1">#: &quot;h_shard&quot;, &quot;t_shard&quot;, &quot;ht_shardpair&quot;</span>
     <span class="n">partition_mode</span><span class="p">:</span> <span class="nb">str</span>
 
     <span class="c1">#: If set is constructed from (h,r,?) (resp. (?,r,t)) queries,</span>
-    <span class="c1"># dummy tails (resp. heads) are added to make pairs into triples.</span>
-    <span class="c1"># &quot;head&quot;, &quot;tail&quot;, &quot;none&quot;</span>
+    <span class="c1">#: dummy tails (resp. heads) are added to make pairs into triples.</span>
+    <span class="c1">#: &quot;head&quot;, &quot;tail&quot;, &quot;none&quot;</span>
     <span class="n">dummy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
-    <span class="c1">#: h/r/t IDs for triples ordered by partition</span>
-    <span class="c1"># Local IDs for heads (resp. tails) and global IDs</span>
-    <span class="c1"># for tails (resp. heads) if partition_mode = &quot;h_shard&quot; (resp. &quot;t_shard&quot;);</span>
-    <span class="c1"># local IDs for heads and tails if partition_mode = &quot;ht_shardpair&quot;</span>
-    <span class="c1"># int32[n_triple, {h,r,t}]</span>
+    <span class="c1">#: h/r/t IDs for triples ordered by partition.</span>
+    <span class="c1">#: Local IDs for heads (resp. tails) and global IDs</span>
+    <span class="c1">#: for tails (resp. heads) if partition_mode = &quot;h_shard&quot; (resp. &quot;t_shard&quot;);</span>
+    <span class="c1">#: local IDs for heads and tails if partition_mode = &quot;ht_shardpair&quot;</span>
+    <span class="c1">#: int32[n_triple, {h,r,t}]</span>
     <span class="n">triples</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]</span>
 
-    <span class="c1">#: Number of triples in each partition</span>
-    <span class="c1"># int64[n_shard] or int64[n_shard, n_shard]</span>
+    <span class="c1">#: Number of triples in each partition;</span>
+    <span class="c1">#: int64[n_shard] or int64[n_shard, n_shard]</span>
     <span class="n">triple_counts</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]</span>
 
-    <span class="c1">#: Delimiting indices of ordered partitions</span>
-    <span class="c1"># int64[n_shard] or int64[n_shard, n_shard]</span>
+    <span class="c1">#: Delimiting indices of ordered partitions;</span>
+    <span class="c1">#: int64[n_shard] or int64[n_shard, n_shard]</span>
     <span class="n">triple_offsets</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]</span>
 
-    <span class="c1">#: Sorting indices to order triples by partition</span>
-    <span class="c1"># int64[n_triple]</span>
+    <span class="c1">#: Sorting indices to order triples by partition;</span>
+    <span class="c1">#: int64[n_triple]</span>
     <span class="n">triple_sort_idx</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]</span>
 
-    <span class="c1">#: Entity type IDs of triple head/tail</span>
-    <span class="c1"># int32[n_triple, {h_type, t_type}]</span>
+    <span class="c1">#: Entity type IDs of triple head/tail;</span>
+    <span class="c1">#: int32[n_triple, {h_type, t_type}]</span>
     <span class="n">types</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]</span>
 
     <span class="c1">#: Global IDs of (possibly triple-specific) negative heads;</span>
-    <span class="c1"># int32[n_triple or 1, n_neg_heads]</span>
+    <span class="c1">#: int32[n_triple or 1, n_neg_heads]</span>
     <span class="n">neg_heads</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]</span>
 
     <span class="c1">#: Global IDs of (possibly triple-specific) negative heads;</span>
-    <span class="c1"># int32[n_triple or 1, n_neg_tails]</span>
+    <span class="c1">#: int32[n_triple or 1, n_neg_tails]</span>
     <span class="n">neg_tails</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]</span>
 
 <div class="viewcode-block" id="PartitionedTripleSet.partition_triples"><a class="viewcode-back" href="../../API_ref/sharding.html#besskge.sharding.PartitionedTripleSet.partition_triples">[docs]</a>    <span class="nd">@classmethod</span>
@@ -530,7 +540,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Graphcore Research.</p>
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

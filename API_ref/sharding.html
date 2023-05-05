@@ -41,7 +41,7 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="dataset.html">KG Datasets</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Sharding utilities</a><ul>
@@ -87,6 +87,10 @@
 <li class="toctree-l1"><a class="reference internal" href="embedding.html">Embedding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">General-purpose utility functions</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
 
         </div>
       </div>
@@ -119,13 +123,13 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.sharding.</span></span><span class="sig-name descname"><span class="pre">PartitionedTripleSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dummy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_offsets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_sort_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neg_heads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neg_tails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/sharding.html#PartitionedTripleSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.sharding.PartitionedTripleSet" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A partitioned collection of triples.
-If <cite>partition_mode = ‘h_shard’</cite> (resp. <cite>‘t_shard’</cite>) each triple is
-assigned to one of <cite>n_shard</cite> partitions based on the
+If <code class="code docutils literal notranslate"><span class="pre">partition_mode</span> <span class="pre">=</span> <span class="pre">'h_shard'</span></code> (resp. <code class="code docutils literal notranslate"><span class="pre">partition_mode</span> <span class="pre">=</span> <span class="pre">'t_shard'</span></code>)
+each triple is assigned to one of <cite>n_shard</cite> partitions based on the
 shard where the head (resp. tail) entity is stored.
-If <cite>partition_mode = ‘ht_shardpair’</cite>, each triple is assigned to one
-of n_shard ** 2 partitions based on the shardpair (shard_h, shard_t).
+If <code class="code docutils literal notranslate"><span class="pre">partition_mode</span> <span class="pre">=</span> <span class="pre">'ht_shardpair'</span></code>, each triple is assigned to one
+of <cite>n_shard^2</cite> partitions based on the shardpair <cite>(shard_h, shard_t)</cite>.
 Shardpairs are ordered as:
-(0,0), (0,1), …, (0,n_shard-1), (1,0), …, (n_shard-1, n_shard-1).</p>
+<cite>(0,0), (0,1), …, (0, n_shard-1), (1,0), …, (n_shard-1, n_shard-1)</cite>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet.create_from_dataset">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_from_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">part</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ht_shardpair'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/sharding.html#PartitionedTripleSet.create_from_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.sharding.PartitionedTripleSet.create_from_dataset" title="Permalink to this definition"></a></dt>
@@ -185,22 +189,31 @@ Defaults to None (i.e. score queries against entities of any type).</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet.dummy">
 <span class="sig-name descname"><span class="pre">dummy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code><span class="pre">]</span></em><a class="headerlink" href="#besskge.sharding.PartitionedTripleSet.dummy" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>If set is constructed from (h,r,?) (resp. (?,r,t)) queries,
+dummy tails (resp. heads) are added to make pairs into triples.
+“head”, “tail”, “none”</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet.neg_heads">
 <span class="sig-name descname"><span class="pre">neg_heads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code><span class="pre">]]]</span></em><a class="headerlink" href="#besskge.sharding.PartitionedTripleSet.neg_heads" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Global IDs of (possibly triple-specific) negative heads;
+int32[n_triple or 1, n_neg_heads]</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet.neg_tails">
 <span class="sig-name descname"><span class="pre">neg_tails</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code><span class="pre">]]]</span></em><a class="headerlink" href="#besskge.sharding.PartitionedTripleSet.neg_tails" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Global IDs of (possibly triple-specific) negative heads;
+int32[n_triple or 1, n_neg_tails]</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet.partition_mode">
 <span class="sig-name descname"><span class="pre">partition_mode</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#besskge.sharding.PartitionedTripleSet.partition_mode" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Partitioning criterion for triples;
+“h_shard”, “t_shard”, “ht_shardpair”</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet.partition_triples">
@@ -221,27 +234,40 @@ Defaults to None (i.e. score queries against entities of any type).</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet.triple_counts">
 <span class="sig-name descname"><span class="pre">triple_counts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code><span class="pre">]]</span></em><a class="headerlink" href="#besskge.sharding.PartitionedTripleSet.triple_counts" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Number of triples in each partition;
+int64[n_shard] or int64[n_shard, n_shard]</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet.triple_offsets">
 <span class="sig-name descname"><span class="pre">triple_offsets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code><span class="pre">]]</span></em><a class="headerlink" href="#besskge.sharding.PartitionedTripleSet.triple_offsets" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Delimiting indices of ordered partitions;
+int64[n_shard] or int64[n_shard, n_shard]</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet.triple_sort_idx">
 <span class="sig-name descname"><span class="pre">triple_sort_idx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code><span class="pre">]]</span></em><a class="headerlink" href="#besskge.sharding.PartitionedTripleSet.triple_sort_idx" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Sorting indices to order triples by partition;
+int64[n_triple]</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet.triples">
 <span class="sig-name descname"><span class="pre">triples</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code><span class="pre">]]</span></em><a class="headerlink" href="#besskge.sharding.PartitionedTripleSet.triples" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>h/r/t IDs for triples ordered by partition.
+Local IDs for heads (resp. tails) and global IDs
+for tails (resp. heads) if partition_mode = “h_shard” (resp. “t_shard”);
+local IDs for heads and tails if partition_mode = “ht_shardpair”
+int32[n_triple, {h,r,t}]</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet.types">
 <span class="sig-name descname"><span class="pre">types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code><span class="pre">]]]</span></em><a class="headerlink" href="#besskge.sharding.PartitionedTripleSet.types" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Entity type IDs of triple head/tail;
+int32[n_triple, {h_type, t_type}]</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -276,22 +302,31 @@ Global offsets of entity types, defaults to None.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.Sharding.entity_to_idx">
 <span class="sig-name descname"><span class="pre">entity_to_idx</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code><span class="pre">]]</span></em><a class="headerlink" href="#besskge.sharding.Sharding.entity_to_idx" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Entity local ID on shard by global ID;
+int32[n_entity]</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.Sharding.entity_to_shard">
 <span class="sig-name descname"><span class="pre">entity_to_shard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code><span class="pre">]]</span></em><a class="headerlink" href="#besskge.sharding.Sharding.entity_to_shard" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Entity shard by global ID;
+int32[n_entity]</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.Sharding.entity_type_counts">
 <span class="sig-name descname"><span class="pre">entity_type_counts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code><span class="pre">]]]</span></em><a class="headerlink" href="#besskge.sharding.Sharding.entity_type_counts" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Number of entities of each type on each shard;
+int64[n_shard, n_types]</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.Sharding.entity_type_offsets">
 <span class="sig-name descname"><span class="pre">entity_type_offsets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code><span class="pre">]]]</span></em><a class="headerlink" href="#besskge.sharding.Sharding.entity_type_offsets" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Offsets for entities of same type on each shared
+(entities remain clustered by type also locally);
+int64[n_shard, n_types]</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.sharding.Sharding.load">
@@ -313,12 +348,14 @@ Global offsets of entity types, defaults to None.</p></li>
 <dl class="py property">
 <dt class="sig sig-object py" id="besskge.sharding.Sharding.max_entity_per_shard">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">max_entity_per_shard</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#besskge.sharding.Sharding.max_entity_per_shard" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Number of entities (including possibily one final padding) in each shard.</p>
+</dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="besskge.sharding.Sharding.n_entity">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_entity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#besskge.sharding.Sharding.n_entity" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Number of entities in the KG.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.Sharding.n_shard">
@@ -343,12 +380,16 @@ Global offsets of entity types, defaults to None.</p></li>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.Sharding.shard_and_idx_to_entity">
 <span class="sig-name descname"><span class="pre">shard_and_idx_to_entity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code><span class="pre">]]</span></em><a class="headerlink" href="#besskge.sharding.Sharding.shard_and_idx_to_entity" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Entity global ID by (shard, local_ID);
+int32[n_shard, max_entity_per_shard]</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.sharding.Sharding.shard_counts">
 <span class="sig-name descname"><span class="pre">shard_counts</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code><span class="pre">[</span><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code><span class="pre">]]</span></em><a class="headerlink" href="#besskge.sharding.Sharding.shard_counts" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<dd><p>Number of true entities (excluding padding) in each shard;
+int64[n_shard]</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -365,7 +406,7 @@ Global offsets of entity types, defaults to None.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Graphcore Research.</p>
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
