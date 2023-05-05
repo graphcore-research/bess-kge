@@ -1,3 +1,6 @@
+# Copyright (c) 2023 Graphcore Ltd. All rights reserved.
+# Copyright (c) 2022 Read the Docs Inc. All rights reserved.
+
 import os
 import sys
 
@@ -12,8 +15,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "BESS-KGE"
-copyright = "2023, Graphcore Research"
-author = "Graphcore Research"
+copyright = "(c) 2023 Graphcore Ltd. All rights reserved"
+author = "Alberto Cattaneo"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -29,13 +32,17 @@ extensions = [
     "sphinx_autodoc_typehints",
     "sphinx_automodapi.automodapi",
     "sphinx_automodapi.smart_resolver",
+    "sphinxcontrib.bibtex",
+    "sphinx.ext.autosectionlabel",
 ]
 numpydoc_show_class_members = False
 todo_include_todos = True
 autosummary_generate = True
 # autoclass_content = "both"
 # autodoc_typehints = "both"
+bibtex_default_style = "alpha"
 
+bibtex_bibfiles = ["KGbib.bib"]
 templates_path = ["_templates"]
 exclude_patterns = []
 

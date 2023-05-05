@@ -46,7 +46,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
         :param seed:
             The RNG seed.
         :param hrt_freq_weighting:
-            Use frequency-based triple weighting as in [...], defaults to False.
+            Use frequency-based triple weighting, defaults to False.
         :param weight_smoothing:
             Weight-smoothing parameter for frequency-based
             triple weigthing, defaults to 0.0.
@@ -77,6 +77,11 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
             self.positive_per_partition = self.shard_bs
         if self.duplicate_batch:
             self.positive_per_partition //= 2
+        if self.negative_sampler.corruption_scheme == "ht":
+            # Each partition is split in two halves, so we need positive_per_partition
+            # to be even.
+            self.positive_per_partition = (self.positive_per_partition // 2) * 2
+
         # Total number of triples sampled from each partition at each call
         self.partition_sample_size = self.batches_per_step * self.positive_per_partition
 
@@ -173,6 +178,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
                 "step shard ... triple -> step shard (... triple)",
             )
             triple_weight /= np.sum(triple_weight, axis=-1, keepdims=True)
+            triple_weight *= self.shard_bs
             batch_dict.update(triple_weight=triple_weight.astype(np.float32))
 
         if self.return_triple_idx:
@@ -254,6 +260,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
             worker_init_fn=self.worker_init_fn,
             mode=poptorch.DataLoaderMode.Async,
             async_options={
+                "early_preload": True,
                 "buffer_size": buffer_size,
                 "sharing_strategy": poptorch.SharingStrategy.SharedMemory,
             },

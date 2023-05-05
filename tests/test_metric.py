@@ -30,7 +30,8 @@ def test_metrics_from_scores(worst_rank_infty: bool) -> None:
         worst_rank_infty=worst_rank_infty,
     )
 
-    results = evaluator_pess.metrics_from_scores(pos_score, neg_score)
+    ranks = evaluator_pess.ranks_from_scores(pos_score, neg_score)
+    results = evaluator_pess.dict_metrics_from_ranks(ranks)
     assert_close(results["hits@1"], torch.tensor([0.0, 0.0, 0.0, 0.0]))
     assert_close(results["hits@5"], torch.tensor([0.0, 1.0, 1.0, 0.0]))
     assert_close(results["mrr"], torch.tensor([worst_rr, 1.0 / 4, 1.0 / 2, worst_rr]))
@@ -41,7 +42,8 @@ def test_metrics_from_scores(worst_rank_infty: bool) -> None:
         reduction="none",
         worst_rank_infty=worst_rank_infty,
     )
-    results = evaluator_opt.metrics_from_scores(pos_score, neg_score)
+    ranks = evaluator_opt.ranks_from_scores(pos_score, neg_score)
+    results = evaluator_opt.dict_metrics_from_ranks(ranks)
     assert_close(results["hits@1"], torch.tensor([0.0, 0.0, 1.0, 0.0]))
     assert_close(results["hits@5"], torch.tensor([1.0, 1.0, 1.0, 0.0]))
     assert_close(results["mrr"], torch.tensor([1.0 / 4, 1.0 / 2, 1.0 / 1, worst_rr]))
@@ -66,7 +68,8 @@ def test_metrics_from_indices(worst_rank_infty: bool) -> None:
         worst_rank_infty=worst_rank_infty,
     )
 
-    results = evaluator_pess.metrics_from_indices(ground_truth, neg_indices)
+    ranks = evaluator_pess.ranks_from_indices(ground_truth, neg_indices)
+    results = evaluator_pess.dict_metrics_from_ranks(ranks)
     assert_close(results["hits@1"], torch.tensor([1.0, 0.0, 0.0]))
     assert_close(results["hits@5"], torch.tensor([1.0, 1.0, 0.0]))
     assert_close(results["mrr"], torch.tensor([1.0, 1.0 / 4, worst_rr]))

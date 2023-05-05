@@ -5,6 +5,7 @@ __pycache__/
 .venv*/
 .vscode/
 third_party/
+wandb/
 .coverage*
 docs/build/
 docs/source/api
@@ -16,6 +17,7 @@ datasets/
 *.so
 *.npz
 *.pkl
+*.onnx
 *.log
 
 /dev_*.py

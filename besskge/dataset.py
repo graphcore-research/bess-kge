@@ -9,6 +9,7 @@ from typing import Dict, List, Optional
 
 import numpy as np
 import ogb.linkproppred
+import pandas as pd
 import requests
 from numpy.typing import NDArray
 
@@ -26,7 +27,7 @@ class KGDataset:
     n_relation_type: int
 
     #: List of (h_ID, r_ID, t_ID) triples, for each part of the dataset;
-    # {part: int32[n_triple, {h,r,t}]}
+    #: {part: int32[n_triple, {h,r,t}]}
     triples: Dict[str, NDArray[np.int32]]
 
     #: Entity labels by ID; str[n_entity]
@@ -36,21 +37,23 @@ class KGDataset:
     relation_dict: Optional[List[str]]
 
     #: If entities have types, IDs are assumed to be clustered by type;
-    # {entity_type: int}
+    #: {entity_type: int}
     type_offsets: Optional[Dict[str, int]]
 
     #: IDs of (possibly triple-specific) negative heads;
-    # {part: int32[n_triple or 1, n_neg_heads]}
+    #: {part: int32[n_triple or 1, n_neg_heads]}
     neg_heads: Optional[Dict[str, NDArray[np.int32]]]
 
     #: IDs of (possibly triple-specific) negative heads;
-    # {part: int32[n_triple or 1, n_neg_tails]}
+    #: {part: int32[n_triple or 1, n_neg_tails]}
     neg_tails: Optional[Dict[str, NDArray[np.int32]]]
 
     @property
     def ht_types(self) -> Optional[Dict[str, NDArray[np.int32]]]:
-        # If entities have types, type IDs of triples' heads/tails
-        # {part: int32[n_triple, {h_type, t_type}]}
+        """
+        If entities have types, type IDs of triples' heads/tails;
+        {part: int32[n_triple, {h_type, t_type}]}
+        """
         if self.type_offsets:
             type_offsets = np.fromiter(self.type_offsets.values(), dtype=np.int32)
             types = {}
@@ -69,13 +72,15 @@ class KGDataset:
     @classmethod
     def build_biokg(cls, root: Path) -> "KGDataset":
         """
-        Build the OGB-BioKG dataset.
+        Build the ogbl-biokg dataset :cite:p:`OGB`
+
+        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg
 
         :param root:
             Path to dataset. If dataset is not present, download it
             at this path.
 
-        :return: OGB-BioKG KGDataset.
+        :return: ogbl-biokg KGDataset.
         """
         dataset = ogb.linkproppred.LinkPropPredDataset(name="ogbl-biokg", root=root)
         split_edge = dataset.get_edge_split()
@@ -103,12 +108,74 @@ class KGDataset:
                 neg_heads[part] = hrt["head_neg"] + h_type_offsets[h_type_idx][:, None]
                 neg_tails[part] = hrt["tail_neg"] + t_type_offsets[t_type_idx][:, None]
 
+        ent_dict: List[str] = []
+        for k in type_offsets.keys():
+            ent_dict.extend(
+                pd.read_csv(root.joinpath(f"ogbl_biokg/mapping/{k}_entidx2name.csv.gz"))
+                .sort_values("ent idx")["ent name"]
+                .values.tolist()
+            )
+        rel_dict = (
+            pd.read_csv(root.joinpath("ogbl_biokg/mapping/relidx2relname.csv.gz"))
+            .sort_values("rel idx")["rel name"]
+            .values.tolist()
+        )
+
         return cls(
             n_entity=n_entity,
             n_relation_type=n_relation_type,
-            entity_dict=None,
-            relation_dict=None,
+            entity_dict=ent_dict,
+            relation_dict=rel_dict,
             type_offsets=type_offsets,
+            triples=triples,
+            neg_heads=neg_heads,
+            neg_tails=neg_tails,
+        )
+
+    @classmethod
+    def build_wikikg2(cls, root: Path) -> "KGDataset":
+        """
+        Build the ogbl-wikikg2 dataset :cite:p:`OGB`
+
+        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2
+
+        :param root:
+            Path to dataset. If dataset is not present, download it
+            at this path.
+
+        :return: ogbl-wikikg2 KGDataset.
+        """
+        dataset = ogb.linkproppred.LinkPropPredDataset(name="ogbl-wikikg2", root=root)
+        split_data = dataset.get_edge_split()
+
+        triples = {}
+        neg_heads = {}
+        neg_tails = {}
+        for part, hrt in split_data.items():
+            triples[part] = np.stack(
+                [hrt["head"], hrt["relation"], hrt["tail"]], axis=-1
+            )
+            if part != "train":
+                neg_heads[part] = hrt["head_neg"]
+                neg_tails[part] = hrt["tail_neg"]
+
+        ent_dict = (
+            pd.read_csv(root.joinpath("ogbl_wikikg2/mapping/nodeidx2entityid.csv.gz"))
+            .sort_values("node idx")["entity id"]
+            .values.tolist()
+        )
+        rel_dict = (
+            pd.read_csv(root.joinpath("ogbl_wikikg2/mapping/reltype2relid.csv.gz"))
+            .sort_values("reltype")["rel id"]
+            .values.tolist()
+        )
+
+        return cls(
+            n_entity=dataset.graph["num_nodes"],
+            n_relation_type=split_data["train"]["relation"].max() + 1,
+            entity_dict=ent_dict,
+            relation_dict=rel_dict,
+            type_offsets=None,
             triples=triples,
             neg_heads=neg_heads,
             neg_tails=neg_tails,
@@ -117,13 +184,18 @@ class KGDataset:
     @classmethod
     def build_yago310(cls, root: Path) -> "KGDataset":
         """
-        Build the YAGO-310 dataset.
+        Build the YAGO3-10 dataset.
+        This is the subgraph of the YAGO3 KG :cite:p:`YAGO3` containing only
+        entities which have at least 10 relations associated to them.
+        First used in :cite:p:`ConvE`.
+
+        .. seealso:: https://yago-knowledge.org/downloads/yago-3
 
         :param root:
             Path to dataset. If dataset is not present, download it
             at this path.
 
-        :return: YAGO-310 KGDataset.
+        :return: YAGO3-10 KGDataset.
         """
 
         if not (
@@ -131,6 +203,7 @@ class KGDataset:
             and root.joinpath("valid.txt").is_file()
             and root.joinpath("test.txt").is_file()
         ):
+            print("Dowloading dataset...")
             res = requests.get(
                 url="https://github.com/TimDettmers/ConvE/raw/master/YAGO3-10.tar.gz"
             )

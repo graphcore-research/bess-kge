@@ -10,6 +10,7 @@ from besskge.embedding import (
     EmbeddingInitializer,
     initialize_entity_embedding,
     initialize_relation_embedding,
+    refactor_embedding_sharding,
 )
 from besskge.sharding import Sharding
 from besskge.utils import complex_multiplication, complex_rotation
@@ -22,8 +23,13 @@ class BaseScoreFunction(torch.nn.Module, ABC):
 
     #: Share negative entities to construct negative samples
     negative_sample_sharing: bool
+
+    #: Sharding of entities
+    sharding: Sharding
+
     #: Relation embedding table
     entity_embedding: torch.nn.Parameter
+
     #: Relation embedding table
     relation_embedding: torch.nn.Parameter
 
@@ -44,7 +50,7 @@ class BaseScoreFunction(torch.nn.Module, ABC):
         :param tail_emb: shape: (batch_size, embedding_size)
             Embeddings of tail entities in batch.
 
-        :return: shape (batch_size,)
+        :return: shape: (batch_size,)
             Scores of batch triples.
         """
         raise NotImplementedError
@@ -66,9 +72,9 @@ class BaseScoreFunction(torch.nn.Module, ABC):
         :param tail_emb: shape: (batch_size, embedding_size)
             Embedding of tail entities in batch.
 
-        :return: shape: (batch_size, B * n_heads) if
-                :attr:`BaseScoreFunction.negative_sample_sharing`
-                else (batch_size, n_heads)
+        :return: shape: (batch_size, B * n_heads)
+            if :attr:`BaseScoreFunction.negative_sample_sharing`
+            else (batch_size, n_heads).
             Scores of broadcasted triples.
         """
         raise NotImplementedError
@@ -90,9 +96,9 @@ class BaseScoreFunction(torch.nn.Module, ABC):
         :param tail_emb: shape: (B, n_tails, embedding_size) with B = 1, batch_size
             Embedding of tail entities.
 
-        :return: shape: (batch_size, B * n_tails) if
-                :attr:`BaseScoreFunction.negative_sample_sharing`
-                else (batch_size, n_tails)
+        :return: shape: (batch_size, B * n_tails)
+            if :attr:`BaseScoreFunction.negative_sample_sharing`
+            else (batch_size, n_tails)
             Scores of broadcasted triples.
         """
         raise NotImplementedError
@@ -107,6 +113,24 @@ class BaseScoreFunction(torch.nn.Module, ABC):
         see :meth:`BaseScoreFunction.score_triple`
         """
         return self.score_triple(head_emb, relation_id, tail_emb)
+
+    def update_sharding(
+        self,
+        new_sharding: Sharding,
+    ) -> None:
+        """
+        Change the sharding of the entity embedding table.
+
+        :param new_sharding:
+            The new entity sharding.
+        """
+        self.entity_embedding = refactor_embedding_sharding(
+            entity_embedding=self.entity_embedding,
+            old_sharding=self.sharding,
+            new_sharding=new_sharding,
+        )
+
+        self.sharding = new_sharding
 
 
 class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
@@ -160,7 +184,7 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
         embedding_size = v1.shape[-1]
         if self.negative_sample_sharing:
             score = pea.distance_matrix(
-                v1, v2.reshape(-1, embedding_size), p=self.scoring_norm
+                v1, v2.view(-1, embedding_size), p=self.scoring_norm
             )
         else:
             score = self.reduce_embedding(v1.unsqueeze(1) - v2)
@@ -222,7 +246,7 @@ class MatrixDecompositionScoreFunction(BaseScoreFunction, ABC):
 
 class TransE(DistanceBasedScoreFunction):
     """
-    TransE scoring function (see [...]).
+    TransE scoring function :cite:p:`TransE`.
     """
 
     def __init__(
@@ -232,8 +256,8 @@ class TransE(DistanceBasedScoreFunction):
         sharding: Sharding,
         n_relation_type: int,
         embedding_size: Optional[int],
-        entity_intializer: Union[torch.Tensor, EmbeddingInitializer],
-        relation_intializer: Union[torch.Tensor, EmbeddingInitializer],
+        entity_initializer: Union[torch.Tensor, EmbeddingInitializer],
+        relation_initializer: Union[torch.Tensor, EmbeddingInitializer],
     ) -> None:
         """
         Initialize TransE model.
@@ -250,20 +274,22 @@ class TransE(DistanceBasedScoreFunction):
             Size of entities and relation embeddings. Can be omitted
             if passing tensors for initialization of entity and relation
             embeddings.
-        :param entity_intializer:
+        :param entity_initializer:
             Initialization scheme / table for entity embeddings.
-        :param relation_intializer:
+        :param relation_initializer:
             Initialization scheme / table for relation embeddings.
         """
         super(TransE, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
         )
 
+        self.sharding = sharding
+
         self.entity_embedding = initialize_entity_embedding(
-            entity_intializer, sharding, embedding_size
+            entity_initializer, self.sharding, embedding_size
         )
         self.relation_embedding = initialize_relation_embedding(
-            relation_intializer, n_relation_type, embedding_size
+            relation_initializer, n_relation_type, embedding_size
         )
         assert (
             self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
@@ -308,7 +334,7 @@ class TransE(DistanceBasedScoreFunction):
 
 class RotatE(DistanceBasedScoreFunction):
     """
-    RotatE scoring function (see [...]).
+    RotatE scoring function :cite:p:`RotatE`.
     """
 
     def __init__(
@@ -318,8 +344,8 @@ class RotatE(DistanceBasedScoreFunction):
         sharding: Sharding,
         n_relation_type: int,
         embedding_size: int,
-        entity_intializer: Union[torch.Tensor, EmbeddingInitializer],
-        relation_intializer: Union[torch.Tensor, EmbeddingInitializer],
+        entity_initializer: Union[torch.Tensor, EmbeddingInitializer],
+        relation_initializer: Union[torch.Tensor, EmbeddingInitializer],
     ) -> None:
         """
         Initialize RotatE model.
@@ -337,20 +363,22 @@ class RotatE(DistanceBasedScoreFunction):
             will be half of this). Can be omitted
             if passing tensors for initialization of entity and relation
             embeddings.
-        :param entity_intializer:
+        :param entity_initializer:
             Initialization scheme / table for entity embeddings.
-        :param relation_intializer:
+        :param relation_initializer:
             Initialization scheme / table for relation embeddings.
         """
         super(RotatE, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
         )
 
+        self.sharding = sharding
+
         self.entity_embedding = initialize_entity_embedding(
-            entity_intializer, sharding, embedding_size
+            entity_initializer, self.sharding, embedding_size
         )
         self.relation_embedding = initialize_relation_embedding(
-            relation_intializer, n_relation_type, embedding_size // 2
+            relation_initializer, n_relation_type, embedding_size // 2
         )
         assert (
             self.entity_embedding.shape[-1] % 2 == 0
@@ -404,7 +432,7 @@ class RotatE(DistanceBasedScoreFunction):
 
 class DistMult(MatrixDecompositionScoreFunction):
     """
-    DistMult scoring function (see [...]).
+    DistMult scoring function :cite:p:`DistMult`.
     """
 
     def __init__(
@@ -413,8 +441,8 @@ class DistMult(MatrixDecompositionScoreFunction):
         sharding: Sharding,
         n_relation_type: int,
         embedding_size: Optional[int],
-        entity_intializer: Union[torch.Tensor, EmbeddingInitializer],
-        relation_intializer: Union[torch.Tensor, EmbeddingInitializer],
+        entity_initializer: Union[torch.Tensor, EmbeddingInitializer],
+        relation_initializer: Union[torch.Tensor, EmbeddingInitializer],
     ) -> None:
         """
         Initialize DistMult model.
@@ -429,18 +457,20 @@ class DistMult(MatrixDecompositionScoreFunction):
             Size of entity and relation embeddings. Can be omitted
             if passing tensors for initialization of entity and relation
             embeddings.
-        :param entity_intializer:
+        :param entity_initializer:
             Initialization scheme / table for entity embeddings.
-        :param relation_intializer:
+        :param relation_initializer:
             Initialization scheme / table for relation embeddings.
         """
         super(DistMult, self).__init__(negative_sample_sharing=negative_sample_sharing)
 
+        self.sharding = sharding
+
         self.entity_embedding = initialize_entity_embedding(
-            entity_intializer, sharding, embedding_size
+            entity_initializer, self.sharding, embedding_size
         )
         self.relation_embedding = initialize_relation_embedding(
-            relation_intializer, n_relation_type, embedding_size
+            relation_initializer, n_relation_type, embedding_size
         )
         assert (
             self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
@@ -485,7 +515,7 @@ class DistMult(MatrixDecompositionScoreFunction):
 
 class ComplEx(MatrixDecompositionScoreFunction):
     """
-    ComplEx scoring function (see [...]).
+    ComplEx scoring function :cite:p:`ComplEx`.
     """
 
     def __init__(
@@ -494,8 +524,8 @@ class ComplEx(MatrixDecompositionScoreFunction):
         sharding: Sharding,
         n_relation_type: int,
         embedding_size: Optional[int],
-        entity_intializer: Union[torch.Tensor, EmbeddingInitializer],
-        relation_intializer: Union[torch.Tensor, EmbeddingInitializer],
+        entity_initializer: Union[torch.Tensor, EmbeddingInitializer],
+        relation_initializer: Union[torch.Tensor, EmbeddingInitializer],
     ) -> None:
         """
         Initialize ComplEx model.
@@ -510,18 +540,20 @@ class ComplEx(MatrixDecompositionScoreFunction):
             Size of entity and relation embeddings. Can be omitted
             if passing tensors for initialization of entity and relation
             embeddings.
-        :param entity_intializer:
+        :param entity_initializer:
             Initialization scheme / table for entity embeddings.
-        :param relation_intializer:
+        :param relation_initializer:
             Initialization scheme / table for relation embeddings.
         """
         super(ComplEx, self).__init__(negative_sample_sharing=negative_sample_sharing)
 
+        self.sharding = sharding
+
         self.entity_embedding = initialize_entity_embedding(
-            entity_intializer, sharding, embedding_size
+            entity_initializer, self.sharding, embedding_size
         )
         self.relation_embedding = initialize_relation_embedding(
-            relation_intializer, n_relation_type, embedding_size
+            relation_initializer, n_relation_type, embedding_size
         )
         assert (
             self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
