@@ -189,6 +189,8 @@ class KGDataset:
         entities which have at least 10 relations associated to them.
         First used in :cite:p:`ConvE`.
 
+        .. seealso:: https://yago-knowledge.org/downloads/yago-3
+
         :param root:
             Path to dataset. If dataset is not present, download it
             at this path.

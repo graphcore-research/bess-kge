@@ -8,6 +8,16 @@ BESS-KGE documentation
 
 .. automodule:: besskge
 
+   Shallow KGE models are typically memory-bound, as little compute needs to be performed to score (h,r,t) triples once the embeddings of entities and relation types used in the batch have been retrieved. 
+
+   BESS (Balanced Entity Sampling and Sharing) is a KGE distribution framework designed to maximize bandwith for gathering embeddings, by 
+
+   * storing them in fast-access IPU on-chip memory;
+   
+   * minimizing communication time for sharing embeddings between workers, leveraging balanced collective operators over high-bandwidth IPU-links.
+
+   This allows BESS-KGE to achieve high throughput for both training and inference.
+
    For an overview of the different distribution schemes used by BESS, see :ref:`BESS modules`.
 
 .. toctree::
