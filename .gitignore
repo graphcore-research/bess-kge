@@ -17,6 +17,7 @@ datasets/
 *.so
 *.npz
 *.pkl
+*.onnx
 *.log
 
 /dev_*.py

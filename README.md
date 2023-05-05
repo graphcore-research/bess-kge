@@ -93,7 +93,9 @@ All APIs are documented [here](https://symmetrical-adventure-69267rm.pages.githu
 ### Known limitations
 
 * BESS-KGE supports distribution up to 16 IPUs.
-* Storing embeddings in SRAM introduces limitations on the size of the embedding tables, and therefore on the entity count in the KG. Using SGD momentum optimizer, FP16 weights and an embedding size of 128, this limit can be quantified in ~8M entities when sharding tables across 16 IPUs.
+* Storing embeddings in SRAM introduces limitations on the size of the embedding tables, and therefore on the entity count in the knowledge graph. Using SGD momentum optimizer, FP16 weights and an embedding size of 128, this limit can be quantified in ~9M entities when sharding tables across 16 IPUs.
+
+If getting an error message during compilation about the onnx protobuffer exceeding maximum size, we recommend saving weights to a file using the `poptorch.Options` API `options._Popart.set("saveInitializersToFile", "my_file.onnx")`.
 
 ## Usage
 
@@ -126,7 +128,7 @@ import besskge
 For a walkthrough of the library functionalities, see our jupyter notebooks (better if in the suggested sequence): 
 1. [KGE training and inference on the OGBL-BioKG dataset](notebooks/1_biokg_training_inference.ipynb) [![Run on Gradient](https://assets.paperspace.io/img/gradient-badge.svg)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-jupyter%3A3.2.0-ubuntu-20.04&machine=Free-IPU-POD4&file=%2Fnotebooks%2F1_biokg_training_inference.ipynb)
 2. [Link prediction on the YAGO3-10 dataset](notebooks/2_yago_topk_prediction.ipynb) [![Run on Gradient](https://assets.paperspace.io/img/gradient-badge.svg)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-jupyter%3A3.2.0-ubuntu-20.04&machine=Free-IPU-POD4&file=%2Fnotebooks%2F2_yago_topk_prediction.ipynb)
-2. [FP16 training on the OGBL-WikiKG2 dataset](notebooks/3_wikikg2_fp16.ipynb) [![Run on Gradient](https://assets.paperspace.io/img/gradient-badge.svg)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-jupyter%3A3.2.0-ubuntu-20.04&machine=Free-IPU-POD4&file=%2Fnotebooks%2F3_wikikg2_fp16.ipynb)
+3. [FP16 weights and compute on the OGBL-WikiKG2 dataset](notebooks/3_wikikg2_fp16.ipynb) [![Run on Gradient](https://assets.paperspace.io/img/gradient-badge.svg)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-jupyter%3A3.2.0-ubuntu-20.04&machine=Free-IPU-POD4&file=%2Fnotebooks%2F3_wikikg2_fp16.ipynb)
 
 
 ## Contributing
