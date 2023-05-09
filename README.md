@@ -93,7 +93,73 @@ All APIs are documented [here](https://symmetrical-adventure-69267rm.pages.githu
 ### Known limitations
 
 * BESS-KGE supports distribution up to 16 IPUs.
-* Storing embeddings in SRAM introduces limitations on the size of the embedding tables, and therefore on the entity count in the knowledge graph. Using SGD momentum optimizer, FP16 weights and an embedding size of 128, this limit can be quantified in ~9M entities when sharding tables across 16 IPUs.
+* Storing embeddings in SRAM introduces limitations on the size of the embedding tables, and therefore on the entity count in the knowledge graph. Some estimates for these limitations are given in the table below (assuming FP16 for weights and FP32 for gradient accumulation and second order momentum):
+
+<table>
+<thead>
+  <tr>
+    <th colspan="2">Embeddings</th>
+    <th rowspan="2">Optimizer</th>
+    <th rowspan="2">Gradient<br>accumulation</th>
+    <th rowspan="2"># IPUs</th>
+    <th rowspan="2">Max number of entities <br>(# embedding parameters)</th>
+  </tr>
+  <tr>
+    <th>size</th>
+    <th>dtype</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td>100</td>
+    <td>float16</td>
+    <td>SGDM</td>
+    <td>No</td>
+    <td>4</td>
+    <td>3.2M (3.2e8)</td>
+  </tr>
+  <tr>
+    <td>128</td>
+    <td>float16</td>
+    <td>Adam</td>
+    <td>No</td>
+    <td>4</td>
+    <td>2.4M (3.0e8)</td>
+  </tr>
+  <tr>
+    <td>256</td>
+    <td>float16</td>
+    <td>SGDM</td>
+    <td>Yes</td>
+    <td>4</td>
+    <td>800K (2.0e8)</td>
+  </tr>
+  <tr>
+    <td>100</td>
+    <td>float16</td>
+    <td>SGDM</td>
+    <td>No</td>
+    <td>16</td>
+    <td>13M (1.3e9)</td>
+  </tr>
+  <tr>
+    <td>256</td>
+    <td>float16</td>
+    <td>Adam</td>
+    <td>No</td>
+    <td>16</td>
+    <td>4.8M (1.2e9)</td>
+  </tr>
+  <tr>
+    <td>256</td>
+    <td>float16</td>
+    <td>Adam</td>
+    <td>Yes</td>
+    <td>16</td>
+    <td>3.1M (7.9e8)</td>
+  </tr>
+</tbody>
+</table>
 
 If getting an error message during compilation about the onnx protobuffer exceeding maximum size, we recommend saving weights to a file using the `poptorch.Options` API `options._Popart.set("saveInitializersToFile", "my_file.onnx")`.
 

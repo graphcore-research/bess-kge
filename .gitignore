@@ -21,3 +21,4 @@ datasets/
 *.log
 
 /dev_*.py
+*.sh
