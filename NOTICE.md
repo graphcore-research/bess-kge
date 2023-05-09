@@ -6,7 +6,17 @@ The ogbl-biokg and ogbl-wikikg2 datasets are licensed under CC-0.
 
 The [YAGO3 dataset](https://yago-knowledge.org/downloads/yago-3) by the [YAGO team](https://yago-knowledge.org/contributors) of the [Max-Planck Institute for Informatics](https://www.mpi-inf.mpg.de/home/) and [Telcom Paris](https://www.telecom-paris.fr/) is licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 
-See [requirements.txt](requirements.txt) and [requirements-dev.txt](requirements-dev.txt) for dependencies.
+Our dependencies are (see [requirements.txt](requirements.txt)):
+
+| Component | About | License |
+| --- | --- | --- |
+| einops | Deep learning operations reinvented (for pytorch, tensorflow, jax and others) | MIT |
+| numpy | Array processing library | BSD 3-Clause |
+| ogb | Open Graph Benchmark (OGB) datasets and utilities | MIT |
+| urllib3 | HTTP client for Python | MIT |
+| poptorch-experimental-addons | Collection of addons for PopTorch | MIT |
+
+We also use additional Python dependencies for development/testing/documentation (see [requirements-dev.txt](requirements-dev.txt)).
 
 
 **This directory includes derived work from the following:**

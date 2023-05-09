@@ -144,4 +144,4 @@ Copyright (c) 2023 Graphcore Ltd. Licensed under the MIT License.
 
 The included code is released under MIT license, (see [LICENSE](LICENSE)).
 
-See the [NOTICE](NOTICE.md) for dependencies, credits and further details.
+See [NOTICE.md](NOTICE.md) for dependencies, credits, derived work and further details.
