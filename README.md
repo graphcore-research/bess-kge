@@ -93,20 +93,21 @@ All APIs are documented [here](https://symmetrical-adventure-69267rm.pages.githu
 ### Known limitations
 
 * BESS-KGE supports distribution up to 16 IPUs.
-* Storing embeddings in SRAM introduces limitations on the size of the embedding tables, and therefore on the entity count in the knowledge graph. Some estimates for these limitations are given in the table below (assuming FP16 for weights and FP32 for gradient accumulation and second order momentum):
+* Storing embeddings in SRAM introduces limitations on the size of the embedding tables, and therefore on the entity count in the knowledge graph. Some (approximate) estimates for these limitations are given in the table below (assuming FP16 for weights and FP32 for gradient accumulation and second order momentum). Notice that the cap will also depend on the batch size and number of negative samples used.
 
-<table>
+<table  style="text-align: center; vertical-align: middle;">
 <thead>
   <tr>
-    <th colspan="2">Embeddings</th>
-    <th rowspan="2">Optimizer</th>
-    <th rowspan="2">Gradient<br>accumulation</th>
-    <th rowspan="2"># IPUs</th>
-    <th rowspan="2">Max number of entities <br>(# embedding parameters)</th>
+    <th colspan="2" style="text-align: center">Embeddings</th>
+    <th rowspan="2" style="text-align: center">Optimizer</th>
+    <th rowspan="2" style="text-align: center">Gradient<br>accumulation</th>
+    <th colspan="2" style="text-align: center">Max number of entities <br>(# embedding parameters) on</th>
   </tr>
   <tr>
-    <th>size</th>
-    <th>dtype</th>
+    <th style="text-align: center">size</th>
+    <th style="text-align: center">dtype</th>
+    <th style="text-align: center">IPU-POD4</th>
+    <th style="text-align: center">IPU-POD16</th>
   </tr>
 </thead>
 <tbody>
@@ -115,48 +116,40 @@ All APIs are documented [here](https://symmetrical-adventure-69267rm.pages.githu
     <td>float16</td>
     <td>SGDM</td>
     <td>No</td>
-    <td>4</td>
     <td>3.2M (3.2e8)</td>
+    <td>13M (1.3e9)</td>
   </tr>
   <tr>
     <td>128</td>
     <td>float16</td>
     <td>Adam</td>
     <td>No</td>
-    <td>4</td>
     <td>2.4M (3.0e8)</td>
+    <td>9.9M (1.3e9)</td>
   </tr>
   <tr>
     <td>256</td>
     <td>float16</td>
     <td>SGDM</td>
     <td>Yes</td>
-    <td>4</td>
-    <td>800K (2.0e8)</td>
-  </tr>
-  <tr>
-    <td>100</td>
-    <td>float16</td>
-    <td>SGDM</td>
-    <td>No</td>
-    <td>16</td>
-    <td>13M (1.3e9)</td>
+    <td>900K (2.3e8)</td>
+    <td>3.5M (9.0e8)</td>
   </tr>
   <tr>
     <td>256</td>
     <td>float16</td>
     <td>Adam</td>
     <td>No</td>
-    <td>16</td>
+    <td>1.2M (3.0e8)</td>
     <td>4.8M (1.2e9)</td>
   </tr>
   <tr>
-    <td>256</td>
+    <td>512</td>
     <td>float16</td>
     <td>Adam</td>
     <td>Yes</td>
-    <td>16</td>
-    <td>3.1M (7.9e8)</td>
+    <td>375K (1.9e8)</td>
+    <td>1.5M (7.7e8)</td>
   </tr>
 </tbody>
 </table>
