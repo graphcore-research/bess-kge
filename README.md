@@ -99,19 +99,19 @@ All APIs are documented [here](https://symmetrical-adventure-69267rm.pages.githu
 <thead>
   <tr>
     <th colspan="2" style="text-align: center">Embeddings</th>
-    <th rowspan="2" style="text-align: center">Optimizer</th>
-    <th rowspan="2" style="text-align: center">Gradient<br>accumulation</th>
+    <th rowspan="2">Optimizer</th>
+    <th rowspan="2">Gradient<br>accumulation</th>
     <th colspan="2" style="text-align: center">Max number of entities <br>(# embedding parameters) on</th>
   </tr>
   <tr>
-    <th style="text-align: center">size</th>
-    <th style="text-align: center">dtype</th>
-    <th style="text-align: center">IPU-POD4</th>
-    <th style="text-align: center">IPU-POD16</th>
+    <th>size</th>
+    <th>dtype</th>
+    <th>IPU-POD4</th>
+    <th>IPU-POD16</th>
   </tr>
 </thead>
 <tbody>
-  <tr style="text-align: center">
+  <tr>
     <td>100</td>
     <td>float16</td>
     <td>SGDM</td>
@@ -119,7 +119,7 @@ All APIs are documented [here](https://symmetrical-adventure-69267rm.pages.githu
     <td>3.2M (3.2e8)</td>
     <td>13M (1.3e9)</td>
   </tr>
-  <tr style="text-align: center">
+  <tr>
     <td>128</td>
     <td>float16</td>
     <td>Adam</td>
@@ -127,7 +127,7 @@ All APIs are documented [here](https://symmetrical-adventure-69267rm.pages.githu
     <td>2.4M (3.0e8)</td>
     <td>9.9M (1.3e9)</td>
   </tr>
-  <tr style="text-align: center">
+  <tr>
     <td>256</td>
     <td>float16</td>
     <td>SGDM</td>
@@ -135,7 +135,7 @@ All APIs are documented [here](https://symmetrical-adventure-69267rm.pages.githu
     <td>900K (2.3e8)</td>
     <td>3.5M (9.0e8)</td>
   </tr>
-  <tr style="text-align: center">
+  <tr>
     <td>256</td>
     <td>float16</td>
     <td>Adam</td>
@@ -143,7 +143,7 @@ All APIs are documented [here](https://symmetrical-adventure-69267rm.pages.githu
     <td>1.2M (3.0e8)</td>
     <td>4.8M (1.2e9)</td>
   </tr>
-  <tr style="text-align: center">
+  <tr>
     <td>512</td>
     <td>float16</td>
     <td>Adam</td>
