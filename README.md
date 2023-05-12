@@ -32,7 +32,7 @@ When distributing the workload over $n$ workers (=IPUs), BESS randomly splits th
 </figure>
 </div>
 
-The entity sharding induces a partitioning of the triples in the dataset, according to the shardpair of head entity and tail entity. At execution time (for both training and inference) batches are constructed by sampling triples uniformly from each of the $n^2$ shardpairs. Negative entities, used to corrupt the head or tail of a triple to construct negative samples, are also sampled in a balanced way to ensure a variety that is beneficial to the final embedding quality.
+The entity sharding induces a partitioning of the triples in the dataset, according to the shard-pair of head entity and tail entity. At execution time (for both training and inference) batches are constructed by sampling triples uniformly from each of the $n^2$ shard-pairs. Negative entities, used to corrupt the head or tail of a triple to construct negative samples, are also sampled in a balanced way to ensure a variety that is beneficial to the final embedding quality.
 
 <div id="figure2" align="center">
 <figure>

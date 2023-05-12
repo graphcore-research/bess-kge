@@ -65,7 +65,7 @@ class RandomShardedNegativeSampler(ShardedNegativeSampler):
         Initialize random negative sampler.
 
         :param n_negative:
-            Number of negative samples per shardpair
+            Number of negative samples per shard-pair
             (if :attr:`flat_negative_format`) or per triple.
         :param sharding:
             Sharding of entities.
@@ -79,7 +79,7 @@ class RandomShardedNegativeSampler(ShardedNegativeSampler):
         :param local_sampling:
             Sample negative entities only from the shard where the triple is processed.
         :param flat_negative_format:
-            Sample :attr:`n_negative` negative entities for each shardpair,
+            Sample :attr:`n_negative` negative entities for each shard-pair,
             instead of each triple. If True, requires use of negative sample
             sharing. Defaults to False.
         """

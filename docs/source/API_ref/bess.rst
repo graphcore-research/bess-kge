@@ -13,9 +13,9 @@ across workers, as it is usually much smaller.
    **Figure 1**. Entity table sharding across :math:`n=3` workers.
 
 The entity sharding induces a partitioning of the triples in the
-dataset, according to the shardpair of head entity and tail entity. At
+dataset, according to the shard-pair of head entity and tail entity. At
 execution time (for both training and inference) batches are constructed
-by sampling triples uniformly from each of the :math:`n^2` shardpairs.
+by sampling triples uniformly from each of the :math:`n^2` shard-pairs.
 Negative entities, used to corrupt the head or tail of a triple in order
 to construct negative samples, are also sampled in a balanced way to ensure
 a variety that is beneficial to the final embedding quality.
