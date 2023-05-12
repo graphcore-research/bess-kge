@@ -52,7 +52,7 @@ This batch cook-up scheme allows us to balance workload and communication across
   <img src="docs/source/images/gather.jpg" width=650>
   <figcaption>
   
-  **Figure 3**. The required embeddings are gathered from the IPUs' SRAM. Each worker needs to retrieve the head embeddings for $n$ positive triple blocks, and the same for tail embeddings (the $3 + 3$ triangles of same colour in [Figure 2 (left)](#figure2)). In addition to that, the worker gathers the portion (=$1/3$) stored in its memory of the negative tails needed by all of the $n^2$ blocks.
+  **Figure 3**. The required embeddings are gathered from the IPUs' SRAM. Each worker needs to retrieve the head embeddings for $n$ positive triple blocks, and the same for tail embeddings (the $3 + 3$ triangles of same colour in [Figure 2 (left)](#figure2)). In addition to that, the worker gathers the portion (= $1/n$) stored in its memory of the negative tails needed by all of the $n^2$ blocks.
   
   </figcaption>
 </figure>
@@ -65,7 +65,7 @@ The batch in [Figure 2](#figure2) can then be reconstrcuted by sharing the embed
   <img src="docs/source/images/alltoall.jpg" width=650>
   <figcaption>
   
-  **Figure 4**. Embeddings of positive and negative tails are exchanged between workers with an AllToAll collective (red arrows), which effectively transposes rows and columns of the $n^2$ blocks in the picture. After this exchange, each worker (vertical column) has the correct $n$ blocks of positive triples and $n$ blocks of negative tails to compute positive and negative scores.
+  **Figure 4**. Embeddings of positive and negative tails are exchanged between workers with an AllToAll collective (red arrows), which effectively transposes rows and columns of the $n^2$ blocks in the picture. After this exchange, each worker (vertical column) has the embeddings of the correct $n$ blocks of positive triples and $n$ blocks of negative tails to compute positive and negative scores.
   
   </figcaption>
 </figure>

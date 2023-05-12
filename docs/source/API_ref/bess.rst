@@ -51,7 +51,7 @@ itself, and the embeddings needed by its peers.
    positive triple blocks, and the same for tail embeddings (the
    :math:`3 + 3` triangles of same colour in :ref:`Figure 2 (left) <figure2>`).
    In addition to that, the worker gathers the
-   portion (=\ :math:`1/3`) stored in its memory of the negative tails
+   portion (=\ :math:`1/n`) stored in its memory of the negative tails
    needed by all of the :math:`n^2` blocks.
 
 The batch in :ref:`Figure 2 <figure2>` can then be reconstrcuted by
@@ -67,7 +67,7 @@ worker where the head embedding is stored.
    **Figure 4**. Embeddings of positive and negative tails are exchanged
    between workers with an AllToAll collective (red arrows), which
    effectively transposes rows and columns of the :math:`n^2` blocks in
-   the picture. After this exchange, each worker has the correct
+   the picture. After this exchange, each worker has the embeddings of the correct
    :math:`n` blocks of positive triples and :math:`n` blocks of negative
    tails to compute positive and negative scores.
 
