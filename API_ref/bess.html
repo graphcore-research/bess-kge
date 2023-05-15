@@ -124,9 +124,9 @@ across workers, as it is usually much smaller.</p>
 </figcaption>
 </figure>
 <p>The entity sharding induces a partitioning of the triples in the
-dataset, according to the shardpair of head entity and tail entity. At
+dataset, according to the shard-pair of head entity and tail entity. At
 execution time (for both training and inference) batches are constructed
-by sampling triples uniformly from each of the <span class="math notranslate nohighlight">\(n^2\)</span> shardpairs.
+by sampling triples uniformly from each of the <span class="math notranslate nohighlight">\(n^2\)</span> shard-pairs.
 Negative entities, used to corrupt the head or tail of a triple in order
 to construct negative samples, are also sampled in a balanced way to ensure
 a variety that is beneficial to the final embedding quality.</p>
@@ -156,7 +156,7 @@ SRAM. Each worker needs to retrieve the head embeddings for <span class="math no
 positive triple blocks, and the same for tail embeddings (the
 <span class="math notranslate nohighlight">\(3 + 3\)</span> triangles of same colour in <a class="reference internal" href="#figure2"><span class="std std-ref">Figure 2 (left)</span></a>).
 In addition to that, the worker gathers the
-portion (=<span class="math notranslate nohighlight">\(1/3\)</span>) stored in its memory of the negative tails
+portion (=<span class="math notranslate nohighlight">\(1/n\)</span>) stored in its memory of the negative tails
 needed by all of the <span class="math notranslate nohighlight">\(n^2\)</span> blocks.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
@@ -171,7 +171,7 @@ worker where the head embedding is stored.</p>
 <p><span class="caption-text"><strong>Figure 4</strong>. Embeddings of positive and negative tails are exchanged
 between workers with an AllToAll collective (red arrows), which
 effectively transposes rows and columns of the <span class="math notranslate nohighlight">\(n^2\)</span> blocks in
-the picture. After this exchange, each worker has the correct
+the picture. After this exchange, each worker has the embeddings of the correct
 <span class="math notranslate nohighlight">\(n\)</span> blocks of positive triples and <span class="math notranslate nohighlight">\(n\)</span> blocks of negative
 tails to compute positive and negative scores.</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
 </figcaption>

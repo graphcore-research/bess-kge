@@ -128,7 +128,7 @@ each triple is assigned to one of <cite>n_shard</cite> partitions based on the
 shard where the head (resp. tail) entity is stored.
 If <code class="code docutils literal notranslate"><span class="pre">partition_mode</span> <span class="pre">=</span> <span class="pre">'ht_shardpair'</span></code>, each triple is assigned to one
 of <cite>n_shard^2</cite> partitions based on the shardpair <cite>(shard_h, shard_t)</cite>.
-Shardpairs are ordered as:
+Shard-pairs are ordered as:
 <cite>(0,0), (0,1), …, (0, n_shard-1), (1,0), …, (n_shard-1, n_shard-1)</cite>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet.create_from_dataset">
