@@ -162,7 +162,7 @@ class PartitionedTripleSet:
     shard where the head (resp. tail) entity is stored.
     If :code:`partition_mode = 'ht_shardpair'`, each triple is assigned to one
     of `n_shard^2` partitions based on the shardpair `(shard_h, shard_t)`.
-    Shardpairs are ordered as:
+    Shard-pairs are ordered as:
     `(0,0), (0,1), ..., (0, n_shard-1), (1,0), ..., (n_shard-1, n_shard-1)`.
     """
 
