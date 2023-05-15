@@ -2,7 +2,7 @@
 # Copyright (c) 2022 Graphcore Ltd. All rights reserved.
 # Script to be sourced on launch of the Gradient Notebook
 
-DETECTED_NUMBER_OF_IPUS=$(python .dev/available_ipus.py)
+DETECTED_NUMBER_OF_IPUS=$(python .gradient/available_ipus.py)
 if [[ "$1" == "test" ]]; then
     IPU_ARG="${DETECTED_NUMBER_OF_IPUS}"
 else
@@ -25,8 +25,6 @@ export POPTORCH_LOG_LEVEL=ERR
 export RDMAV_FORK_SAFE=1
 
 export PIP_DISABLE_PIP_VERSION_CHECK=1 CACHE_DIR=/tmp
-if [ -z "${SETUP_NO_JUPYTER}" ]; then
-    jupyter lab --allow-root --ip=0.0.0.0 --no-browser --ServerApp.trust_xheaders=True \
-                --ServerApp.disable_check_xsrf=False --ServerApp.allow_remote_access=True \
-                --ServerApp.allow_origin='*' --ServerApp.allow_credentials=True
-fi
+jupyter lab --allow-root --ip=0.0.0.0 --no-browser --ServerApp.trust_xheaders=True \
+            --ServerApp.disable_check_xsrf=False --ServerApp.allow_remote_access=True \
+            --ServerApp.allow_origin='*' --ServerApp.allow_credentials=True
