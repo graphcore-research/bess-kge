@@ -20,4 +20,3 @@ datasets/
 *.onnx
 *.log
 /dev_*.py
-*.sh
