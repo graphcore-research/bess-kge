@@ -203,7 +203,7 @@ class KGDataset:
             and root.joinpath("valid.txt").is_file()
             and root.joinpath("test.txt").is_file()
         ):
-            print("Dowloading dataset...")
+            print("Downloading dataset...")
             res = requests.get(
                 url="https://github.com/TimDettmers/ConvE/raw/master/YAGO3-10.tar.gz"
             )
