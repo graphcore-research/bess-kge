@@ -268,7 +268,7 @@ class PartitionedTripleSet:
         :param sharding:
             The entity sharding to use.
         :param partition_mode:
-            The triple partition mode. Can be 
+            The triple partition mode. Can be
             "h_shard", "t_shard", "ht_shardpair".
 
         :return:
