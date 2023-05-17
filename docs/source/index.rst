@@ -3,22 +3,22 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-BESS-KGE documentation
-====================================
+BESS-KGE User Guide and API Documentation
+=========================================
 
 .. automodule:: besskge
 
-   Shallow KGE models are typically memory-bound, as little compute needs to be performed to score (h,r,t) triples once the embeddings of entities and relation types used in the batch have been retrieved. 
+   Shallow knowledge graph entity (KGE) models are typically memory-bound, as little compute needs to be performed to score (h,r,t) triples once the embeddings of entities and relation types used in the batch have been retrieved.
 
-   BESS (Balanced Entity Sampling and Sharing) is a KGE distribution framework designed to maximize bandwith for gathering embeddings, by 
+   BESS (Balanced Entity Sampling and Sharing) is a KGE distribution framework designed to maximize bandwidth for gathering embeddings, by
 
    * storing them in fast-access IPU on-chip memory;
-   
+
    * minimizing communication time for sharing embeddings between workers, leveraging balanced collective operators over high-bandwidth IPU-links.
 
    This allows BESS-KGE to achieve high throughput for both training and inference.
 
-   For an overview of the different distribution schemes used by BESS, see :ref:`BESS modules`.
+   For an overview of the different distribution schemes used by BESS-KGE, see :ref:`BESS modules`.
 
 .. toctree::
    :maxdepth: 2
