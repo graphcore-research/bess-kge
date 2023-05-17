@@ -139,7 +139,7 @@ def test_type_based_sharded_ns(
                 )
             ][..., 0 if ns.corruption_scheme == "h" else 1]
         elif ns.corruption_scheme == "ht":
-            # Each shardpair is split into two halves: corrupt heads in one,
+            # Each shard-pair is split into two halves: corrupt heads in one,
             # tails in the other
             cutpoint = positive_per_partition // 2
             head_types = triple_types[sample_idx[:, processing_shard, ..., :cutpoint]][

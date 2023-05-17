@@ -3,7 +3,7 @@
 
 [**Installation guide**](#usage)
 | [**Tutorials**](#paperspace-notebook-tutorials)
-| [**Documentation**](https://symmetrical-adventure-69267rm.pages.github.io/)
+| [**Documentation**](https://graphcore-research.github.io/bess-kge/)
 
 
 BESS-KGE is a PyTorch library for knowledge graph embedding (KGE) models on IPUs implementing the distribution framework [BESS](https://arxiv.org/abs/2211.12281), with embedding tables stored in the IPU SRAM.
@@ -32,7 +32,11 @@ When distributing the workload over $n$ workers (=IPUs), BESS randomly splits th
 </figure>
 </div>
 
+<<<<<<< HEAD
 The entity sharding induces a partitioning of the triples in the dataset, according to the shard-pair of the head entity and the tail entity. At execution time (for both training and inference), batches are constructed by sampling triples uniformly from each of the $n^2$ shard-pairs. Negative entities, used to corrupt the head or tail of a triple to construct negative samples, are also sampled in a balanced way to ensure a variety that is beneficial to the final embedding quality.
+=======
+The entity sharding induces a partitioning of the triples in the dataset, according to the shard-pair of head entity and tail entity. At execution time (for both training and inference) batches are constructed by sampling triples uniformly from each of the $n^2$ shard-pairs. Negative entities, used to corrupt the head or tail of a triple to construct negative samples, are also sampled in a balanced way to ensure a variety that is beneficial to the final embedding quality.
+>>>>>>> main
 
 <div id="figure2" align="center">
 <figure>
@@ -51,9 +55,15 @@ This batching scheme allows us to balance workload and communication across work
 <figure>
   <img src="docs/source/images/gather.jpg" width=650>
   <figcaption>
+<<<<<<< HEAD
 
   **Figure 3**. The required embeddings are gathered from the IPU SRAM. Each worker needs to retrieve the head embeddings for $n$ positive triple blocks, and the same for tail embeddings (the $3 + 3$ triangles of the same colour in [Figure 2 (left)](#figure2)). In addition to that, the worker gathers the portion (=$1/3$) stored in its memory of the negative tails needed by all of the $n^2$ blocks.
 
+=======
+  
+  **Figure 3**. The required embeddings are gathered from the IPUs' SRAM. Each worker needs to retrieve the head embeddings for $n$ positive triple blocks, and the same for tail embeddings (the $3 + 3$ triangles of same colour in [Figure 2 (left)](#figure2)). In addition to that, the worker gathers the portion (= $1/n$) stored in its memory of the negative tails needed by all of the $n^2$ blocks.
+  
+>>>>>>> main
   </figcaption>
 </figure>
 </div>
@@ -64,18 +74,32 @@ The batch in [Figure 2](#figure2) can then be reconstructed by sharing the embed
 <figure>
   <img src="docs/source/images/alltoall.jpg" width=650>
   <figcaption>
+<<<<<<< HEAD
 
   **Figure 4**. Embeddings of positive and negative tails are exchanged between workers with an AllToAll collective (red arrows), which effectively transposes rows and columns of the $n^2$ blocks in the picture. After this exchange, each worker (vertical column) has the correct $n$ blocks of positive triples and $n$ blocks of negative tails to compute positive and negative scores.
 
+=======
+  
+  **Figure 4**. Embeddings of positive and negative tails are exchanged between workers with an AllToAll collective (red arrows), which effectively transposes rows and columns of the $n^2$ blocks in the picture. After this exchange, each worker (vertical column) has the embeddings of the correct $n$ blocks of positive triples and $n$ blocks of negative tails to compute positive and negative scores.
+  
+>>>>>>> main
   </figcaption>
 </figure>
 </div>
 
+<<<<<<< HEAD
 Additional variations of the distribution scheme are detailed in the [BESS-KGE user guide and API documentation](https://symmetrical-adventure-69267rm.pages.github.io/API_ref/bess.html).
 
 ### Modules
 
 All APIs are documented in the [BESS-KGE user guide and API documentation](https://symmetrical-adventure-69267rm.pages.github.io/).
+=======
+Additional variations of the BESS distribution scheme are detailed in the [documentation](https://graphcore-research.github.io/bess-kge/API_ref/bess.html).
+
+### Modules
+
+All APIs are documented [here](https://graphcore-research.github.io/bess-kge/).
+>>>>>>> main
 
 | API | Functions
 | --- | --- |
@@ -176,7 +200,7 @@ More details are given in the [PyTorch quick start guide](https://docs.graphcore
 
 3\. Pip install BESS-KGE:
 ```shell
-pip install git+ssh://git@github.com/graphcore-research/bess-kge.git
+pip install git+https://github.com/graphcore-research/bess-kge.git
 ```
 
 4\. Import and use:
@@ -186,11 +210,21 @@ import besskge
 
 ## Paperspace notebook tutorials
 
+<<<<<<< HEAD
 For a walkthrough of the `besskge` library functionalities, see our Jupyter notebooks. We recommend the following sequence:
 1. [KGE training and inference on the OGBL-BioKG dataset](notebooks/1_biokg_training_inference.ipynb) [![Run on Gradient](https://assets.paperspace.io/img/gradient-badge.svg)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-jupyter%3A3.2.0-ubuntu-20.04&machine=Free-IPU-POD4&file=%2Fnotebooks%2F1_biokg_training_inference.ipynb)
 2. [Link prediction on the YAGO3-10 dataset](notebooks/2_yago_topk_prediction.ipynb) [![Run on Gradient](https://assets.paperspace.io/img/gradient-badge.svg)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-jupyter%3A3.2.0-ubuntu-20.04&machine=Free-IPU-POD4&file=%2Fnotebooks%2F2_yago_topk_prediction.ipynb)
 3. [FP16 weights and compute on the OGBL-WikiKG2 dataset](notebooks/3_wikikg2_fp16.ipynb) [![Run on Gradient](https://assets.paperspace.io/img/gradient-badge.svg)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-jupyter%3A3.2.0-ubuntu-20.04&machine=Free-IPU-POD4&file=%2Fnotebooks%2F3_wikikg2_fp16.ipynb)
 
+=======
+For a walkthrough of the library functionalities, see our jupyter notebooks (better if in the suggested sequence): 
+1. [KGE training and inference on the OGBL-BioKG dataset](notebooks/1_biokg_training_inference.ipynb)
+[![Run on Gradient](https://camo.githubusercontent.com/c9931a1689c37ab786edd3e1e5f59b9a6f7d097628c4689ce2432563ef884524/68747470733a2f2f6173736574732e706170657273706163652e696f2f696d672f6772616469656e742d62616467652e737667)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-jupyter%3A3.2.0-ubuntu-20.04&machine=Free-IPU-POD4&file=%2Fnotebooks%2F1_biokg_training_inference.ipynb)
+2. [Link prediction on the YAGO3-10 dataset](notebooks/2_yago_topk_prediction.ipynb)
+[![Run on Gradient](https://camo.githubusercontent.com/c9931a1689c37ab786edd3e1e5f59b9a6f7d097628c4689ce2432563ef884524/68747470733a2f2f6173736574732e706170657273706163652e696f2f696d672f6772616469656e742d62616467652e737667)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-jupyter%3A3.2.0-ubuntu-20.04&machine=Free-IPU-POD4&file=%2Fnotebooks%2F2_yago_topk_prediction.ipynb)
+3. [FP16 weights and compute on the OGBL-WikiKG2 dataset](notebooks/3_wikikg2_fp16.ipynb)
+[![Run on Gradient](https://camo.githubusercontent.com/c9931a1689c37ab786edd3e1e5f59b9a6f7d097628c4689ce2432563ef884524/68747470733a2f2f6173736574732e706170657273706163652e696f2f696d672f6772616469656e742d62616467652e737667)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-jupyter%3A3.2.0-ubuntu-20.04&machine=Free-IPU-POD4&file=%2Fnotebooks%2F3_wikikg2_fp16.ipynb)
+>>>>>>> main
 
 ## Contributing
 

@@ -6,19 +6,17 @@ __pycache__/
 .vscode/
 third_party/
 wandb/
-.coverage*
 docs/build/
 docs/source/api
 build/
 reports/
 datasets/
 
+.coverage*
 /*.ipynb
 *.so
 *.npz
 *.pkl
 *.onnx
 *.log
-
 /dev_*.py
-*.sh
