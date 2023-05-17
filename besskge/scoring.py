@@ -385,7 +385,7 @@ class RotatE(DistanceBasedScoreFunction):
         ), "RotatE requires an even real embedding size for entities"
         assert (
             self.entity_embedding.shape[-1] // 2 == self.relation_embedding.shape[-1]
-        ), "RotatE requires the relation embedding size to be half the entity embedding size"
+        ), "RotatE requires relation embedding size to be half entity embedding size"
 
     # docstr-coverage: inherited
     def score_triple(
