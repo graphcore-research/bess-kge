@@ -39,23 +39,23 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
         :param negative_sampler:
             The sampler for negative entities.
         :param shard_bs:
-            The microbatch size, i.e. the number of positive triples
+            The micro-batch size. This is the number of positive triples
             processed on each shard.
         :param batches_per_step:
             The number of batches to sample at each call.
         :param seed:
             The RNG seed.
         :param hrt_freq_weighting:
-            Use frequency-based triple weighting, defaults to False.
+            If True, uses frequency-based triple weighting. Default: False.
         :param weight_smoothing:
             Weight-smoothing parameter for frequency-based
-            triple weigthing, defaults to 0.0.
+            triple weighting. Default: 0.0.
         :param duplicate_batch:
-            The batch sampled from each triple partition has two identical halves;
-            to be used with "ht" corruption scheme at inference time. Defaults to False.
+            If True, the batch sampled from each triple partition has two identical halves.
+            This is to be used with "ht" corruption scheme at inference time. Default: False.
         :param return_triple_idx:
-            Return the indices (wrt partitioned_triple_set.triples)
-            of the triples in the batch. Defaults to False.
+            If True, return the indices (wrt partitioned_triple_set.triples)
+            of the triples in the batch. Default: False.
         """
         self.n_shard = partitioned_triple_set.sharding.n_shard
         self.triples = partitioned_triple_set.triples
@@ -69,7 +69,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
         self.batches_per_step = batches_per_step
         self.duplicate_batch = duplicate_batch
         if self.triple_partition_mode == "ht_shardpair":
-            # The microbatch on device N is formed of n_shard blocks,
+            # The micro-batch on device N is formed of n_shard blocks,
             # corresponding to triple partitions (h_shard, t_shard)
             # with h_shard = N and t_shard = 0, ..., n_shard-1.
             self.positive_per_partition = int(np.ceil(self.shard_bs / self.n_shard))
@@ -78,7 +78,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
         if self.duplicate_batch:
             self.positive_per_partition //= 2
         if self.negative_sampler.corruption_scheme == "ht":
-            # Each partition is split in two halves, so we need positive_per_partition
+            # Each partition is split into two halves, so we need positive_per_partition
             # to be even.
             self.positive_per_partition = (self.positive_per_partition // 2) * 2
 
@@ -113,6 +113,8 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
 
     def __len__(self) -> int:
         """
+        Returns the length of the batch sampler.
+
         The length of the batch sampler is based on the length of
         the largest triple partition.
         At each call, :attr:`ShardedBatchSampler.partition_sample_size` triples
@@ -135,7 +137,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
 
         :return:
             Indices of head, relation, tail and negative entities in the batch,
-            and associated weights / masks.
+            and associated weights and masks.
         """
         sample_triple_dict = self.sample_triples(idx)
         if self.duplicate_batch:
@@ -204,8 +206,10 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
         self, shuffle: bool
     ) -> torch.utils.data.Sampler[List[int]]:
         """
-        Instantiate appropriate :class:`torch.data.Sampler` for the
-        :class:`torch.utils.data.DataLoader` to be used with the
+        Returns the dataloader sampler.
+
+        Instantiate the appropriate :class:`torch.data.Sampler` class for the
+        :class:`torch.utils.data.DataLoader` class to be used with the
         sharded batch sampler.
 
         :param shuffle:
@@ -231,22 +235,24 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
         buffer_size: int = 16,
     ) -> poptorch.DataLoader:
         """
-        Instantiate appropriate :class:`poptorch.DataLoader`
-        to iterate over the batch sampler.
+        Returns the PopTorch dataloader.
+
+        Instantiate the appropriate :class:`poptorch.DataLoader`
+        class to iterate over the batch sampler.
         It uses asynchronous dataloading to minimize CPU-IPU I/O.
 
         :param options:
-            poptorch.Options used to compile and run the model.
+            `poptorch.Options` used to compile and run the model.
         :param shuffle:
-            Shuffle triples at each new epoch, defaults to True.
+            If True, shuffles triples at each new epoch. Default: True.
         :param num_workers:
-            see :meth:`torch.utils.data.DataLoader.__init__`, defaults to 0.
+            see :meth:`torch.utils.data.DataLoader.__init__`. Default: 0.
         :param persistent_workers:
-            see :meth:`torch.utils.data.DataLoader.__init__`, defaults to False.
+            see :meth:`torch.utils.data.DataLoader.__init__`. Default: False.
         :param buffer_size:
             Size of the ring buffer in shared memory used to preload batches.
         :return:
-            The poptorch dataloader.
+            The PopTorch dataloader.
         """
 
         return poptorch.DataLoader(
@@ -269,7 +275,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
     @staticmethod
     def worker_init_fn(worker_id: int) -> None:
         """
-        Worker intialization function to be passed to
+        Worker initialization function to be passed to
         :class:`torch.utils.data.DataLoader`.
 
         :param worker_id:
@@ -284,9 +290,9 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
 
 class RigidShardedBatchSampler(ShardedBatchSampler):
     """
-    At each call, sample triples with same specified indices from all triple partitions,
-    repeating triples in shorter ones to pad to same length.
-    Returns mask to identify padding triples.
+    At each call, sample triples with the same specified indices from all triple partitions,
+    repeating triples in shorter ones to pad to the same length.
+    Returns a mask to identify padding triples.
     """
 
     # docstr-coverage: inherited

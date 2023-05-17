@@ -49,7 +49,7 @@ class UniformInitializer(EmbeddingInitializer):
 class NormalInitializer(EmbeddingInitializer):
     def __init__(self, std_scale: float = 1.0):
         """
-        Initialize embeddings according to normal distribution with
+        Initialize embeddings according to a normal distribution with
         mean 0 and standard deviation `std_scale / embedding_size`.
 
         :param std_scale:
@@ -73,13 +73,13 @@ def initialize_entity_embedding(
 
     :param initializer:
         Embedding table or embedding initializer. If providing
-        embedding table, this can either be sharded
-        (shape: (n_shard, max_entity_per_shard, embedding_size))
-        or unsharded (shape: (n_entity, embedding_size)).
+        an embedding table, this can either be sharded
+        (shape: [n_shard, max_entity_per_shard, embedding_size])
+        or unsharded [shape: (n_entity, embedding_size]).
     :param sharding:
         Entity sharding.
     :param embedding_size:
-        Entity embedding size. Can be omitted if passing
+        Entity embedding size. Can be omitted if passing an
         embedding table.
 
     :return: shape: (n_shard, max_ent_per_shard, embedding_size)
@@ -118,7 +118,7 @@ def initialize_entity_embedding(
     else:
         if not embedding_size:
             raise ValueError(
-                "If not providing embedding table, embedding_size needs to be specified"
+                "If not providing an embedding table, embedding_size needs to be specified"
             )
         entity_embedding = torch.nn.Parameter(
             torch.empty(
@@ -148,7 +148,7 @@ def initialize_relation_embedding(
     :param n_relation_type:
         Number of relation types.
     :param embedding_size:
-        Relation embedding size. Can be omitted if passing
+        Relation embedding size. Can be omitted if passing an
         embedding table.
 
     :return:
@@ -167,7 +167,7 @@ def initialize_relation_embedding(
     else:
         if not embedding_size:
             raise ValueError(
-                "If not providing embedding table, embedding_size needs to be specified"
+                "If not providing an embedding table, embedding_size needs to be specified"
             )
         relation_embedding = torch.nn.Parameter(
             torch.empty(size=(n_relation_type, embedding_size), dtype=torch.float32)
@@ -187,7 +187,7 @@ def refactor_embedding_sharding(
     one entity sharding to a different one.
 
     :param entity_embedding: shape: (n_shard_old, max_ent_per_shard_old, embedding_size)
-        Entity embedding table sharded according to old_sharding.
+        Entity embedding table sharded according to `old_sharding`.
     :param old_sharding:
         The current entity sharding.
     :param new_sharding:
@@ -195,7 +195,7 @@ def refactor_embedding_sharding(
 
     :return: shape: (n_shard_new, max_ent_per_shard_new, embedding_size)
         The refactored entity embedding table, sharded according
-        to new_sharding.
+        to `new_sharding`.
     """
 
     embedding_table = entity_embedding.detach()

@@ -14,8 +14,8 @@ across workers, as it is usually much smaller.
    **Figure 1**. Entity table sharding across :math:`n=3` workers.
 
 The entity sharding induces a partitioning of the triples in the
-dataset, according to the shard-pair of head entity and tail entity. At
-execution time (for both training and inference) batches are constructed
+dataset, according to the shard-pair of the head entity and the tail entity. At
+execution time (for both training and inference), batches are constructed
 by sampling triples uniformly from each of the :math:`n^2` shard-pairs.
 Negative entities, used to corrupt the head or tail of a triple in order
 to construct negative samples, are also sampled in a balanced way to ensure
@@ -27,12 +27,12 @@ a variety that is beneficial to the final embedding quality.
    :width: 700px
    :align: center
 
-   **Figure 2**. *Left*: a batch is made of :math:`n^2=9` blocks, each
+   **Figure 2**. *Left*: A batch is made up of :math:`n^2=9` blocks, each
    containing the same number of triples. The head embeddings of triples
    in block :math:`(i,j)` are stored on worker :math:`i`, the tail
    embeddings on worker :math:`j`, for :math:`i,j = 0,1,2`. *Right*: the
    negative entities used to corrupt triples in block :math:`(i,j)` are
-   sampled in equal number from all of the :math:`n` shards (possibly with
+   sampled in equal numbers from all of the :math:`n` shards (possibly with
    padding at inference time). In this example, negative samples are constructed
    by corrupting tails.
 

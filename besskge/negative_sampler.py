@@ -77,11 +77,10 @@ class RandomShardedNegativeSampler(ShardedNegativeSampler):
             "ht": corrupt head entities for the first half of each triple partition,
             tail entities for the second half.
         :param local_sampling:
-            Sample negative entities only from the shard where the triple is processed.
+            If True, sample negative entities only from the shard where the triple is processed.
         :param flat_negative_format:
-            Sample :attr:`n_negative` negative entities for each shard-pair,
-            instead of each triple. If True, requires use of negative sample
-            sharing. Defaults to False.
+            If True, sample :attr:`n_negative` negative entities for each shard-pair, instead of each triple. If True, requires use of
+            negative sample sharing. Default: False.
         """
         self.n_negative = n_negative
         self.sharding = sharding
@@ -253,21 +252,21 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
         :param seed:
             see :meth:`RandomShardedNegativeSampler.__init__`
         :param mask_on_gather:
-            Shape the negative mask to be applied on the device where
+            If True, shape the negative mask to be applied on the device where
             negative entities are gathered, instead of the one where they
-            are scored. Set to `True` only when using
-            :class:`besskge.bess.TopKQueryBessKGE`. Defaults to False.
+            are scored. Set to True only when using
+            :class:`besskge.bess.TopKQueryBessKGE`. Default: False.
         :param return_sort_idx:
-            Return for each triple in batch the sorting indices
-            to recover same ordering of negatives as in :attr:`negative_heads`,
-            :attr:`negative_tails`. Defaults to False.
+            If True, return for each triple in the batch the sorting indices
+            to recover the same ordering of negatives as in
+            :attr:`negative_heads`, :attr:`negative_tails`. Default: False.
         """
         self.N: int
         self.n_negative: int
         if negative_heads is not None and negative_tails is not None:
             assert (
                 negative_heads.shape == negative_tails.shape
-            ), "negative_heads and negative_tails need to have same size"
+            ), "negative_heads and negative_tails need to have the same size"
             negative_heads = negative_heads.reshape(-1, negative_heads.shape[-1])
             negative_tails = negative_tails.reshape(-1, negative_tails.shape[-1])
             self.N, self.n_negative = negative_heads.shape
@@ -287,7 +286,7 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
             self.N, self.n_negative = negative_heads.shape
         else:
             raise ValueError(
-                "At least one between negative_heads and negative_tails"
+                "At least one of negative_heads and negative_tails"
                 " needs to be provided"
             )
 
@@ -473,7 +472,7 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
         negatives: NDArray[np.int32],
     ) -> Tuple[NDArray[np.int64], NDArray[np.int32]]:
         """
-        Split negative entities into correpsonding shards.
+        Split negative entities into corresponding shards.
 
         :param negatives: shape: (N, n_negatives)
             Negative entities to shard (N = 1, n_triple).
@@ -534,9 +533,9 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
 
 class PlaceholderNegativeSampler(ShardedNegativeSampler):
     """
-    A placeholder sharded negative smapler, returns no negatives when called.
+    A placeholder sharded negative sampler, returns no negatives when called.
     Used with :class:`besskge.bess.TopKQueryBessKGE` to score queries against
-    all entities in the KG.
+    all entities in the knowledge graph.
     """
 
     def __init__(

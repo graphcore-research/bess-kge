@@ -20,10 +20,10 @@ class KGDataset:
     Represents a complete knowledge graph dataset of (head, relation, tail) triples.
     """
 
-    #: Number of entities (nodes) in the KG
+    #: Number of entities (nodes) in the knowledge graph
     n_entity: int
 
-    #: Number of relation types (edge labels) in the KG
+    #: Number of relation types (edge labels) in the knowledge graph
     n_relation_type: int
 
     #: List of (h_ID, r_ID, t_ID) triples, for each part of the dataset;
@@ -78,9 +78,9 @@ class KGDataset:
 
         :param root:
             Path to dataset. If dataset is not present, download it
-            at this path.
+            from this path.
 
-        :return: ogbl-biokg KGDataset.
+        :return: The ogbl-biokg KGDataset.
         """
         dataset = ogb.linkproppred.LinkPropPredDataset(name="ogbl-biokg", root=root)
         split_edge = dataset.get_edge_split()
@@ -141,9 +141,9 @@ class KGDataset:
 
         :param root:
             Path to dataset. If dataset is not present, download it
-            at this path.
+            from this path.
 
-        :return: ogbl-wikikg2 KGDataset.
+        :return: The ogbl-wikikg2 KGDataset.
         """
         dataset = ogb.linkproppred.LinkPropPredDataset(name="ogbl-wikikg2", root=root)
         split_data = dataset.get_edge_split()
@@ -185,7 +185,7 @@ class KGDataset:
     def build_yago310(cls, root: Path) -> "KGDataset":
         """
         Build the YAGO3-10 dataset.
-        This is the subgraph of the YAGO3 KG :cite:p:`YAGO3` containing only
+        This is the subgraph of the YAGO3 knowledge graph :cite:p:`YAGO3` containing only
         entities which have at least 10 relations associated to them.
         First used in :cite:p:`ConvE`.
 
@@ -193,9 +193,9 @@ class KGDataset:
 
         :param root:
             Path to dataset. If dataset is not present, download it
-            at this path.
+            from this path.
 
-        :return: YAGO3-10 KGDataset.
+        :return: The YAGO3-10 KGDataset.
         """
 
         if not (
@@ -297,13 +297,13 @@ class KGDataset:
     @classmethod
     def load(cls, path: Path) -> "KGDataset":
         """
-        Load a :class:`KGDataset` saved with :func:`KGDataset.save`.
+        Load a :class:`KGDataset` object saved with :func:`KGDataset.save`.
 
         :param path:
-            Path to saved :class:`KGDataset`.
+            Path to saved :class:`KGDataset` object.
 
         :return:
-            The saved :class:`KGDataset`.
+            The saved :class:`KGDataset` object.
         """
         kg_dataset: KGDataset
         with open(path, "rb") as f:

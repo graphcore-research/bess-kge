@@ -1,5 +1,6 @@
-KG Datasets
-==============
+Knowledge graph datasets
+========================
+
 .. automodule:: besskge.dataset
    :members:
    :undoc-members:

@@ -41,7 +41,7 @@ class BaseScoreFunction(torch.nn.Module, ABC):
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
         """
-        Score (h,r,t) triples. No sharing is used.
+        Score (h,r,t) triples. No sharding is used.
 
         :param head_emb: shape: (batch_size, embedding_size)
             Embeddings of head entities in batch.
@@ -209,13 +209,13 @@ class MatrixDecompositionScoreFunction(BaseScoreFunction, ABC):
 
     def reduce_embedding(self, v: torch.Tensor) -> torch.Tensor:
         """
-        sum reduction along embedding dimension.
+        Sum reduction along the embedding dimension.
 
         :param v: shape: (*, embedding_size)
             The tensor to reduce.
 
         :return: shape: (*,)
-            sum reduction.
+            Sum reduction.
         """
         return torch.sum(v, dim=-1)
 
@@ -269,15 +269,15 @@ class TransE(DistanceBasedScoreFunction):
         :type sharding:
             Entity sharding.
         :param n_relation_type:
-            Number of relation types in the KG.
+            Number of relation types in the knowledge graph.
         :param embedding_size:
             Size of entities and relation embeddings. Can be omitted
             if passing tensors for initialization of entity and relation
             embeddings.
         :param entity_initializer:
-            Initialization scheme / table for entity embeddings.
+            Initialization scheme or table for entity embeddings.
         :param relation_initializer:
-            Initialization scheme / table for relation embeddings.
+            Initialization scheme or table for relation embeddings.
         """
         super(TransE, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
@@ -293,7 +293,7 @@ class TransE(DistanceBasedScoreFunction):
         )
         assert (
             self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
-        ), "TransE requires same embedding size for entities and relations"
+        ), "TransE requires the same embedding size for entities and relations"
 
     # docstr-coverage: inherited
     def score_triple(
@@ -357,16 +357,16 @@ class RotatE(DistanceBasedScoreFunction):
         :type sharding:
             Entity sharding.
         :param n_relation_type:
-            Number of relation types in the KG.
+            Number of relation types in the knowledge graph.
         :param embedding_size:
             Size of entity embeddings (relation embedding size
             will be half of this). Can be omitted
             if passing tensors for initialization of entity and relation
             embeddings.
         :param entity_initializer:
-            Initialization scheme / table for entity embeddings.
+            Initialization scheme or table for entity embeddings.
         :param relation_initializer:
-            Initialization scheme / table for relation embeddings.
+            Initialization scheme or table for relation embeddings.
         """
         super(RotatE, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
@@ -382,10 +382,10 @@ class RotatE(DistanceBasedScoreFunction):
         )
         assert (
             self.entity_embedding.shape[-1] % 2 == 0
-        ), "RotatE requires even real embedding size for entities"
+        ), "RotatE requires an even real embedding size for entities"
         assert (
             self.entity_embedding.shape[-1] // 2 == self.relation_embedding.shape[-1]
-        ), "RotatE requires relation emebdding size to be half entity embedding size"
+        ), "RotatE requires the relation embedding size to be half the entity embedding size"
 
     # docstr-coverage: inherited
     def score_triple(
@@ -452,15 +452,15 @@ class DistMult(MatrixDecompositionScoreFunction):
         :type sharding:
             Entity sharding.
         :param n_relation_type:
-            Number of relation types in the KG.
+            Number of relation types in the knowledge graph.
         :param embedding_size:
             Size of entity and relation embeddings. Can be omitted
             if passing tensors for initialization of entity and relation
             embeddings.
         :param entity_initializer:
-            Initialization scheme / table for entity embeddings.
+            Initialization scheme or table for entity embeddings.
         :param relation_initializer:
-            Initialization scheme / table for relation embeddings.
+            Initialization scheme or table for relation embeddings.
         """
         super(DistMult, self).__init__(negative_sample_sharing=negative_sample_sharing)
 
@@ -474,7 +474,7 @@ class DistMult(MatrixDecompositionScoreFunction):
         )
         assert (
             self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
-        ), "DistMult requires same embedding size for entities and relations"
+        ), "DistMult requires the same embedding size for entities and relations"
 
     # docstr-coverage: inherited
     def score_triple(
@@ -535,15 +535,15 @@ class ComplEx(MatrixDecompositionScoreFunction):
         :type sharding:
             Entity sharding.
         :param n_relation_type:
-            Number of relation types in the KG.
+            Number of relation types in the knowledge graph.
         :param embedding_size:
             Size of entity and relation embeddings. Can be omitted
             if passing tensors for initialization of entity and relation
             embeddings.
         :param entity_initializer:
-            Initialization scheme / table for entity embeddings.
+            Initialization scheme or table for entity embeddings.
         :param relation_initializer:
-            Initialization scheme / table for relation embeddings.
+            Initialization scheme or table for relation embeddings.
         """
         super(ComplEx, self).__init__(negative_sample_sharing=negative_sample_sharing)
 
@@ -557,10 +557,10 @@ class ComplEx(MatrixDecompositionScoreFunction):
         )
         assert (
             self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
-        ), "ComplEx requires same embedding size for entities and relations"
+        ), "ComplEx requires the same embedding size for entities and relations"
         assert (
             self.entity_embedding.shape[-1] % 2 == 0
-        ), "ComplEx requires even real embedding size for entities and relations"
+        ), "ComplEx requires an even real embedding size for entities and relations"
 
     # docstr-coverage: inherited
     def score_triple(

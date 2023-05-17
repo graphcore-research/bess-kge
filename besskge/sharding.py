@@ -48,14 +48,14 @@ class Sharding:
     @property
     def n_entity(self) -> int:
         """
-        Number of entities in the KG.
+        Number of entities in the knowledge graph.
         """
         return len(self.entity_to_shard)
 
     @property
     def max_entity_per_shard(self) -> int:
         """
-        Number of entities (including possibily one final padding) in each shard.
+        Number of entities (including possibly one final padding) in each shard.
         """
         return self.shard_and_idx_to_entity.shape[1]
 
@@ -68,16 +68,16 @@ class Sharding:
         type_offsets: Optional[NDArray[np.int64]] = None,
     ) -> "Sharding":
         """
-        Construct a random balanced sharding of entities.
+        Construct a random, balanced sharding of entities.
 
         :param n_entity:
-            Number of entities in the KG.
+            Number of entities in the knowledge graph.
         :param n_shard:
             Number of shards.
         :param seed:
             Seed for random sharding.
         :param type_offsets: shape: (n_types,)
-            Global offsets of entity types, defaults to None.
+            Global offsets of entity types. Default: None.
 
         :return:
             Random sharding of n_entity entities in n_shard shards.
@@ -141,13 +141,13 @@ class Sharding:
     @classmethod
     def load(cls, path: Path) -> "Sharding":
         """
-        Load a :class:`Sharding` saved with :func:`Sharding.save`.
+        Load a :class:`Sharding` object saved with :func:`Sharding.save`.
 
         :param path:
-            Path to saved :class:`Sharding`.
+            Path to saved :class:`Sharding` object.
 
         :return:
-            The saved :class:`Sharding`.
+            The saved :class:`Sharding` object.
         """
         data = dict(np.load(path))
         return cls(n_shard=int(data.pop("n_shard")), **data)
@@ -157,12 +157,15 @@ class Sharding:
 class PartitionedTripleSet:
     """
     A partitioned collection of triples.
-    If :code:`partition_mode = 'h_shard'` (resp. :code:`partition_mode = 't_shard'`)
-    each triple is assigned to one of `n_shard` partitions based on the
-    shard where the head (resp. tail) entity is stored.
+    If :code:`partition_mode = 'h_shard'` each triple is assigned to one of
+    `n_shard` partitions based on the shard where the head entity is stored.
+    Similarly, if :code:`partition_mode = 't_shard'`, each triple is assigned
+    to one of `n_shard` partitions based on the shard where the tail entity is
+    stored.
+
     If :code:`partition_mode = 'ht_shardpair'`, each triple is assigned to one
     of `n_shard^2` partitions based on the shard-pair `(shard_h, shard_t)`.
-    Shardpairs are ordered as:
+    Shard-pairs are ordered as:
     `(0,0), (0,1), ..., (0, n_shard-1), (1,0), ..., (n_shard-1, n_shard-1)`.
     """
 
@@ -259,13 +262,13 @@ class PartitionedTripleSet:
         Create a partitioned triple set from a :class:`KGDataset` part.
 
         :param dataset:
-            KG dataset.
+            Knowledge graph dataset.
         :param part:
             The dataset part to shard.
         :param sharding:
             The entity sharding to use.
         :param partition_mode:
-            The triple partition mode, to choose between
+            The triple partition mode. Can be 
             "h_shard", "t_shard", "ht_shardpair".
 
         :return:
@@ -332,7 +335,7 @@ class PartitionedTripleSet:
         Pairs are completed to triples by adding dummy entities.
 
         :param dataset:
-            KG dataset.
+            Knowledge graph dataset.
         :param sharding:
             The entity sharding to use.
         :param queries: shape: (n_query, 2)
@@ -341,14 +344,14 @@ class PartitionedTripleSet:
         :param query_mode:
             "hr" for (h,r,?) queries, "rt" for (?,r,t) queries.
         :param ground_truth: shape: (n_query,)
-            If know, the global ID of the ground truth tail/head.
+            If known, the global ID of the ground truth tail/head.
         :param negative: shape: (N, n_negative)
             Global IDs of negative entities to score against each query,
-            query-specific (N=n_query) or same for all queries (N=1).
-            Defaults to None (i.e. score queries against all entities in the graph).
+            query-specific (N=n_query) or the same for all queries (N=1).
+            Default: None (namely the score queries against all entities in the graph).
         :param negative_type:
             Score queries only against entities of a specific type.
-            Defaults to None (i.e. score queries against entities of any type).
+            Default: None (namely the score queries against entities of any type).
 
         :return:
             Partitioned set of queries (with dummy h/t completion).

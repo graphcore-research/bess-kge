@@ -11,8 +11,10 @@ class BaseMetric(ABC):
     @abstractmethod
     def __call__(self, prediction_rank: torch.Tensor) -> torch.Tensor:
         """
+        Returns metric values for the element in the batch.
+
         :param prediction_rank: shape: (batch_size,)
-            Rank of ground truth among ordered predictions.
+            The rank of ground truth among ordered predictions.
 
         :return:
             Metric values for the element in the batch.
@@ -22,9 +24,9 @@ class BaseMetric(ABC):
 
 class ReciprocalRank(BaseMetric):
     """
-    Reciprocal rank (e.g. to compute MRR).
+    Reciprocal rank (for example to compute MRR).
 
-    Returns reciprocal rank of ground truth among predictions.
+    Returns the reciprocal rank of ground truth among predictions.
     """
 
     def __init__(self) -> None:
@@ -42,8 +44,8 @@ class HitsAtK(BaseMetric):
     """
     Hits@K metric.
 
-    Returns count of triples where the ground truth
-    is among the K most likely predicted entities.
+    Returns the count of triples where the ground truth
+    is among the k most likely predicted entities.
     """
 
     def __init__(
@@ -84,16 +86,17 @@ class Evaluation:
         :param metric_list:
             List of metrics to compute. Currently supports "mrr" and "hits@K".
         :param mode:
-            "optimistic"/"pessimistic"/"average" metrics from scores.
-            Defaults to "average".
+            Mode used for metrics. Can be "optimistic", "pessimistic"
+            or"average". Default: "average".
         :param worst_rank_infty:
-            Assign a prediction rank of infinity as worst possible rank
-            (as opposed to n_negative + 1). Defaults to False.
+            If True, assign a prediction rank of infinity as the worst possible
+            rank. If False, assign a prediction rank of `n_negative + 1` as the
+            worst possible rank. Default: False.
         :param reduction:
-            How to reduce metrics along the batch dimension.
+            Method to use to reduce metrics along the batch dimension.
             Currently supports "none" (no reduction) and "sum".
         :param return_ranks:
-            Whether to return prediction ranks alongside metrics.
+            If True, returns prediction ranks alongside metrics.
         """
         if mode not in ["pessimistic", "optimistic", "average"]:
             raise ValueError(f"Mode {mode} not supported for evaluation")
@@ -179,12 +182,12 @@ class Evaluation:
     ) -> torch.Tensor:
         """
         Compute the prediction rank from the ground truth ID and
-        ORDERED candidates' IDs.
+        ORDERED candidate IDs.
 
         :param ground_truth: shape: (batch_size,)
             Indices of ground truth entities for each query.
         :param candidate_indices: shape: (batch_size, n_candidates)
-            Indices of top n_candidates predicted entities,
+            Indices of top `n_candidates` predicted entities,
             ordered by decreasing likelihood. The indices
             on each row are assumed to be distinct.
 
@@ -196,7 +199,7 @@ class Evaluation:
         ground_truth = ground_truth.reshape(-1, 1)
         if ground_truth.shape[0] != batch_size:
             raise ValueError(
-                "`pos_score` and `candidate_score` need to have same size at dimension 0"
+                "`pos_score` and `candidate_score` need to have the same size for dimension 0"
             )
 
         worst_rank = torch.inf if self.worst_rank_infty else float(n_negative + 1)
