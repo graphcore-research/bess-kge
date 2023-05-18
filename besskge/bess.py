@@ -695,13 +695,12 @@ class TopKQueryBessKGE(torch.nn.Module):
         """
         Forward step.
 
-        Similarly to :class:`ScoreMovingBessKGE`, candidates are scored
-        on the device where they are gathered, then scores for the same
-        query against candidates in different shards are collected together
-        via an AllToAll.
-        At each iteration of the for loop, only the top-k best query responses and
-        respective scores are kept to be used in the next iteration, while the
-        rest are discarded.
+        Similarly to :class:`ScoreMovingBessKGE`, candidates are scored on the
+        device where they are gathered, then scores for the same query against
+        candidates in different shards are collected together via an AllToAll.
+        At each iteration of the for loop, only the top-k best query responses
+        and respective scores are kept to be used in the next iteration, while
+        the rest are discarded.
 
         :param relation: shape: (shard_bs,)
             Relation indices.
@@ -713,15 +712,16 @@ class TopKQueryBessKGE(torch.nn.Module):
             Candidates to score against the queries.
             It can be the same set for all queries (B=1),
             or specific for each query in the batch (B=shard_bs).
-            If None, score each query against all entities in the knowledge graph.
-            Default: None.
+            If None, score each query against all entities in the knowledge
+            graph. Default: None.
         :param triple_mask: shape: (shard_bs,)
             Mask to filter the triples in the micro-batch
             before computing metrics. Default: None.
         :param negative_mask: shape: (n_shard, B, padded_negative)
             If candidates are provided, mask to discard padding
             negatives when computing best completions.
-            Requires the use of :code:`mask_on_gather=True` in the candidate sampler
+            Requires the use of :code:`mask_on_gather=True` in the candidate
+            sampler
             (see :class:`besskge.negative_sampler.TripleBasedShardedNegativeSampler`).
             Default: None.
         """

@@ -51,8 +51,10 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
             Weight-smoothing parameter for frequency-based
             triple weighting. Default: 0.0.
         :param duplicate_batch:
-            If True, the batch sampled from each triple partition has two identical halves.
-            This is to be used with "ht" corruption scheme at inference time. Default: False.
+            If True, the batch sampled from each triple partition has two
+            identical halves.
+            This is to be used with "ht" corruption scheme at inference time.
+            Default: False.
         :param return_triple_idx:
             If True, return the indices (wrt partitioned_triple_set.triples)
             of the triples in the batch. Default: False.
@@ -239,7 +241,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
 
         Instantiate the appropriate :class:`poptorch.DataLoader`
         class to iterate over the batch sampler.
-        It uses asynchronous dataloading to minimize CPU-IPU I/O.
+        It uses asynchronous data-loading to minimize CPU-IPU I/O.
 
         :param options:
             `poptorch.Options` used to compile and run the model.
@@ -290,7 +292,8 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
 
 class RigidShardedBatchSampler(ShardedBatchSampler):
     """
-    At each call, sample triples with the same specified indices from all triple partitions,
+    At each call, sample triples with the same specified indices from all
+    triple partitions,
     repeating triples in shorter ones to pad to the same length.
     Returns a mask to identify padding triples.
     """

@@ -185,9 +185,9 @@ class KGDataset:
     def build_yago310(cls, root: Path) -> "KGDataset":
         """
         Build the YAGO3-10 dataset.
-        This is the subgraph of the YAGO3 knowledge graph :cite:p:`YAGO3` containing only
-        entities which have at least 10 relations associated to them.
-        First used in :cite:p:`ConvE`.
+        This is the subgraph of the YAGO3 knowledge
+        graph :cite:p:`YAGO3` containing only entities which have at least 10
+        relations associated to them. First used in :cite:p:`ConvE`.
 
         .. seealso:: https://yago-knowledge.org/downloads/yago-3
 

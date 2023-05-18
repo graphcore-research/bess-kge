@@ -11,12 +11,11 @@ def gather_indices(x: torch.Tensor, index: torch.Tensor) -> torch.Tensor:
     :param x: shape: (a, e)
     :param index: shape: (b, k)
     :return: shape: (b, k)
-        For all rows of :code:`x`, take the `k` elements on
-        the row with the indices specified by
-        the corresponding row of :code:`index`.
-        If :code:`b == 1`, the same indices are gathered from all rows of :code:`x`;
-        if :code:`a == 1`, all rows in :code:`index` gather from :code:`x[0]`;
-        otherwise :code:`a == b` is required.
+        For all rows of :code:`x`, take the `k` elements on the row with the
+        indices specified by the corresponding row of :code:`index`.
+        If :code:`b == 1`, the same indices are gathered from all rows of
+        :code:`x`; if :code:`a == 1`, all rows in :code:`index` gather from
+        :code:`x[0]`; otherwise :code:`a == b` is required.
     """
     bs, sq = x.shape
     _, mask_size = index.shape

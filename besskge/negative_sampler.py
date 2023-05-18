@@ -31,18 +31,18 @@ class ShardedNegativeSampler(ABC):
         Sample negatives for batch.
 
         :param sample_idx: shape: (bps, n_shard, [n_shard,] triple_per_partition)
-            Per-partition indices of triples in batch (for all bps batches in a step).
+            Per-partition indices of triples in batch (for all bps batches in a
+            step).
 
         :return: "negative_entities" shape: (bps, n_shard, n_shard, B, n_negative)
                 B = 1 if :attr:`flat_negative_format`, :attr:`corruption_scheme`=="h","t"
                 B = 2 if :attr:`flat_negative_format`, :attr:`corruption_scheme`=="ht"
                 else B = shard_bs
-            Negative samples for triples in batch.
-            The elements in `(*, shard_source, shard_dest, *, *)`
-            are the negative samples to collect from `shard_source`
-            and use for the batch on `shard_dest` (if :attr:`local_sampling` = False,
-            otherwise on `shard_source`).
-            + other relevant data.
+            Negative samples for triples in batch. The elements in `(*,
+            shard_source, shard_dest, *, *)` are the negative samples to collect
+            from `shard_source` and use for the batch on `shard_dest` (if
+            :attr:`local_sampling` = False, otherwise on `shard_source`). +
+            other relevant data.
         """
         raise NotImplementedError
 
@@ -74,12 +74,14 @@ class RandomShardedNegativeSampler(ShardedNegativeSampler):
         :param corruption_scheme:
             "h": corrupt head entities;
             "t": corrupt tail entities;
-            "ht": corrupt head entities for the first half of each triple partition,
-            tail entities for the second half.
+            "ht": corrupt head entities for the first half of each triple
+            partition, tail entities for the second half.
         :param local_sampling:
-            If True, sample negative entities only from the shard where the triple is processed.
+            If True, sample negative entities only from the shard where the
+            triple is processed.
         :param flat_negative_format:
-            If True, sample :attr:`n_negative` negative entities for each shard-pair, instead of each triple. If True, requires use of
+            If True, sample :attr:`n_negative` negative entities for each
+            shard-pair, instead of each triple. If True, requires use of
             negative sample sharing. Default: False.
         """
         self.n_negative = n_negative

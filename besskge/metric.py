@@ -199,7 +199,8 @@ class Evaluation:
         ground_truth = ground_truth.reshape(-1, 1)
         if ground_truth.shape[0] != batch_size:
             raise ValueError(
-                "`pos_score` and `candidate_score` need to have the same size for dimension 0"
+                "`pos_score` and `candidate_score` need to have the same size"
+                " for dimension 0"
             )
 
         worst_rank = torch.inf if self.worst_rank_infty else float(n_negative + 1)
@@ -248,9 +249,9 @@ class Evaluation:
         self, batch_rank: torch.Tensor, triple_mask: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
         """
-        Like :meth:`Evaluation.dict_metrics_from_ranks`, but the outputs for different
-        metrics are returned stacked in a single tensor, according to the ordering
-        of :attr:`Evaluation.metrics`.
+        Like :meth:`Evaluation.dict_metrics_from_ranks`, but the outputs for
+        different metrics are returned stacked in a single tensor, according to
+        the ordering of :attr:`Evaluation.metrics`.
 
         :param batch_rank: shape: (batch_size,)
             see :meth:`Evaluation.dict_metrics_from_ranks`.
