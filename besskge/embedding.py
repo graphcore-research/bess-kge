@@ -118,7 +118,8 @@ def initialize_entity_embedding(
     else:
         if not embedding_size:
             raise ValueError(
-                "If not providing an embedding table, embedding_size needs to be specified"
+                "If not providing an embedding table, embedding_size needs to"
+                " be specified"
             )
         entity_embedding = torch.nn.Parameter(
             torch.empty(
@@ -167,7 +168,8 @@ def initialize_relation_embedding(
     else:
         if not embedding_size:
             raise ValueError(
-                "If not providing an embedding table, embedding_size needs to be specified"
+                "If not providing an embedding table, embedding_size needs to"
+                " be specified"
             )
         relation_embedding = torch.nn.Parameter(
             torch.empty(size=(n_relation_type, embedding_size), dtype=torch.float32)
