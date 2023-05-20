@@ -138,7 +138,8 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">max_entity_per_shard</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Number of entities (including possibily one final padding) in each shard.</span>
+<span class="sd">        Number of entities in a shard, after applying</span>
+<span class="sd">        padding.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">shard_and_idx_to_entity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
@@ -178,8 +179,10 @@
             <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">shard_and_idx_to_entity</span><span class="o">.</span><span class="n">flatten</span><span class="p">())[:</span><span class="n">n_entity</span><span class="p">],</span>
             <span class="n">max_entity_per_shard</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="c1"># Check whether the last entity in each shard is padding or not</span>
-        <span class="n">shard_deduction</span> <span class="o">=</span> <span class="n">shard_and_idx_to_entity</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">n_entity</span>
+
+        <span class="n">shard_deduction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="n">shard_and_idx_to_entity</span><span class="p">[:,</span> <span class="o">-</span><span class="n">n_shard</span><span class="p">:]</span> <span class="o">&gt;=</span> <span class="n">n_entity</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
+        <span class="p">)</span>
         <span class="c1"># Number of actual entities in each shard</span>
         <span class="n">shard_counts</span> <span class="o">=</span> <span class="n">max_entity_per_shard</span> <span class="o">-</span> <span class="n">shard_deduction</span>
 
