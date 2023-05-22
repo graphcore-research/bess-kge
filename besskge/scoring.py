@@ -41,7 +41,7 @@ class BaseScoreFunction(torch.nn.Module, ABC):
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
         """
-        Score a batch of (h,r,t) triples. 
+        Score a batch of (h,r,t) triples.
 
         :param head_emb: shape: (batch_size, embedding_size)
             Embeddings of head entities in batch.
@@ -51,7 +51,7 @@ class BaseScoreFunction(torch.nn.Module, ABC):
             Embeddings of tail entities in batch.
 
         :return: shape: (batch_size,)
-            Scores of batch triples.
+            Scores of a batch of triples.
         """
         raise NotImplementedError
 
