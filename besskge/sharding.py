@@ -349,13 +349,13 @@ class PartitionedTripleSet:
         :param ground_truth: shape: (n_query,)
             If known, the global ID of the ground truth tail/head.
         :param negative: shape: (N, n_negative)
-            Global IDs of negative entities to score against each query,
-            query-specific (N=n_query) or the same for all queries (N=1).
-            Default: None (namely the score queries against all entities in the
+            Global IDs of negative entities to score against each query. This
+            can be query-specific (N=n_query) or the same for all queries (N=1).
+            Default: None (namely score each query against all entities in the
             graph).
         :param negative_type:
-            Score queries only against entities of a specific type. Default:
-            None (namely the score queries against entities of any type).
+            Score each query only against entities of a specific type. Default:
+            None (namely score each query against entities of any type).
 
         :return:
             Partitioned set of queries (with dummy h/t completion).

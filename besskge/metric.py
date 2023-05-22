@@ -11,7 +11,7 @@ class BaseMetric(ABC):
     @abstractmethod
     def __call__(self, prediction_rank: torch.Tensor) -> torch.Tensor:
         """
-        Returns metric values for the element in the batch.
+        Returns metric values for the elements in the batch.
 
         :param prediction_rank: shape: (batch_size,)
             The rank of ground truth among ordered predictions.
@@ -45,7 +45,7 @@ class HitsAtK(BaseMetric):
     Hits@K metric.
 
     Returns the count of triples where the ground truth
-    is among the k most likely predicted entities.
+    is among the K most-likely predicted entities.
     """
 
     def __init__(
@@ -87,7 +87,7 @@ class Evaluation:
             List of metrics to compute. Currently supports "mrr" and "hits@K".
         :param mode:
             Mode used for metrics. Can be "optimistic", "pessimistic"
-            or"average". Default: "average".
+            or "average". Default: "average".
         :param worst_rank_infty:
             If True, assign a prediction rank of infinity as the worst possible
             rank. If False, assign a prediction rank of `n_negative + 1` as the

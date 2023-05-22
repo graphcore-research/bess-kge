@@ -77,8 +77,8 @@ class KGDataset:
         .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg
 
         :param root:
-            Path to dataset. If dataset is not present, download it
-            from this path.
+            Path to dataset. If dataset is not present, save it
+            to this location.
 
         :return: The ogbl-biokg KGDataset.
         """

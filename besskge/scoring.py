@@ -41,7 +41,7 @@ class BaseScoreFunction(torch.nn.Module, ABC):
         tail_emb: torch.Tensor,
     ) -> torch.Tensor:
         """
-        Score (h,r,t) triples. No sharding is used.
+        Score a batch of (h,r,t) triples. 
 
         :param head_emb: shape: (batch_size, embedding_size)
             Embeddings of head entities in batch.
