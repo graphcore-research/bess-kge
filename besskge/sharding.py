@@ -55,7 +55,8 @@ class Sharding:
     @property
     def max_entity_per_shard(self) -> int:
         """
-        Number of entities (including possibly one final padding) in each shard.
+        Number of entities in a shard, after applying
+        padding.
         """
         return self.shard_and_idx_to_entity.shape[1]
 
@@ -95,8 +96,10 @@ class Sharding:
             np.argsort(shard_and_idx_to_entity.flatten())[:n_entity],
             max_entity_per_shard,
         )
-        # Check whether the last entity in each shard is padding or not
-        shard_deduction = shard_and_idx_to_entity[:, -1] >= n_entity
+
+        shard_deduction = np.sum(
+            shard_and_idx_to_entity[:, -n_shard:] >= n_entity, axis=-1
+        )
         # Number of actual entities in each shard
         shard_counts = max_entity_per_shard - shard_deduction
 
