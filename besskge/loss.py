@@ -84,7 +84,7 @@ class MarginBasedLossFunction(BaseLossFunction, ABC):
         Initialize margin-based loss function.
 
         :param margin:
-            Margin to be used in the loss computation.
+            The margin to be used in the loss computation.
         :param negative_adversarial_sampling:
             see :class:`BaseLossFunction`
         :param negative_adversarial_scale:
@@ -154,7 +154,7 @@ class MarginRankingLoss(MarginBasedLossFunction):
         :param loss_scale:
             see :class:`BaseLossFunction`
         :param activation_function:
-            Activation function in loss computation, defaults to "relu".
+            The activation function in loss computation. Default: "relu".
         """
         super(MarginRankingLoss, self).__init__(
             margin,
@@ -192,7 +192,7 @@ class MarginRankingLoss(MarginBasedLossFunction):
 
 class SampledSoftmaxCrossEntropyLoss(BaseLossFunction):
     """
-    The sampled softmax cross entropy loss (see :cite:p:`large_vocabulary` and
+    The sampled softmax cross-entropy loss (see :cite:p:`large_vocabulary` and
     :cite:p:`BESS`).
     """
 
@@ -202,10 +202,10 @@ class SampledSoftmaxCrossEntropyLoss(BaseLossFunction):
         loss_scale: float = 1.0,
     ) -> None:
         """
-        Initialize the sampled softmax cross entropy loss.
+        Initialize the sampled softmax cross-entropy loss.
 
         :param n_entity:
-            The total number of entities in the KG.
+            The total number of entities in the knowledge graph.
         :param loss_scale:
             see :class:`BaseLossFunction`
         """

@@ -1,6 +1,8 @@
-# For developers
+# How to contribute to the BESS-KGE project
 
-Dev setup:
+You can contribute to the development of the BESS-KGE project.
+
+## Setup
 
 ```shell
 python3.8 -m venv .venv
@@ -12,8 +14,10 @@ pip install $POPLAR_SDK_ENABLED/../poptorch-*.whl
 pip install -r requirements-dev.txt
 ```
 
-Run `./dev --help` for a list of dev options. In particular, use `./dev ci` to run all CI checks locally. 
+## Tips
 
-Individual tests can be run with pattern matching filtering `./dev tests -k FILTER`.
+Run `./dev --help` for a list of dev options. In particular, use `./dev ci` to run all CI checks locally.
 
-`.cpp` custom ops are to be added in `besskge/custom_ops`; when doing so, also update the [Makefile](Makefile).
+Run individual tests with pattern matching filtering `./dev tests -k FILTER`.
+
+Add `.cpp` custom ops to `besskge/custom_ops`. Also, update the [Makefile](Makefile) when adding custom ops.

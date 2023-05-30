@@ -11,12 +11,11 @@ def gather_indices(x: torch.Tensor, index: torch.Tensor) -> torch.Tensor:
     :param x: shape: (a, e)
     :param index: shape: (b, k)
     :return: shape: (b, k)
-        For all rows of :code:`x`, take the `k` elements on
-        the row with the indices specified by
-        the corresponding row of :code:`index`.
-        If :code:`b == 1`, the same indices are gathered from all rows of :code:`x`;
-        if :code:`a == 1`, all rows in :code:`index` gather from :code:`x[0]`;
-        otherwise :code:`a == b` is required.
+        For all rows of :code:`x`, take the `k` elements on the row with the
+        indices specified by the corresponding row of :code:`index`.
+        If :code:`b == 1`, the same indices are gathered from all rows of
+        :code:`x`; if :code:`a == 1`, all rows in :code:`index` gather from
+        :code:`x[0]`; otherwise :code:`a == b` is required.
     """
     bs, sq = x.shape
     _, mask_size = index.shape
@@ -39,7 +38,7 @@ def complex_multiplication(v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
     :param v2: shape: (a, 2*e)
         :code:`v2[:,:e]` real part, :code:`v2[:,e:]` imaginary part.
     :return: shape: (a, 2*e)
-        Row-wise complex multiplcation.
+        Row-wise complex multiplication.
     """
     cutpoint = v1.shape[-1] // 2
     v1_re, v1_im = torch.split(v1, cutpoint, dim=-1)

@@ -51,17 +51,17 @@ class BessKGE(torch.nn.Module, ABC):
         :param score_fn:
             Scoring function.
         :param loss_fn:
-            Loss function, required when training. Defaults to None.
+            Loss function, required when training. Default: None.
         :param evaluation:
             Evaluation module, for computing metrics on device.
-            Defaults to None.
+            Default: None.
         :param return_scores:
-            Return positive and negative scores of batches to host.
-            Defaults to False.
+            If True, return positive and negative scores of batches to the host.
+            Default: False.
         :param augment_negative:
-            Augment sampled negative entities with the head/tails
+            If True, augment sampled negative entities with the head/tails
             (according to the corruption scheme) of other positive triples
-            in the microbatch. Defaults to False.
+            in the micro-batch. Default: False.
         """
         super().__init__()
         self.sharding = score_fn.sharding
@@ -73,7 +73,7 @@ class BessKGE(torch.nn.Module, ABC):
         self.augment_negative = augment_negative
         if not (loss_fn or evaluation or return_scores):
             raise ValueError(
-                "Nothing to return. At least one between loss_fn,"
+                "Nothing to return. At least one of loss_fn,"
                 " evaluation or return_scores needs to be != None"
             )
 
@@ -102,7 +102,7 @@ class BessKGE(torch.nn.Module, ABC):
     @property
     def n_embedding_parameters(self) -> int:
         """
-        :return: number of trainable parameters in the embedding tables
+        Returns the number of trainable parameters in the embedding tables
         """
         return (
             self.score_fn.entity_embedding.numel()
@@ -120,7 +120,9 @@ class BessKGE(torch.nn.Module, ABC):
         negative_mask: Optional[torch.Tensor] = None,
     ) -> Dict[str, Any]:
         """
-        Forward step, comprising of four phases:
+        The forward step.
+
+        Comprises of four phases:
 
         1) Gather relevant embeddings from local memory;
 
@@ -139,7 +141,7 @@ class BessKGE(torch.nn.Module, ABC):
         :param tail: shape: (1, n_shard, positive_per_partition)
             Tail indices.
         :param triple_mask: shape: (1, n_shard, positive_per_partition)
-            Mask to filter the triples in the microbatch
+            Mask to filter the triples in the micro-batch
             before computing metrics.
         :param negative: shape: (1, n_shard, B, padded_negative)
             Indices of negative entities,
@@ -150,7 +152,7 @@ class BessKGE(torch.nn.Module, ABC):
             Mask to identify padding negatives, to discard when computing metrics.
 
         :return:
-            Microbatch loss, scores, metrics.
+            Micro-batch loss, scores and metrics.
         """
         if triple_weight is None:
             triple_weight = torch.tensor(
@@ -279,7 +281,7 @@ class BessKGE(torch.nn.Module, ABC):
         negative: torch.Tensor,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         """
-        Compute positive and negative scores for the microbatch.
+        Compute positive and negative scores for the micro-batch.
 
         :param head:
             see :meth:`BessKGE.forward`
@@ -291,9 +293,9 @@ class BessKGE(torch.nn.Module, ABC):
             see :meth:`BessKGE.forward`
 
         :return:
-            positive (shape: (n_shard * positive_per_partition,))
+            Positive (shape: (n_shard * positive_per_partition,))
             and negative (shape: (n_shard * positive_per_partition, n_negative))
-            scores of the microbatch.
+            scores of the micro-batch.
         """
         raise NotImplementedError
 
@@ -301,13 +303,13 @@ class BessKGE(torch.nn.Module, ABC):
 class EmbeddingMovingBessKGE(BessKGE):
     """
     Compute negative scores on the shard where the positive triples
-    are scored (i.e. head shard).
-    This requires moving embedding of negative entities between shards,
+    are scored (namely the head shard).
+    This requires moving the embedding of negative entities between shards,
     which can be done with a single AllToAll collective.
 
     Each triple is scored against a total number of entities equal to
-    `n_negative * n_shard` if negative sample sharing is disabled, otherwise
-    `n_negative * n_shard * B` (see :meth:`BessKGE.forward`) for "h", "t"
+    `n_negative * n_shard` if negative sample sharing is disabled, or to
+    `n_negative * n_shard * B` otherwise (see :meth:`BessKGE.forward`) for "h", "t"
     corruption scheme, `n_negative * n_shard * (B > 2 ? B // 2 : 1)` for "ht".
     """
 
@@ -465,8 +467,8 @@ class ScoreMovingBessKGE(BessKGE):
     """
     Compute negative scores on the shard where the negative entities are stored.
     This avoids moving embeddings between shards (convenient when the number of
-    negative entities is very large, e.g. when scoring queries against all entities
-    in the KG, or when using large embedding size).
+    negative entities is very large, for example when scoring queries against all entities
+    in the knowledge graph, or when using a large embedding size).
 
     AllGather collectives are required to replicate queries on all devices, so that
     they can be scored against the local negative entities. An AllToAll collective
@@ -474,7 +476,7 @@ class ScoreMovingBessKGE(BessKGE):
 
     For the number of negative samples scored for each triple, see the corresponding
     value documented in :class:`EmbeddingMovingBessKGE` and, if using negative
-    sample sharing, multiply that by n_shard.
+    sample sharing, multiply that by `n_shard`.
 
     Does not support local sampling or negative augmentation.
     """
@@ -584,7 +586,7 @@ class ScoreMovingBessKGE(BessKGE):
             .flatten(start_dim=1)
         )
 
-        # Recover microbatch tail embeddings (#TODO: avoidable?)
+        # Recover micro-batch tail embeddings (#TODO: avoidable?)
         tail_embedding = all_to_all(tail_embedding, n_shard)
 
         positive_score = self.score_fn.score_triple(
@@ -599,17 +601,17 @@ class ScoreMovingBessKGE(BessKGE):
 class TopKQueryBessKGE(torch.nn.Module):
     """
     Distributed scoring of (h, r, ?) or (?, r, t) queries (against
-    all entities in the KG, or a query-specific set)
-    returning top-k most likely completions, based on BESS :cite:p:`BESS`
+    all entities in the knowledge graph, or a query-specific set)
+    returning the top-k most likely completions, based on the BESS :cite:p:`BESS`
     inference scheme.
     To be used in combination with a batch sampler based on a
     "h_shard"/"t_shard"-partitioned triple set.
-    If the correct tail/head is known, can be passed as an input
+    If the correct tail/head is known, this can be passed as an input
     in order to compute metrics on the final predictions.
 
     This class is recommended over :class:`BessKGE` when the number of
-    negatives is large, e.g. when one wants to score queries against
-    all entities in the KG, as it uses a sliding window over the
+    negatives is large, for example when one wants to score queries against
+    all entities in the knowledge graph, as it uses a sliding window over the
     negative sample size via an on-device for-loop.
 
     Only to be used for inference.
@@ -634,21 +636,21 @@ class TopKQueryBessKGE(torch.nn.Module):
         :param candidate_sampler:
             Sampler of candidate entities to score against queries.
             Use :class:`besskge.negative_sampler.PlaceholderNegativeSampler`
-            to score queries against all entities in the KG, avoiding
+            to score queries against all entities in the knowledge graph, avoiding
             unnecessary loading of negative entities on device.
         :param score_fn:
             Scoring function.
         :param evaluation:
             Evaluation module, for computing metrics on device.
-            Defaults to None.
+            Default: None.
         :param return_scores:
-            Return scores of top-k best completions.
-            Defaults to False.
+            If True, return scores of the top-k best completions.
+            Default: False.
         :param window_size:
-            Size of the sliding window, i.e. number of negative entities
+            Size of the sliding window, namely the number of negative entities
             scored against each query at each step of the on-device for-loop.
-            Should be decreased with large batch sizes, to avoid OOM.
-            Defaults to 100.
+            Should be decreased with large batch sizes, to avoid an OOM error.
+            Default: 100.
         """
         super().__init__()
         self.sharding = score_fn.sharding
@@ -693,35 +695,35 @@ class TopKQueryBessKGE(torch.nn.Module):
         """
         Forward step.
 
-        Similarly to :class:`ScoreMovingBessKGE`, candidates are scored
-        on the device where they are gathered, then scores for the same
-        query against candidates in different shards are collected together
-        via an AllToAll.
-        At each iteration of the for loop, only the top-k best query responses and
-        respective scores are kept to be used in the next iteration, while the
-        rest is discarded.
+        Similarly to :class:`ScoreMovingBessKGE`, candidates are scored on the
+        device where they are gathered, then scores for the same query against
+        candidates in different shards are collected together via an AllToAll.
+        At each iteration of the for loop, only the top-k best query responses
+        and respective scores are kept to be used in the next iteration, while
+        the rest are discarded.
 
         :param relation: shape: (shard_bs,)
             Relation indices.
         :param head: shape: (shard_bs,)
-            Head indices, if known. Defaults to False.
+            Head indices, if known. Default: None.
         :param tail: shape: (shard_bs,)
-            Tail indices, if known. Defaults to False.
+            Tail indices, if known. Default: None.
         :param negative: shape: (n_shard, B, padded_negative)
             Candidates to score against the queries.
             It can be the same set for all queries (B=1),
             or specific for each query in the batch (B=shard_bs).
-            If None, score each query against all entities in the KG.
-            Defaults to None.
+            If None, score each query against all entities in the knowledge
+            graph. Default: None.
         :param triple_mask: shape: (shard_bs,)
-            Mask to filter the triples in the microbatch
-            before computing metrics. Defaults to None.
+            Mask to filter the triples in the micro-batch
+            before computing metrics. Default: None.
         :param negative_mask: shape: (n_shard, B, padded_negative)
             If candidates are provided, mask to discard padding
             negatives when computing best completions.
-            Requires the use of :code:`mask_on_gather=True` in the candidate sampler
+            Requires the use of :code:`mask_on_gather=True` in the candidate
+            sampler
             (see :class:`besskge.negative_sampler.TripleBasedShardedNegativeSampler`).
-            Defaults to None.
+            Default: None.
         """
 
         relation = relation.squeeze(0)
