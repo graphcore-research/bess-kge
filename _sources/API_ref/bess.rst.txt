@@ -1,8 +1,9 @@
 BESS modules
-==============
+================
+
 When distributing the workload over :math:`n` workers (=IPUs), BESS
-randomly splits the entity embedding table in :math:`n` shards of equal
-size, each of which is stored in one of the workers' memory. The
+randomly splits the entity embedding table into :math:`n` shards of equal
+size, each of which is stored in a worker's memory. The
 embedding table for relation types, on the other hand, is replicated
 across workers, as it is usually much smaller.
 
@@ -13,8 +14,8 @@ across workers, as it is usually much smaller.
    **Figure 1**. Entity table sharding across :math:`n=3` workers.
 
 The entity sharding induces a partitioning of the triples in the
-dataset, according to the shard-pair of head entity and tail entity. At
-execution time (for both training and inference) batches are constructed
+dataset, according to the shard-pair of the head entity and the tail entity. At
+execution time (for both training and inference), batches are constructed
 by sampling triples uniformly from each of the :math:`n^2` shard-pairs.
 Negative entities, used to corrupt the head or tail of a triple in order
 to construct negative samples, are also sampled in a balanced way to ensure
@@ -25,28 +26,28 @@ a variety that is beneficial to the final embedding quality.
 .. figure:: ../images/batch_together.jpg
    :width: 700px
    :align: center
-   
-   **Figure 2**. *Left*: a batch is made of :math:`n^2=9` blocks, each
+
+   **Figure 2**. *Left*: A batch is made up of :math:`n^2=9` blocks, each
    containing the same number of triples. The head embeddings of triples
    in block :math:`(i,j)` are stored on worker :math:`i`, the tail
    embeddings on worker :math:`j`, for :math:`i,j = 0,1,2`. *Right*: the
    negative entities used to corrupt triples in block :math:`(i,j)` are
-   sampled in equal number from all of the :math:`n` shards (possibly with
+   sampled in equal numbers from all of the :math:`n` shards (possibly with
    padding at inference time). In this example, negative samples are constructed
    by corrupting tails.
 
 
-This batch cook-up scheme allows us to balance workload and
+This batching scheme allows us to balance workload and
 communication across workers. First, each worker needs to gather the
 same number of embeddings from its on-chip memory, both for positive and
-negative samples. These include the embeddings neeeded by the worker
+negative samples. These include the embeddings needed by the worker
 itself, and the embeddings needed by its peers.
 
 .. figure:: ../images/gather.jpg
    :width: 650px
    :align: center
 
-   **Figure 3**. The required embeddings are gathered from the IPUs’
+   **Figure 3**. The required embeddings are gathered from the IPU
    SRAM. Each worker needs to retrieve the head embeddings for :math:`n`
    positive triple blocks, and the same for tail embeddings (the
    :math:`3 + 3` triangles of same colour in :ref:`Figure 2 (left) <figure2>`).
@@ -54,10 +55,10 @@ itself, and the embeddings needed by its peers.
    portion (=\ :math:`1/n`) stored in its memory of the negative tails
    needed by all of the :math:`n^2` blocks.
 
-The batch in :ref:`Figure 2 <figure2>` can then be reconstrcuted by
+The batch in :ref:`Figure 2 <figure2>` can then be reconstructed by
 sharing the embeddings of positive **tails** and negative entities
 between workers through a balanced AllToAll collective operator. Head
-embeddings remain inplace, as each triple block is then scored on the
+embeddings remain in place, as each triple block is then scored on the
 worker where the head embedding is stored.
 
 .. figure:: ../images/alltoall.jpg
@@ -77,10 +78,10 @@ when using many negative samples per triple, or when the embedding dimension is 
 In these cases, using :class:`besskge.bess.ScoreMovingBessKGE` can increase overall throughput.
 This alternative distribution scheme works in the same way as :class:`besskge.bess.EmbeddingMovingBessKGE` for
 the sharding of entities and partitioning of triples, as well as for the way embeddings for positive triples are
-shared through AllToAll collectives and scored. The difference lies in how negative scores are computed: instead of 
+shared through AllToAll collectives and scored. The difference lies in how negative scores are computed: instead of
 sending negative embeddings to the query's worker, all queries are replicated on each device through an AllGather
 collective, scored against the (partial) set of negatives stored on the device and then the scores are
-sent to the correct worker via a new, balanced AllToAll. 
+sent to the correct worker via a new, balanced AllToAll.
 This allows us to communicate negative **scores** instead of negative embeddings, which is cheaper, although it
 requires additional collective communications between devices.
 

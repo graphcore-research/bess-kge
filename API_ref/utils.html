@@ -44,7 +44,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="negative_sampler.html">Negative samplers</a></li>
@@ -89,9 +89,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="general-purpose-utility-functions">
-<h1>General-purpose utility functions<a class="headerlink" href="#general-purpose-utility-functions" title="Permalink to this heading"></a></h1>
-<span class="target" id="module-besskge.utils"></span><dl class="py function">
+  <section id="module-besskge.utils">
+<span id="general-purpose-utility-functions"></span><h1>General-purpose utility functions<a class="headerlink" href="#module-besskge.utils" title="Permalink to this heading"></a></h1>
+<dl class="py function">
 <dt class="sig sig-object py" id="besskge.utils.complex_multiplication">
 <span class="sig-prename descclassname"><span class="pre">besskge.utils.</span></span><span class="sig-name descname"><span class="pre">complex_multiplication</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/utils.html#complex_multiplication"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.utils.complex_multiplication" title="Permalink to this definition"></a></dt>
 <dd><p>Batched complex multiplication.</p>
@@ -109,7 +109,7 @@
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (a, 2*e)
-Row-wise complex multiplcation.</p>
+Row-wise complex multiplication.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -155,12 +155,11 @@ for 2-dimensional tensors (indices along dim=1).</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (b, k)
-For all rows of <code class="code docutils literal notranslate"><span class="pre">x</span></code>, take the <cite>k</cite> elements on
-the row with the indices specified by
-the corresponding row of <code class="code docutils literal notranslate"><span class="pre">index</span></code>.
-If <code class="code docutils literal notranslate"><span class="pre">b</span> <span class="pre">==</span> <span class="pre">1</span></code>, the same indices are gathered from all rows of <code class="code docutils literal notranslate"><span class="pre">x</span></code>;
-if <code class="code docutils literal notranslate"><span class="pre">a</span> <span class="pre">==</span> <span class="pre">1</span></code>, all rows in <code class="code docutils literal notranslate"><span class="pre">index</span></code> gather from <code class="code docutils literal notranslate"><span class="pre">x[0]</span></code>;
-otherwise <code class="code docutils literal notranslate"><span class="pre">a</span> <span class="pre">==</span> <span class="pre">b</span></code> is required.</p>
+For all rows of <code class="code docutils literal notranslate"><span class="pre">x</span></code>, take the <cite>k</cite> elements on the row with the
+indices specified by the corresponding row of <code class="code docutils literal notranslate"><span class="pre">index</span></code>.
+If <code class="code docutils literal notranslate"><span class="pre">b</span> <span class="pre">==</span> <span class="pre">1</span></code>, the same indices are gathered from all rows of
+<code class="code docutils literal notranslate"><span class="pre">x</span></code>; if <code class="code docutils literal notranslate"><span class="pre">a</span> <span class="pre">==</span> <span class="pre">1</span></code>, all rows in <code class="code docutils literal notranslate"><span class="pre">index</span></code> gather from
+<code class="code docutils literal notranslate"><span class="pre">x[0]</span></code>; otherwise <code class="code docutils literal notranslate"><span class="pre">a</span> <span class="pre">==</span> <span class="pre">b</span></code> is required.</p>
 </dd>
 </dl>
 </dd></dl>

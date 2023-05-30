@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="negative_sampler.html">Negative samplers</a></li>
@@ -100,9 +100,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="embedding-utilities">
-<h1>Embedding utilities<a class="headerlink" href="#embedding-utilities" title="Permalink to this heading"></a></h1>
-<span class="target" id="module-besskge.embedding"></span><dl class="py class">
+  <section id="module-besskge.embedding">
+<span id="embedding-utilities"></span><h1>Embedding utilities<a class="headerlink" href="#module-besskge.embedding" title="Permalink to this heading"></a></h1>
+<dl class="py class">
 <dt class="sig sig-object py" id="besskge.embedding.EmbeddingInitializer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.embedding.</span></span><span class="sig-name descname"><span class="pre">EmbeddingInitializer</span></span><a class="reference internal" href="../_modules/besskge/embedding.html#EmbeddingInitializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.embedding.EmbeddingInitializer" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
@@ -171,11 +171,11 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>initializer</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <a class="reference internal" href="#besskge.embedding.EmbeddingInitializer" title="besskge.embedding.EmbeddingInitializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmbeddingInitializer</span></code></a>]) – Embedding table or embedding initializer. If providing
-embedding table, this can either be sharded
-(shape: (n_shard, max_entity_per_shard, embedding_size))
-or unsharded (shape: (n_entity, embedding_size)).</p></li>
+an embedding table, this can either be sharded
+(shape: [n_shard, max_entity_per_shard, embedding_size])
+or unsharded [shape: (n_entity, embedding_size]).</p></li>
 <li><p><strong>sharding</strong> (<a class="reference internal" href="sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – Entity sharding.</p></li>
-<li><p><strong>embedding_size</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Entity embedding size. Can be omitted if passing
+<li><p><strong>embedding_size</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Entity embedding size. Can be omitted if passing an
 embedding table.</p></li>
 </ul>
 </dd>
@@ -198,7 +198,7 @@ Entity embedding table.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>initializer</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <a class="reference internal" href="#besskge.embedding.EmbeddingInitializer" title="besskge.embedding.EmbeddingInitializer"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmbeddingInitializer</span></code></a>]) – Embedding table or embedding initializer.</p></li>
 <li><p><strong>n_relation_type</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of relation types.</p></li>
-<li><p><strong>embedding_size</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Relation embedding size. Can be omitted if passing
+<li><p><strong>embedding_size</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>]) – Relation embedding size. Can be omitted if passing an
 embedding table.</p></li>
 </ul>
 </dd>
@@ -220,7 +220,7 @@ one entity sharding to a different one.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>entity_embedding</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code>) – shape: (n_shard_old, max_ent_per_shard_old, embedding_size)
-Entity embedding table sharded according to old_sharding.</p></li>
+Entity embedding table sharded according to <cite>old_sharding</cite>.</p></li>
 <li><p><strong>old_sharding</strong> (<a class="reference internal" href="sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – The current entity sharding.</p></li>
 <li><p><strong>new_sharding</strong> (<a class="reference internal" href="sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – The new entity sharding.</p></li>
 </ul>
@@ -231,7 +231,7 @@ Entity embedding table sharded according to old_sharding.</p></li>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (n_shard_new, max_ent_per_shard_new, embedding_size)
 The refactored entity embedding table, sharded according
-to new_sharding.</p>
+to <cite>new_sharding</cite>.</p>
 </dd>
 </dl>
 </dd></dl>

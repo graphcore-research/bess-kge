@@ -40,7 +40,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
@@ -103,10 +103,10 @@
 <span class="sd">    Represents a complete knowledge graph dataset of (head, relation, tail) triples.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1">#: Number of entities (nodes) in the KG</span>
+    <span class="c1">#: Number of entities (nodes) in the knowledge graph</span>
     <span class="n">n_entity</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="c1">#: Number of relation types (edge labels) in the KG</span>
+    <span class="c1">#: Number of relation types (edge labels) in the knowledge graph</span>
     <span class="n">n_relation_type</span><span class="p">:</span> <span class="nb">int</span>
 
     <span class="c1">#: List of (h_ID, r_ID, t_ID) triples, for each part of the dataset;</span>
@@ -160,10 +160,10 @@
 <span class="sd">        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg</span>
 
 <span class="sd">        :param root:</span>
-<span class="sd">            Path to dataset. If dataset is not present, download it</span>
-<span class="sd">            at this path.</span>
+<span class="sd">            Local path to the dataset. If the dataset is not present in this</span>
+<span class="sd">            location, then it is downloaded and stored here.</span>
 
-<span class="sd">        :return: ogbl-biokg KGDataset.</span>
+<span class="sd">        :return: The ogbl-biokg KGDataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">ogb</span><span class="o">.</span><span class="n">linkproppred</span><span class="o">.</span><span class="n">LinkPropPredDataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ogbl-biokg&quot;</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
         <span class="n">split_edge</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_edge_split</span><span class="p">()</span>
@@ -223,10 +223,10 @@
 <span class="sd">        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2</span>
 
 <span class="sd">        :param root:</span>
-<span class="sd">            Path to dataset. If dataset is not present, download it</span>
-<span class="sd">            at this path.</span>
+<span class="sd">            Local path to the dataset. If the dataset is not present in this</span>
+<span class="sd">            location, then it is downloaded and stored here.</span>
 
-<span class="sd">        :return: ogbl-wikikg2 KGDataset.</span>
+<span class="sd">        :return: The ogbl-wikikg2 KGDataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">dataset</span> <span class="o">=</span> <span class="n">ogb</span><span class="o">.</span><span class="n">linkproppred</span><span class="o">.</span><span class="n">LinkPropPredDataset</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;ogbl-wikikg2&quot;</span><span class="p">,</span> <span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
         <span class="n">split_data</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">get_edge_split</span><span class="p">()</span>
@@ -268,17 +268,17 @@
     <span class="k">def</span> <span class="nf">build_yago310</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build the YAGO3-10 dataset.</span>
-<span class="sd">        This is the subgraph of the YAGO3 KG :cite:p:`YAGO3` containing only</span>
-<span class="sd">        entities which have at least 10 relations associated to them.</span>
-<span class="sd">        First used in :cite:p:`ConvE`.</span>
+<span class="sd">        This is the subgraph of the YAGO3 knowledge</span>
+<span class="sd">        graph :cite:p:`YAGO3` containing only entities which have at least 10</span>
+<span class="sd">        relations associated to them. First used in :cite:p:`ConvE`.</span>
 
 <span class="sd">        .. seealso:: https://yago-knowledge.org/downloads/yago-3</span>
 
 <span class="sd">        :param root:</span>
-<span class="sd">            Path to dataset. If dataset is not present, download it</span>
-<span class="sd">            at this path.</span>
+<span class="sd">            Local path to the dataset. If the dataset is not present in this</span>
+<span class="sd">            location, then it is downloaded and stored here.</span>
 
-<span class="sd">        :return: YAGO3-10 KGDataset.</span>
+<span class="sd">        :return: The YAGO3-10 KGDataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
@@ -380,13 +380,13 @@
 <div class="viewcode-block" id="KGDataset.load"><a class="viewcode-back" href="../../API_ref/dataset.html#besskge.dataset.KGDataset.load">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load a :class:`KGDataset` saved with :func:`KGDataset.save`.</span>
+<span class="sd">        Load a :class:`KGDataset` object saved with :func:`KGDataset.save`.</span>
 
 <span class="sd">        :param path:</span>
-<span class="sd">            Path to saved :class:`KGDataset`.</span>
+<span class="sd">            Path to saved :class:`KGDataset` object.</span>
 
 <span class="sd">        :return:</span>
-<span class="sd">            The saved :class:`KGDataset`.</span>
+<span class="sd">            The saved :class:`KGDataset` object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">kg_dataset</span><span class="p">:</span> <span class="n">KGDataset</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>

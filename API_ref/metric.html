@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="negative_sampler.html">Negative samplers</a></li>
@@ -137,14 +137,14 @@ Boolean mask. If provided, all metrics for the elements where
 <dt class="sig sig-object py" id="besskge.metric.Evaluation.ranks_from_indices">
 <span class="sig-name descname"><span class="pre">ranks_from_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ground_truth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_indices</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/metric.html#Evaluation.ranks_from_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.metric.Evaluation.ranks_from_indices" title="Permalink to this definition"></a></dt>
 <dd><p>Compute the prediction rank from the ground truth ID and
-ORDERED candidates’ IDs.</p>
+ORDERED candidate IDs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ground_truth</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
 Indices of ground truth entities for each query.</p></li>
 <li><p><strong>candidate_indices</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, n_candidates)
-Indices of top n_candidates predicted entities,
+Indices of top <cite>n_candidates</cite> predicted entities,
 ordered by decreasing likelihood. The indices
 on each row are assumed to be distinct.</p></li>
 </ul>
@@ -186,9 +186,9 @@ of the candidate triples.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.metric.Evaluation.stacked_metrics_from_ranks">
 <span class="sig-name descname"><span class="pre">stacked_metrics_from_ranks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_rank</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/metric.html#Evaluation.stacked_metrics_from_ranks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.metric.Evaluation.stacked_metrics_from_ranks" title="Permalink to this definition"></a></dt>
-<dd><p>Like <a class="reference internal" href="#besskge.metric.Evaluation.dict_metrics_from_ranks" title="besskge.metric.Evaluation.dict_metrics_from_ranks"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Evaluation.dict_metrics_from_ranks()</span></code></a>, but the outputs for different
-metrics are returned stacked in a single tensor, according to the ordering
-of <code class="xref py py-attr docutils literal notranslate"><span class="pre">Evaluation.metrics</span></code>.</p>
+<dd><p>Like <a class="reference internal" href="#besskge.metric.Evaluation.dict_metrics_from_ranks" title="besskge.metric.Evaluation.dict_metrics_from_ranks"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Evaluation.dict_metrics_from_ranks()</span></code></a>, but the outputs for
+different metrics are returned stacked in a single tensor, according to
+the ordering of <code class="xref py py-attr docutils literal notranslate"><span class="pre">Evaluation.metrics</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -216,8 +216,8 @@ The stacked (reduced) metrics for the batch.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.metric.</span></span><span class="sig-name descname"><span class="pre">HitsAtK</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/metric.html#HitsAtK"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.metric.HitsAtK" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#besskge.metric.BaseMetric" title="besskge.metric.BaseMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMetric</span></code></a></p>
 <p>Hits&#64;K metric.</p>
-<p>Returns count of triples where the ground truth
-is among the K most likely predicted entities.</p>
+<p>Returns the count of triples where the ground truth
+is among the K most-likely predicted entities.</p>
 </dd></dl>
 
 <dl class="py data">
@@ -230,8 +230,8 @@ is among the K most likely predicted entities.</p>
 <dt class="sig sig-object py" id="besskge.metric.ReciprocalRank">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.metric.</span></span><span class="sig-name descname"><span class="pre">ReciprocalRank</span></span><a class="reference internal" href="../_modules/besskge/metric.html#ReciprocalRank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.metric.ReciprocalRank" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#besskge.metric.BaseMetric" title="besskge.metric.BaseMetric"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMetric</span></code></a></p>
-<p>Reciprocal rank (e.g. to compute MRR).</p>
-<p>Returns reciprocal rank of ground truth among predictions.</p>
+<p>Reciprocal rank (for example to compute MRR).</p>
+<p>Returns the reciprocal rank of ground truth among predictions.</p>
 </dd></dl>
 
 </section>

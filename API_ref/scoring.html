@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="negative_sampler.html">Negative samplers</a></li>
@@ -161,9 +161,9 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="scoring-functions">
-<h1>Scoring functions<a class="headerlink" href="#scoring-functions" title="Permalink to this heading"></a></h1>
-<span class="target" id="module-besskge.scoring"></span><dl class="py class">
+  <section id="module-besskge.scoring">
+<span id="scoring-functions"></span><h1>Scoring functions<a class="headerlink" href="#module-besskge.scoring" title="Permalink to this heading"></a></h1>
+<dl class="py class">
 <dt class="sig sig-object py" id="besskge.scoring.BaseScoreFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">BaseScoreFunction</span></span><a class="reference internal" href="../_modules/besskge/scoring.html#BaseScoreFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.BaseScoreFunction" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
@@ -254,7 +254,7 @@ Scores of broadcasted triples.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.scoring.BaseScoreFunction.score_triple">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score_triple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#BaseScoreFunction.score_triple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.BaseScoreFunction.score_triple" title="Permalink to this definition"></a></dt>
-<dd><p>Score (h,r,t) triples. No sharing is used.</p>
+<dd><p>Score a batch of (h,r,t) triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -271,7 +271,7 @@ Embeddings of tail entities in batch.</p></li>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size,)
-Scores of batch triples.</p>
+Scores of a batch of triples.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -378,7 +378,7 @@ Scores of broadcasted triples.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.scoring.ComplEx.score_triple">
 <span class="sig-name descname"><span class="pre">score_triple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#ComplEx.score_triple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.ComplEx.score_triple" title="Permalink to this definition"></a></dt>
-<dd><p>Score (h,r,t) triples. No sharing is used.</p>
+<dd><p>Score a batch of (h,r,t) triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -395,7 +395,7 @@ Embeddings of tail entities in batch.</p></li>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size,)
-Scores of batch triples.</p>
+Scores of a batch of triples.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -493,7 +493,7 @@ Scores of broadcasted triples.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.scoring.DistMult.score_triple">
 <span class="sig-name descname"><span class="pre">score_triple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#DistMult.score_triple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.DistMult.score_triple" title="Permalink to this definition"></a></dt>
-<dd><p>Score (h,r,t) triples. No sharing is used.</p>
+<dd><p>Score a batch of (h,r,t) triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -510,7 +510,7 @@ Embeddings of tail entities in batch.</p></li>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size,)
-Scores of batch triples.</p>
+Scores of a batch of triples.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -655,7 +655,7 @@ else (batch_size, n_neg)</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.reduce_embedding">
 <span class="sig-name descname"><span class="pre">reduce_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#MatrixDecompositionScoreFunction.reduce_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.reduce_embedding" title="Permalink to this definition"></a></dt>
-<dd><p>sum reduction along embedding dimension.</p>
+<dd><p>Sum reduction along the embedding dimension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>v</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (<a href="#id7"><span class="problematic" id="id8">*</span></a>, embedding_size)
@@ -666,7 +666,7 @@ The tensor to reduce.</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (<a href="#id9"><span class="problematic" id="id10">*</span></a>,)
-sum reduction.</p>
+Sum reduction.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -770,7 +770,7 @@ Scores of broadcasted triples.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.scoring.RotatE.score_triple">
 <span class="sig-name descname"><span class="pre">score_triple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#RotatE.score_triple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.RotatE.score_triple" title="Permalink to this definition"></a></dt>
-<dd><p>Score (h,r,t) triples. No sharing is used.</p>
+<dd><p>Score a batch of (h,r,t) triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -787,7 +787,7 @@ Embeddings of tail entities in batch.</p></li>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size,)
-Scores of batch triples.</p>
+Scores of a batch of triples.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -885,7 +885,7 @@ Scores of broadcasted triples.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.scoring.TransE.score_triple">
 <span class="sig-name descname"><span class="pre">score_triple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#TransE.score_triple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.TransE.score_triple" title="Permalink to this definition"></a></dt>
-<dd><p>Score (h,r,t) triples. No sharing is used.</p>
+<dd><p>Score a batch of (h,r,t) triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -902,7 +902,7 @@ Embeddings of tail entities in batch.</p></li>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size,)
-Scores of batch triples.</p>
+Scores of a batch of triples.</p>
 </dd>
 </dl>
 </dd></dl>

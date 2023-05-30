@@ -40,7 +40,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
@@ -114,18 +114,18 @@
 <span class="sd">        Sample negatives for batch.</span>
 
 <span class="sd">        :param sample_idx: shape: (bps, n_shard, [n_shard,] triple_per_partition)</span>
-<span class="sd">            Per-partition indices of triples in batch (for all bps batches in a step).</span>
+<span class="sd">            Per-partition indices of triples in batch (for all bps batches in a</span>
+<span class="sd">            step).</span>
 
 <span class="sd">        :return: &quot;negative_entities&quot; shape: (bps, n_shard, n_shard, B, n_negative)</span>
 <span class="sd">                B = 1 if :attr:`flat_negative_format`, :attr:`corruption_scheme`==&quot;h&quot;,&quot;t&quot;</span>
 <span class="sd">                B = 2 if :attr:`flat_negative_format`, :attr:`corruption_scheme`==&quot;ht&quot;</span>
 <span class="sd">                else B = shard_bs</span>
-<span class="sd">            Negative samples for triples in batch.</span>
-<span class="sd">            The elements in `(*, shard_source, shard_dest, *, *)`</span>
-<span class="sd">            are the negative samples to collect from `shard_source`</span>
-<span class="sd">            and use for the batch on `shard_dest` (if :attr:`local_sampling` = False,</span>
-<span class="sd">            otherwise on `shard_source`).</span>
-<span class="sd">            + other relevant data.</span>
+<span class="sd">            Negative samples for triples in batch. The elements in `(*,</span>
+<span class="sd">            shard_source, shard_dest, *, *)` are the negative samples to collect</span>
+<span class="sd">            from `shard_source` and use for the batch on `shard_dest` (if</span>
+<span class="sd">            :attr:`local_sampling` = False, otherwise on `shard_source`). +</span>
+<span class="sd">            other relevant data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
@@ -157,14 +157,15 @@
 <span class="sd">        :param corruption_scheme:</span>
 <span class="sd">            &quot;h&quot;: corrupt head entities;</span>
 <span class="sd">            &quot;t&quot;: corrupt tail entities;</span>
-<span class="sd">            &quot;ht&quot;: corrupt head entities for the first half of each triple partition,</span>
-<span class="sd">            tail entities for the second half.</span>
+<span class="sd">            &quot;ht&quot;: corrupt head entities for the first half of each triple</span>
+<span class="sd">            partition, tail entities for the second half.</span>
 <span class="sd">        :param local_sampling:</span>
-<span class="sd">            Sample negative entities only from the shard where the triple is processed.</span>
+<span class="sd">            If True, sample negative entities only from the shard where the</span>
+<span class="sd">            triple is processed.</span>
 <span class="sd">        :param flat_negative_format:</span>
-<span class="sd">            Sample :attr:`n_negative` negative entities for each shard-pair,</span>
-<span class="sd">            instead of each triple. If True, requires use of negative sample</span>
-<span class="sd">            sharing. Defaults to False.</span>
+<span class="sd">            If True, sample :attr:`n_negative` negative entities for each</span>
+<span class="sd">            shard-pair, instead of each triple. If True, requires use of</span>
+<span class="sd">            negative sample sharing. Default: False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_negative</span> <span class="o">=</span> <span class="n">n_negative</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span> <span class="o">=</span> <span class="n">sharding</span>
@@ -336,21 +337,21 @@
 <span class="sd">        :param seed:</span>
 <span class="sd">            see :meth:`RandomShardedNegativeSampler.__init__`</span>
 <span class="sd">        :param mask_on_gather:</span>
-<span class="sd">            Shape the negative mask to be applied on the device where</span>
+<span class="sd">            If True, shape the negative mask to be applied on the device where</span>
 <span class="sd">            negative entities are gathered, instead of the one where they</span>
-<span class="sd">            are scored. Set to `True` only when using</span>
-<span class="sd">            :class:`besskge.bess.TopKQueryBessKGE`. Defaults to False.</span>
+<span class="sd">            are scored. Set to True only when using</span>
+<span class="sd">            :class:`besskge.bess.TopKQueryBessKGE`. Default: False.</span>
 <span class="sd">        :param return_sort_idx:</span>
-<span class="sd">            Return for each triple in batch the sorting indices</span>
-<span class="sd">            to recover same ordering of negatives as in :attr:`negative_heads`,</span>
-<span class="sd">            :attr:`negative_tails`. Defaults to False.</span>
+<span class="sd">            If True, return for each triple in the batch the sorting indices</span>
+<span class="sd">            to recover the same ordering of negatives as in</span>
+<span class="sd">            :attr:`negative_heads`, :attr:`negative_tails`. Default: False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">:</span> <span class="nb">int</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_negative</span><span class="p">:</span> <span class="nb">int</span>
         <span class="k">if</span> <span class="n">negative_heads</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">negative_tails</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">assert</span> <span class="p">(</span>
                 <span class="n">negative_heads</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">negative_tails</span><span class="o">.</span><span class="n">shape</span>
-            <span class="p">),</span> <span class="s2">&quot;negative_heads and negative_tails need to have same size&quot;</span>
+            <span class="p">),</span> <span class="s2">&quot;negative_heads and negative_tails need to have the same size&quot;</span>
             <span class="n">negative_heads</span> <span class="o">=</span> <span class="n">negative_heads</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">negative_heads</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="n">negative_tails</span> <span class="o">=</span> <span class="n">negative_tails</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">negative_tails</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_negative</span> <span class="o">=</span> <span class="n">negative_heads</span><span class="o">.</span><span class="n">shape</span>
@@ -370,7 +371,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">N</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_negative</span> <span class="o">=</span> <span class="n">negative_heads</span><span class="o">.</span><span class="n">shape</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;At least one between negative_heads and negative_tails&quot;</span>
+                <span class="s2">&quot;At least one of negative_heads and negative_tails&quot;</span>
                 <span class="s2">&quot; needs to be provided&quot;</span>
             <span class="p">)</span>
 
@@ -556,7 +557,7 @@
         <span class="n">negatives</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Split negative entities into correpsonding shards.</span>
+<span class="sd">        Split negative entities into corresponding shards.</span>
 
 <span class="sd">        :param negatives: shape: (N, n_negatives)</span>
 <span class="sd">            Negative entities to shard (N = 1, n_triple).</span>
@@ -617,9 +618,9 @@
 
 <div class="viewcode-block" id="PlaceholderNegativeSampler"><a class="viewcode-back" href="../../API_ref/negative_sampler.html#besskge.negative_sampler.PlaceholderNegativeSampler">[docs]</a><span class="k">class</span> <span class="nc">PlaceholderNegativeSampler</span><span class="p">(</span><span class="n">ShardedNegativeSampler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A placeholder sharded negative smapler, returns no negatives when called.</span>
+<span class="sd">    A placeholder sharded negative sampler, returns no negatives when called.</span>
 <span class="sd">    Used with :class:`besskge.bess.TopKQueryBessKGE` to score queries against</span>
-<span class="sd">    all entities in the KG.</span>
+<span class="sd">    all entities in the knowledge graph.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>

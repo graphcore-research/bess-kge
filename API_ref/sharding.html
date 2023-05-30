@@ -19,7 +19,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Batch samplers" href="batch_sampler.html" />
-    <link rel="prev" title="KG Datasets" href="dataset.html" /> 
+    <link rel="prev" title="Knowledge graph datasets" href="dataset.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Sharding utilities</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#besskge.sharding.PartitionedTripleSet"><code class="docutils literal notranslate"><span class="pre">PartitionedTripleSet</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#besskge.sharding.PartitionedTripleSet.create_from_dataset"><code class="docutils literal notranslate"><span class="pre">PartitionedTripleSet.create_from_dataset()</span></code></a></li>
@@ -116,18 +116,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="sharding-utilities">
-<h1>Sharding utilities<a class="headerlink" href="#sharding-utilities" title="Permalink to this heading"></a></h1>
-<span class="target" id="module-besskge.sharding"></span><dl class="py class">
+  <section id="module-besskge.sharding">
+<span id="sharding-utilities"></span><h1>Sharding utilities<a class="headerlink" href="#module-besskge.sharding" title="Permalink to this heading"></a></h1>
+<dl class="py class">
 <dt class="sig sig-object py" id="besskge.sharding.PartitionedTripleSet">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.sharding.</span></span><span class="sig-name descname"><span class="pre">PartitionedTripleSet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sharding</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dummy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_counts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_offsets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_sort_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">types</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neg_heads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neg_tails</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/sharding.html#PartitionedTripleSet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.sharding.PartitionedTripleSet" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A partitioned collection of triples.
-If <code class="code docutils literal notranslate"><span class="pre">partition_mode</span> <span class="pre">=</span> <span class="pre">'h_shard'</span></code> (resp. <code class="code docutils literal notranslate"><span class="pre">partition_mode</span> <span class="pre">=</span> <span class="pre">'t_shard'</span></code>)
-each triple is assigned to one of <cite>n_shard</cite> partitions based on the
-shard where the head (resp. tail) entity is stored.
-If <code class="code docutils literal notranslate"><span class="pre">partition_mode</span> <span class="pre">=</span> <span class="pre">'ht_shardpair'</span></code>, each triple is assigned to one
-of <cite>n_shard^2</cite> partitions based on the shardpair <cite>(shard_h, shard_t)</cite>.
+If <code class="code docutils literal notranslate"><span class="pre">partition_mode</span> <span class="pre">=</span> <span class="pre">'h_shard'</span></code> each triple is assigned to one of
+<cite>n_shard</cite> partitions based on the shard where the head entity is stored.
+Similarly, if <code class="code docutils literal notranslate"><span class="pre">partition_mode</span> <span class="pre">=</span> <span class="pre">'t_shard'</span></code>, each triple is assigned
+to one of <cite>n_shard</cite> partitions based on the shard where the tail entity is
+stored.</p>
+<p>If <code class="code docutils literal notranslate"><span class="pre">partition_mode</span> <span class="pre">=</span> <span class="pre">'ht_shardpair'</span></code>, each triple is assigned to one
+of <cite>n_shard^2</cite> partitions based on the shard-pair <cite>(shard_h, shard_t)</cite>.
 Shard-pairs are ordered as:
 <cite>(0,0), (0,1), …, (0, n_shard-1), (1,0), …, (n_shard-1, n_shard-1)</cite>.</p>
 <dl class="py method">
@@ -137,10 +139,10 @@ Shard-pairs are ordered as:
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<a class="reference internal" href="dataset.html#besskge.dataset.KGDataset" title="besskge.dataset.KGDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGDataset</span></code></a>) – KG dataset.</p></li>
+<li><p><strong>dataset</strong> (<a class="reference internal" href="dataset.html#besskge.dataset.KGDataset" title="besskge.dataset.KGDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGDataset</span></code></a>) – Knowledge graph dataset.</p></li>
 <li><p><strong>part</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The dataset part to shard.</p></li>
 <li><p><strong>sharding</strong> (<a class="reference internal" href="#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – The entity sharding to use.</p></li>
-<li><p><strong>partition_mode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The triple partition mode, to choose between
+<li><p><strong>partition_mode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The triple partition mode. Can be
 “h_shard”, “t_shard”, “ht_shardpair”.</p></li>
 </ul>
 </dd>
@@ -161,20 +163,21 @@ Pairs are completed to triples by adding dummy entities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dataset</strong> (<a class="reference internal" href="dataset.html#besskge.dataset.KGDataset" title="besskge.dataset.KGDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGDataset</span></code></a>) – KG dataset.</p></li>
+<li><p><strong>dataset</strong> (<a class="reference internal" href="dataset.html#besskge.dataset.KGDataset" title="besskge.dataset.KGDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGDataset</span></code></a>) – Knowledge graph dataset.</p></li>
 <li><p><strong>sharding</strong> (<a class="reference internal" href="#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – The entity sharding to use.</p></li>
 <li><p><strong>queries</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code>]]) – shape: (n_query, 2)
 The set of (h, r) or (r, t) queries.
 Global IDs for entities/relations.</p></li>
 <li><p><strong>query_mode</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – “hr” for (h,r,?) queries, “rt” for (?,r,t) queries.</p></li>
 <li><p><strong>ground_truth</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code>]]]) – shape: (n_query,)
-If know, the global ID of the ground truth tail/head.</p></li>
+If known, the global ID of the ground truth tail/head.</p></li>
 <li><p><strong>negative</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code>]]]) – shape: (N, n_negative)
-Global IDs of negative entities to score against each query,
-query-specific (N=n_query) or same for all queries (N=1).
-Defaults to None (i.e. score queries against all entities in the graph).</p></li>
-<li><p><strong>negative_type</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Score queries only against entities of a specific type.
-Defaults to None (i.e. score queries against entities of any type).</p></li>
+Global IDs of negative entities to score against each query. This
+can be query-specific (N=n_query) or the same for all queries (N=1).
+Default: None (namely score each query against all entities in the
+graph).</p></li>
+<li><p><strong>negative_type</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Score each query only against entities of a specific type. Default:
+None (namely score each query against entities of any type).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -279,15 +282,15 @@ int32[n_triple, {h_type, t_type}]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.sharding.Sharding.create">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_entity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_shard</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/sharding.html#Sharding.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.sharding.Sharding.create" title="Permalink to this definition"></a></dt>
-<dd><p>Construct a random balanced sharding of entities.</p>
+<dd><p>Construct a random, balanced sharding of entities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n_entity</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of entities in the KG.</p></li>
+<li><p><strong>n_entity</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of entities in the knowledge graph.</p></li>
 <li><p><strong>n_shard</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Number of shards.</p></li>
 <li><p><strong>seed</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code>) – Seed for random sharding.</p></li>
 <li><p><strong>type_offsets</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int64</span></code>]]]) – shape: (n_types,)
-Global offsets of entity types, defaults to None.</p></li>
+Global offsets of entity types. Default: None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -331,16 +334,16 @@ int64[n_shard, n_types]</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.sharding.Sharding.load">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/sharding.html#Sharding.load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.sharding.Sharding.load" title="Permalink to this definition"></a></dt>
-<dd><p>Load a <a class="reference internal" href="#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a> saved with <a class="reference internal" href="#besskge.sharding.Sharding.save" title="besskge.sharding.Sharding.save"><code class="xref py py-func docutils literal notranslate"><span class="pre">Sharding.save()</span></code></a>.</p>
+<dd><p>Load a <a class="reference internal" href="#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a> object saved with <a class="reference internal" href="#besskge.sharding.Sharding.save" title="besskge.sharding.Sharding.save"><code class="xref py py-func docutils literal notranslate"><span class="pre">Sharding.save()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to saved <a class="reference internal" href="#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>.</p>
+<dd class="field-odd"><p><strong>path</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code>) – Path to saved <a class="reference internal" href="#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a> object.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference internal" href="#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The saved <a class="reference internal" href="#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>.</p>
+<dd class="field-odd"><p>The saved <a class="reference internal" href="#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a> object.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -355,7 +358,7 @@ padding.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="besskge.sharding.Sharding.n_entity">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_entity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#besskge.sharding.Sharding.n_entity" title="Permalink to this definition"></a></dt>
-<dd><p>Number of entities in the KG.</p>
+<dd><p>Number of entities in the knowledge graph.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -400,7 +403,7 @@ int64[n_shard]</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="dataset.html" class="btn btn-neutral float-left" title="KG Datasets" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dataset.html" class="btn btn-neutral float-left" title="Knowledge graph datasets" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="batch_sampler.html" class="btn btn-neutral float-right" title="Batch samplers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

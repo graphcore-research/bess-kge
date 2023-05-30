@@ -44,7 +44,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="negative_sampler.html">Negative samplers</a></li>
@@ -113,8 +113,8 @@
   <section id="bess-modules">
 <h1>BESS modules<a class="headerlink" href="#bess-modules" title="Permalink to this heading"></a></h1>
 <p>When distributing the workload over <span class="math notranslate nohighlight">\(n\)</span> workers (=IPUs), BESS
-randomly splits the entity embedding table in <span class="math notranslate nohighlight">\(n\)</span> shards of equal
-size, each of which is stored in one of the workers’ memory. The
+randomly splits the entity embedding table into <span class="math notranslate nohighlight">\(n\)</span> shards of equal
+size, each of which is stored in a worker’s memory. The
 embedding table for relation types, on the other hand, is replicated
 across workers, as it is usually much smaller.</p>
 <figure class="align-center" id="id3">
@@ -124,8 +124,8 @@ across workers, as it is usually much smaller.</p>
 </figcaption>
 </figure>
 <p>The entity sharding induces a partitioning of the triples in the
-dataset, according to the shard-pair of head entity and tail entity. At
-execution time (for both training and inference) batches are constructed
+dataset, according to the shard-pair of the head entity and the tail entity. At
+execution time (for both training and inference), batches are constructed
 by sampling triples uniformly from each of the <span class="math notranslate nohighlight">\(n^2\)</span> shard-pairs.
 Negative entities, used to corrupt the head or tail of a triple in order
 to construct negative samples, are also sampled in a balanced way to ensure
@@ -133,25 +133,25 @@ a variety that is beneficial to the final embedding quality.</p>
 <figure class="align-center" id="id4">
 <span id="figure2"></span><a class="reference internal image-reference" href="../_images/batch_together.jpg"><img alt="../_images/batch_together.jpg" src="../_images/batch_together.jpg" style="width: 700px;" /></a>
 <figcaption>
-<p><span class="caption-text"><strong>Figure 2</strong>. <em>Left</em>: a batch is made of <span class="math notranslate nohighlight">\(n^2=9\)</span> blocks, each
+<p><span class="caption-text"><strong>Figure 2</strong>. <em>Left</em>: A batch is made up of <span class="math notranslate nohighlight">\(n^2=9\)</span> blocks, each
 containing the same number of triples. The head embeddings of triples
 in block <span class="math notranslate nohighlight">\((i,j)\)</span> are stored on worker <span class="math notranslate nohighlight">\(i\)</span>, the tail
 embeddings on worker <span class="math notranslate nohighlight">\(j\)</span>, for <span class="math notranslate nohighlight">\(i,j = 0,1,2\)</span>. <em>Right</em>: the
 negative entities used to corrupt triples in block <span class="math notranslate nohighlight">\((i,j)\)</span> are
-sampled in equal number from all of the <span class="math notranslate nohighlight">\(n\)</span> shards (possibly with
+sampled in equal numbers from all of the <span class="math notranslate nohighlight">\(n\)</span> shards (possibly with
 padding at inference time). In this example, negative samples are constructed
 by corrupting tails.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
-<p>This batch cook-up scheme allows us to balance workload and
+<p>This batching scheme allows us to balance workload and
 communication across workers. First, each worker needs to gather the
 same number of embeddings from its on-chip memory, both for positive and
-negative samples. These include the embeddings neeeded by the worker
+negative samples. These include the embeddings needed by the worker
 itself, and the embeddings needed by its peers.</p>
 <figure class="align-center" id="id5">
 <a class="reference internal image-reference" href="../_images/gather.jpg"><img alt="../_images/gather.jpg" src="../_images/gather.jpg" style="width: 650px;" /></a>
 <figcaption>
-<p><span class="caption-text"><strong>Figure 3</strong>. The required embeddings are gathered from the IPUs’
+<p><span class="caption-text"><strong>Figure 3</strong>. The required embeddings are gathered from the IPU
 SRAM. Each worker needs to retrieve the head embeddings for <span class="math notranslate nohighlight">\(n\)</span>
 positive triple blocks, and the same for tail embeddings (the
 <span class="math notranslate nohighlight">\(3 + 3\)</span> triangles of same colour in <a class="reference internal" href="#figure2"><span class="std std-ref">Figure 2 (left)</span></a>).
@@ -160,10 +160,10 @@ portion (=<span class="math notranslate nohighlight">\(1/n\)</span>) stored in i
 needed by all of the <span class="math notranslate nohighlight">\(n^2\)</span> blocks.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
 </figcaption>
 </figure>
-<p>The batch in <a class="reference internal" href="#figure2"><span class="std std-ref">Figure 2</span></a> can then be reconstrcuted by
+<p>The batch in <a class="reference internal" href="#figure2"><span class="std std-ref">Figure 2</span></a> can then be reconstructed by
 sharing the embeddings of positive <strong>tails</strong> and negative entities
 between workers through a balanced AllToAll collective operator. Head
-embeddings remain inplace, as each triple block is then scored on the
+embeddings remain in place, as each triple block is then scored on the
 worker where the head embedding is stored.</p>
 <figure class="align-center" id="id6">
 <a class="reference internal image-reference" href="../_images/alltoall.jpg"><img alt="../_images/alltoall.jpg" src="../_images/alltoall.jpg" style="width: 650px;" /></a>
@@ -214,7 +214,8 @@ To be used in combination with a batch sampler based on a
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.bess.BessKGE.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#BessKGE.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.BessKGE.forward" title="Permalink to this definition"></a></dt>
-<dd><p>Forward step, comprising of four phases:</p>
+<dd><p>The forward step.</p>
+<p>Comprises of four phases:</p>
 <ol class="arabic simple">
 <li><p>Gather relevant embeddings from local memory;</p></li>
 <li><p>Share embeddings with other devices through collective operators;</p></li>
@@ -232,7 +233,7 @@ Relation indices.</p></li>
 <li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (1, n_shard, positive_per_partition)
 Tail indices.</p></li>
 <li><p><strong>triple_mask</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (1, n_shard, positive_per_partition)
-Mask to filter the triples in the microbatch
+Mask to filter the triples in the micro-batch
 before computing metrics.</p></li>
 <li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (1, n_shard, B, padded_negative)
 Indices of negative entities,
@@ -247,7 +248,7 @@ Mask to identify padding negatives, to discard when computing metrics.</p></li>
 <dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Microbatch loss, scores, metrics.</p>
+<dd class="field-odd"><p>Micro-batch loss, scores and metrics.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -255,18 +256,13 @@ Mask to identify padding negatives, to discard when computing metrics.</p></li>
 <dl class="py property">
 <dt class="sig sig-object py" id="besskge.bess.BessKGE.n_embedding_parameters">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_embedding_parameters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#besskge.bess.BessKGE.n_embedding_parameters" title="Permalink to this definition"></a></dt>
-<dd><p>number of trainable parameters in the embedding tables</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>return</p>
-</dd>
-</dl>
+<dd><p>Returns the number of trainable parameters in the embedding tables</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.bess.BessKGE.score_batch">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#BessKGE.score_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.BessKGE.score_batch" title="Permalink to this definition"></a></dt>
-<dd><p>Compute positive and negative scores for the microbatch.</p>
+<dd><p>Compute positive and negative scores for the micro-batch.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -280,9 +276,9 @@ Mask to identify padding negatives, to discard when computing metrics.</p></li>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>positive (shape: (n_shard * positive_per_partition,))
+<dd class="field-odd"><p>Positive (shape: (n_shard * positive_per_partition,))
 and negative (shape: (n_shard * positive_per_partition, n_negative))
-scores of the microbatch.</p>
+scores of the micro-batch.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -299,12 +295,12 @@ scores of the microbatch.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.bess.</span></span><span class="sig-name descname"><span class="pre">EmbeddingMovingBessKGE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">negative_sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_scores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment_negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#EmbeddingMovingBessKGE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.EmbeddingMovingBessKGE" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#besskge.bess.BessKGE" title="besskge.bess.BessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BessKGE</span></code></a></p>
 <p>Compute negative scores on the shard where the positive triples
-are scored (i.e. head shard).
-This requires moving embedding of negative entities between shards,
+are scored (namely the head shard).
+This requires moving the embedding of negative entities between shards,
 which can be done with a single AllToAll collective.</p>
 <p>Each triple is scored against a total number of entities equal to
-<cite>n_negative * n_shard</cite> if negative sample sharing is disabled, otherwise
-<cite>n_negative * n_shard * B</cite> (see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a>) for “h”, “t”
+<cite>n_negative * n_shard</cite> if negative sample sharing is disabled, or to
+<cite>n_negative * n_shard * B</cite> otherwise (see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a>) for “h”, “t”
 corruption scheme, <cite>n_negative * n_shard * (B &gt; 2 ? B // 2 : 1)</cite> for “ht”.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.bess.EmbeddingMovingBessKGE.entity_embedding_size">
@@ -314,7 +310,7 @@ corruption scheme, <cite>n_negative * n_shard * (B &gt; 2 ? B // 2 : 1)</cite> f
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.bess.EmbeddingMovingBessKGE.score_batch">
 <span class="sig-name descname"><span class="pre">score_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#EmbeddingMovingBessKGE.score_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.EmbeddingMovingBessKGE.score_batch" title="Permalink to this definition"></a></dt>
-<dd><p>Compute positive and negative scores for the microbatch.</p>
+<dd><p>Compute positive and negative scores for the micro-batch.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -328,9 +324,9 @@ corruption scheme, <cite>n_negative * n_shard * (B &gt; 2 ? B // 2 : 1)</cite> f
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>positive (shape: (n_shard * positive_per_partition,))
+<dd class="field-odd"><p>Positive (shape: (n_shard * positive_per_partition,))
 and negative (shape: (n_shard * positive_per_partition, n_negative))
-scores of the microbatch.</p>
+scores of the micro-batch.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -348,14 +344,14 @@ scores of the microbatch.</p>
 <dd><p>Bases: <a class="reference internal" href="#besskge.bess.BessKGE" title="besskge.bess.BessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BessKGE</span></code></a></p>
 <p>Compute negative scores on the shard where the negative entities are stored.
 This avoids moving embeddings between shards (convenient when the number of
-negative entities is very large, e.g. when scoring queries against all entities
-in the KG, or when using large embedding size).</p>
+negative entities is very large, for example when scoring queries against all entities
+in the knowledge graph, or when using a large embedding size).</p>
 <p>AllGather collectives are required to replicate queries on all devices, so that
 they can be scored against the local negative entities. An AllToAll collective
 is then used to send the scores back to the correct device.</p>
 <p>For the number of negative samples scored for each triple, see the corresponding
 value documented in <a class="reference internal" href="#besskge.bess.EmbeddingMovingBessKGE" title="besskge.bess.EmbeddingMovingBessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmbeddingMovingBessKGE</span></code></a> and, if using negative
-sample sharing, multiply that by n_shard.</p>
+sample sharing, multiply that by <cite>n_shard</cite>.</p>
 <p>Does not support local sampling or negative augmentation.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.bess.ScoreMovingBessKGE.entity_embedding_size">
@@ -365,7 +361,7 @@ sample sharing, multiply that by n_shard.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.bess.ScoreMovingBessKGE.score_batch">
 <span class="sig-name descname"><span class="pre">score_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#ScoreMovingBessKGE.score_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.ScoreMovingBessKGE.score_batch" title="Permalink to this definition"></a></dt>
-<dd><p>Compute positive and negative scores for the microbatch.</p>
+<dd><p>Compute positive and negative scores for the micro-batch.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -379,9 +375,9 @@ sample sharing, multiply that by n_shard.</p>
 <dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>positive (shape: (n_shard * positive_per_partition,))
+<dd class="field-odd"><p>Positive (shape: (n_shard * positive_per_partition,))
 and negative (shape: (n_shard * positive_per_partition, n_negative))
-scores of the microbatch.</p>
+scores of the micro-batch.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -398,53 +394,53 @@ scores of the microbatch.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.bess.</span></span><span class="sig-name descname"><span class="pre">TopKQueryBessKGE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_scores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#TopKQueryBessKGE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.TopKQueryBessKGE" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
 <p>Distributed scoring of (h, r, ?) or (?, r, t) queries (against
-all entities in the KG, or a query-specific set)
-returning top-k most likely completions, based on BESS <span id="id2">[<a class="reference internal" href="../bibliography.html#id11" title="Alberto Cattaneo, Daniel Justus, Harry Mellor, Douglas Orr, Jerome Maloberti, Zhenying Liu, Thorin Farnsworth, Andrew Fitzgibbon, Blazej Banaszewski, and Carlo Luschi. BESS: balanced entity sampling and sharing for large-scale knowledge graph completion. arXiv preprint arXiv:2211.12281, 2021.">CJM+21</a>]</span>
+all entities in the knowledge graph, or a query-specific set)
+returning the top-k most likely completions, based on the BESS <span id="id2">[<a class="reference internal" href="../bibliography.html#id11" title="Alberto Cattaneo, Daniel Justus, Harry Mellor, Douglas Orr, Jerome Maloberti, Zhenying Liu, Thorin Farnsworth, Andrew Fitzgibbon, Blazej Banaszewski, and Carlo Luschi. BESS: balanced entity sampling and sharing for large-scale knowledge graph completion. arXiv preprint arXiv:2211.12281, 2021.">CJM+21</a>]</span>
 inference scheme.
 To be used in combination with a batch sampler based on a
 “h_shard”/”t_shard”-partitioned triple set.
-If the correct tail/head is known, can be passed as an input
+If the correct tail/head is known, this can be passed as an input
 in order to compute metrics on the final predictions.</p>
 <p>This class is recommended over <a class="reference internal" href="#besskge.bess.BessKGE" title="besskge.bess.BessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">BessKGE</span></code></a> when the number of
-negatives is large, e.g. when one wants to score queries against
-all entities in the KG, as it uses a sliding window over the
+negatives is large, for example when one wants to score queries against
+all entities in the knowledge graph, as it uses a sliding window over the
 negative sample size via an on-device for-loop.</p>
 <p>Only to be used for inference.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.bess.TopKQueryBessKGE.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#TopKQueryBessKGE.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.TopKQueryBessKGE.forward" title="Permalink to this definition"></a></dt>
 <dd><p>Forward step.</p>
-<p>Similarly to <a class="reference internal" href="#besskge.bess.ScoreMovingBessKGE" title="besskge.bess.ScoreMovingBessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScoreMovingBessKGE</span></code></a>, candidates are scored
-on the device where they are gathered, then scores for the same
-query against candidates in different shards are collected together
-via an AllToAll.
-At each iteration of the for loop, only the top-k best query responses and
-respective scores are kept to be used in the next iteration, while the
-rest is discarded.</p>
+<p>Similarly to <a class="reference internal" href="#besskge.bess.ScoreMovingBessKGE" title="besskge.bess.ScoreMovingBessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScoreMovingBessKGE</span></code></a>, candidates are scored on the
+device where they are gathered, then scores for the same query against
+candidates in different shards are collected together via an AllToAll.
+At each iteration of the for loop, only the top-k best query responses
+and respective scores are kept to be used in the next iteration, while
+the rest are discarded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (shard_bs,)
 Relation indices.</p></li>
 <li><p><strong>head</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (shard_bs,)
-Head indices, if known. Defaults to False.</p></li>
+Head indices, if known. Default: None.</p></li>
 <li><p><strong>tail</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (shard_bs,)
-Tail indices, if known. Defaults to False.</p></li>
+Tail indices, if known. Default: None.</p></li>
 <li><p><strong>negative</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (n_shard, B, padded_negative)
 Candidates to score against the queries.
 It can be the same set for all queries (B=1),
 or specific for each query in the batch (B=shard_bs).
-If None, score each query against all entities in the KG.
-Defaults to None.</p></li>
+If None, score each query against all entities in the knowledge
+graph. Default: None.</p></li>
 <li><p><strong>triple_mask</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (shard_bs,)
-Mask to filter the triples in the microbatch
-before computing metrics. Defaults to None.</p></li>
+Mask to filter the triples in the micro-batch
+before computing metrics. Default: None.</p></li>
 <li><p><strong>negative_mask</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (n_shard, B, padded_negative)
 If candidates are provided, mask to discard padding
 negatives when computing best completions.
-Requires the use of <code class="code docutils literal notranslate"><span class="pre">mask_on_gather=True</span></code> in the candidate sampler
+Requires the use of <code class="code docutils literal notranslate"><span class="pre">mask_on_gather=True</span></code> in the candidate
+sampler
 (see <a class="reference internal" href="negative_sampler.html#besskge.negative_sampler.TripleBasedShardedNegativeSampler" title="besskge.negative_sampler.TripleBasedShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">besskge.negative_sampler.TripleBasedShardedNegativeSampler</span></code></a>).
-Defaults to None.</p></li>
+Default: None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

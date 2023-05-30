@@ -43,7 +43,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Negative samplers</a><ul>
@@ -117,15 +117,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="negative-samplers">
-<h1>Negative samplers<a class="headerlink" href="#negative-samplers" title="Permalink to this heading"></a></h1>
-<span class="target" id="module-besskge.negative_sampler"></span><dl class="py class">
+  <section id="module-besskge.negative_sampler">
+<span id="negative-samplers"></span><h1>Negative samplers<a class="headerlink" href="#module-besskge.negative_sampler" title="Permalink to this heading"></a></h1>
+<dl class="py class">
 <dt class="sig sig-object py" id="besskge.negative_sampler.PlaceholderNegativeSampler">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.negative_sampler.</span></span><span class="sig-name descname"><span class="pre">PlaceholderNegativeSampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">corruption_scheme</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/negative_sampler.html#PlaceholderNegativeSampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.negative_sampler.PlaceholderNegativeSampler" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#besskge.negative_sampler.ShardedNegativeSampler" title="besskge.negative_sampler.ShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code></a></p>
-<p>A placeholder sharded negative smapler, returns no negatives when called.
+<p>A placeholder sharded negative sampler, returns no negatives when called.
 Used with <a class="reference internal" href="bess.html#besskge.bess.TopKQueryBessKGE" title="besskge.bess.TopKQueryBessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">besskge.bess.TopKQueryBessKGE</span></code></a> to score queries against
-all entities in the KG.</p>
+all entities in the knowledge graph.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.negative_sampler.PlaceholderNegativeSampler.corruption_scheme">
 <span class="sig-name descname"><span class="pre">corruption_scheme</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#besskge.negative_sampler.PlaceholderNegativeSampler.corruption_scheme" title="Permalink to this definition"></a></dt>
@@ -251,7 +251,7 @@ Indices of true negatives in <code class="code docutils literal notranslate"><sp
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.negative_sampler.TripleBasedShardedNegativeSampler.shard_negatives">
 <span class="sig-name descname"><span class="pre">shard_negatives</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">negatives</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/negative_sampler.html#TripleBasedShardedNegativeSampler.shard_negatives"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.negative_sampler.TripleBasedShardedNegativeSampler.shard_negatives" title="Permalink to this definition"></a></dt>
-<dd><p>Split negative entities into correpsonding shards.</p>
+<dd><p>Split negative entities into corresponding shards.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>negatives</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code>[<code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dtype</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">int32</span></code>]]) – shape: (N, n_negatives)

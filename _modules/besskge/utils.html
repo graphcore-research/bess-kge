@@ -40,7 +40,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
@@ -94,12 +94,11 @@
 <span class="sd">    :param x: shape: (a, e)</span>
 <span class="sd">    :param index: shape: (b, k)</span>
 <span class="sd">    :return: shape: (b, k)</span>
-<span class="sd">        For all rows of :code:`x`, take the `k` elements on</span>
-<span class="sd">        the row with the indices specified by</span>
-<span class="sd">        the corresponding row of :code:`index`.</span>
-<span class="sd">        If :code:`b == 1`, the same indices are gathered from all rows of :code:`x`;</span>
-<span class="sd">        if :code:`a == 1`, all rows in :code:`index` gather from :code:`x[0]`;</span>
-<span class="sd">        otherwise :code:`a == b` is required.</span>
+<span class="sd">        For all rows of :code:`x`, take the `k` elements on the row with the</span>
+<span class="sd">        indices specified by the corresponding row of :code:`index`.</span>
+<span class="sd">        If :code:`b == 1`, the same indices are gathered from all rows of</span>
+<span class="sd">        :code:`x`; if :code:`a == 1`, all rows in :code:`index` gather from</span>
+<span class="sd">        :code:`x[0]`; otherwise :code:`a == b` is required.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bs</span><span class="p">,</span> <span class="n">sq</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">mask_size</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">shape</span>
@@ -122,7 +121,7 @@
 <span class="sd">    :param v2: shape: (a, 2*e)</span>
 <span class="sd">        :code:`v2[:,:e]` real part, :code:`v2[:,e:]` imaginary part.</span>
 <span class="sd">    :return: shape: (a, 2*e)</span>
-<span class="sd">        Row-wise complex multiplcation.</span>
+<span class="sd">        Row-wise complex multiplication.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cutpoint</span> <span class="o">=</span> <span class="n">v1</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span>
     <span class="n">v1_re</span><span class="p">,</span> <span class="n">v1_im</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">cutpoint</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>

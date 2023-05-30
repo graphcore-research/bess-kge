@@ -40,7 +40,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
@@ -124,7 +124,7 @@
         <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Score (h,r,t) triples. No sharing is used.</span>
+<span class="sd">        Score a batch of (h,r,t) triples.</span>
 
 <span class="sd">        :param head_emb: shape: (batch_size, embedding_size)</span>
 <span class="sd">            Embeddings of head entities in batch.</span>
@@ -134,7 +134,7 @@
 <span class="sd">            Embeddings of tail entities in batch.</span>
 
 <span class="sd">        :return: shape: (batch_size,)</span>
-<span class="sd">            Scores of batch triples.</span>
+<span class="sd">            Scores of a batch of triples.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
@@ -292,13 +292,13 @@
 
 <div class="viewcode-block" id="MatrixDecompositionScoreFunction.reduce_embedding"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.MatrixDecompositionScoreFunction.reduce_embedding">[docs]</a>    <span class="k">def</span> <span class="nf">reduce_embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        sum reduction along embedding dimension.</span>
+<span class="sd">        Sum reduction along the embedding dimension.</span>
 
 <span class="sd">        :param v: shape: (*, embedding_size)</span>
 <span class="sd">            The tensor to reduce.</span>
 
 <span class="sd">        :return: shape: (*,)</span>
-<span class="sd">            sum reduction.</span>
+<span class="sd">            Sum reduction.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
 
@@ -352,15 +352,15 @@
 <span class="sd">        :type sharding:</span>
 <span class="sd">            Entity sharding.</span>
 <span class="sd">        :param n_relation_type:</span>
-<span class="sd">            Number of relation types in the KG.</span>
+<span class="sd">            Number of relation types in the knowledge graph.</span>
 <span class="sd">        :param embedding_size:</span>
 <span class="sd">            Size of entities and relation embeddings. Can be omitted</span>
 <span class="sd">            if passing tensors for initialization of entity and relation</span>
 <span class="sd">            embeddings.</span>
 <span class="sd">        :param entity_initializer:</span>
-<span class="sd">            Initialization scheme / table for entity embeddings.</span>
+<span class="sd">            Initialization scheme or table for entity embeddings.</span>
 <span class="sd">        :param relation_initializer:</span>
-<span class="sd">            Initialization scheme / table for relation embeddings.</span>
+<span class="sd">            Initialization scheme or table for relation embeddings.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">TransE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -376,7 +376,7 @@
         <span class="p">)</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="p">),</span> <span class="s2">&quot;TransE requires same embedding size for entities and relations&quot;</span>
+        <span class="p">),</span> <span class="s2">&quot;TransE requires the same embedding size for entities and relations&quot;</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
 <div class="viewcode-block" id="TransE.score_triple"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.TransE.score_triple">[docs]</a>    <span class="k">def</span> <span class="nf">score_triple</span><span class="p">(</span>
@@ -440,16 +440,16 @@
 <span class="sd">        :type sharding:</span>
 <span class="sd">            Entity sharding.</span>
 <span class="sd">        :param n_relation_type:</span>
-<span class="sd">            Number of relation types in the KG.</span>
+<span class="sd">            Number of relation types in the knowledge graph.</span>
 <span class="sd">        :param embedding_size:</span>
 <span class="sd">            Size of entity embeddings (relation embedding size</span>
 <span class="sd">            will be half of this). Can be omitted</span>
 <span class="sd">            if passing tensors for initialization of entity and relation</span>
 <span class="sd">            embeddings.</span>
 <span class="sd">        :param entity_initializer:</span>
-<span class="sd">            Initialization scheme / table for entity embeddings.</span>
+<span class="sd">            Initialization scheme or table for entity embeddings.</span>
 <span class="sd">        :param relation_initializer:</span>
-<span class="sd">            Initialization scheme / table for relation embeddings.</span>
+<span class="sd">            Initialization scheme or table for relation embeddings.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">RotatE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -465,10 +465,10 @@
         <span class="p">)</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
-        <span class="p">),</span> <span class="s2">&quot;RotatE requires even real embedding size for entities&quot;</span>
+        <span class="p">),</span> <span class="s2">&quot;RotatE requires an even real embedding size for entities&quot;</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="p">),</span> <span class="s2">&quot;RotatE requires relation emebdding size to be half entity embedding size&quot;</span>
+        <span class="p">),</span> <span class="s2">&quot;RotatE requires relation embedding size to be half entity embedding size&quot;</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
 <div class="viewcode-block" id="RotatE.score_triple"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.RotatE.score_triple">[docs]</a>    <span class="k">def</span> <span class="nf">score_triple</span><span class="p">(</span>
@@ -535,15 +535,15 @@
 <span class="sd">        :type sharding:</span>
 <span class="sd">            Entity sharding.</span>
 <span class="sd">        :param n_relation_type:</span>
-<span class="sd">            Number of relation types in the KG.</span>
+<span class="sd">            Number of relation types in the knowledge graph.</span>
 <span class="sd">        :param embedding_size:</span>
 <span class="sd">            Size of entity and relation embeddings. Can be omitted</span>
 <span class="sd">            if passing tensors for initialization of entity and relation</span>
 <span class="sd">            embeddings.</span>
 <span class="sd">        :param entity_initializer:</span>
-<span class="sd">            Initialization scheme / table for entity embeddings.</span>
+<span class="sd">            Initialization scheme or table for entity embeddings.</span>
 <span class="sd">        :param relation_initializer:</span>
-<span class="sd">            Initialization scheme / table for relation embeddings.</span>
+<span class="sd">            Initialization scheme or table for relation embeddings.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DistMult</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">)</span>
 
@@ -557,7 +557,7 @@
         <span class="p">)</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="p">),</span> <span class="s2">&quot;DistMult requires same embedding size for entities and relations&quot;</span>
+        <span class="p">),</span> <span class="s2">&quot;DistMult requires the same embedding size for entities and relations&quot;</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
 <div class="viewcode-block" id="DistMult.score_triple"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.DistMult.score_triple">[docs]</a>    <span class="k">def</span> <span class="nf">score_triple</span><span class="p">(</span>
@@ -618,15 +618,15 @@
 <span class="sd">        :type sharding:</span>
 <span class="sd">            Entity sharding.</span>
 <span class="sd">        :param n_relation_type:</span>
-<span class="sd">            Number of relation types in the KG.</span>
+<span class="sd">            Number of relation types in the knowledge graph.</span>
 <span class="sd">        :param embedding_size:</span>
 <span class="sd">            Size of entity and relation embeddings. Can be omitted</span>
 <span class="sd">            if passing tensors for initialization of entity and relation</span>
 <span class="sd">            embeddings.</span>
 <span class="sd">        :param entity_initializer:</span>
-<span class="sd">            Initialization scheme / table for entity embeddings.</span>
+<span class="sd">            Initialization scheme or table for entity embeddings.</span>
 <span class="sd">        :param relation_initializer:</span>
-<span class="sd">            Initialization scheme / table for relation embeddings.</span>
+<span class="sd">            Initialization scheme or table for relation embeddings.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ComplEx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">)</span>
 
@@ -640,10 +640,10 @@
         <span class="p">)</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="p">),</span> <span class="s2">&quot;ComplEx requires same embedding size for entities and relations&quot;</span>
+        <span class="p">),</span> <span class="s2">&quot;ComplEx requires the same embedding size for entities and relations&quot;</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
-        <span class="p">),</span> <span class="s2">&quot;ComplEx requires even real embedding size for entities and relations&quot;</span>
+        <span class="p">),</span> <span class="s2">&quot;ComplEx requires an even real embedding size for entities and relations&quot;</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
 <div class="viewcode-block" id="ComplEx.score_triple"><a class="viewcode-back" href="../../API_ref/scoring.html#besskge.scoring.ComplEx.score_triple">[docs]</a>    <span class="k">def</span> <span class="nf">score_triple</span><span class="p">(</span>

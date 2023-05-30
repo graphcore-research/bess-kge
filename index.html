@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BESS-KGE documentation &mdash; BESS-KGE  documentation</title>
+  <title>BESS-KGE User Guide and API Reference &mdash; BESS-KGE  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
@@ -18,7 +18,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="KG Datasets" href="API_ref/dataset.html" /> 
+    <link rel="next" title="Knowledge graph datasets" href="API_ref/dataset.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,7 +42,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_ref/dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API_ref/sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API_ref/batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="API_ref/negative_sampler.html">Negative samplers</a></li>
@@ -72,7 +72,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">BESS-KGE documentation</li>
+      <li class="breadcrumb-item active">BESS-KGE User Guide and API Reference</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -83,22 +83,22 @@
            <div itemprop="articleBody">
              
   <section id="module-besskge">
-<span id="bess-kge-documentation"></span><h1>BESS-KGE documentation<a class="headerlink" href="#module-besskge" title="Permalink to this heading"></a></h1>
-<p>BESS-KGE is a Python package for Knowledge Graph Embedding on IPUs using
+<span id="bess-kge-user-guide-and-api-reference"></span><h1>BESS-KGE User Guide and API Reference<a class="headerlink" href="#module-besskge" title="Permalink to this heading"></a></h1>
+<p>BESS-KGE is a Python package for knowledge graph embedding on IPUs using
 <a class="reference external" href="https://github.com/graphcore/poptorch">PopTorch</a> and the distributed framework
 <a class="reference external" href="https://arxiv.org/abs/2211.12281">BESS</a>.</p>
-<p>Shallow KGE models are typically memory-bound, as little compute needs to be performed to score (h,r,t) triples once the embeddings of entities and relation types used in the batch have been retrieved.</p>
-<p>BESS (Balanced Entity Sampling and Sharing) is a KGE distribution framework designed to maximize bandwith for gathering embeddings, by</p>
+<p>Shallow knowledge graph embedding (KGE) models are typically memory-bound, as little compute needs to be performed to score (h,r,t) triples once the embeddings of entities and relation types used in the batch have been retrieved.</p>
+<p>BESS (Balanced Entity Sampling and Sharing) is a KGE distribution framework designed to maximize bandwidth for gathering embeddings, by</p>
 <ul class="simple">
 <li><p>storing them in fast-access IPU on-chip memory;</p></li>
 <li><p>minimizing communication time for sharing embeddings between workers, leveraging balanced collective operators over high-bandwidth IPU-links.</p></li>
 </ul>
 <p>This allows BESS-KGE to achieve high throughput for both training and inference.</p>
-<p>For an overview of the different distribution schemes used by BESS, see <a class="reference internal" href="API_ref/bess.html#bess-modules"><span class="std std-ref">BESS modules</span></a>.</p>
+<p>For an overview of the different distribution schemes used by BESS-KGE, see <a class="reference internal" href="API_ref/bess.html#bess-modules"><span class="std std-ref">BESS modules</span></a>.</p>
 <div class="toctree-wrapper compound" id="api-ref">
 <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/dataset.html">KG Datasets</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="API_ref/dataset.html">Knowledge graph datasets</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="API_ref/dataset.html#besskge.dataset.KGDataset"><code class="docutils literal notranslate"><span class="pre">KGDataset</span></code></a></li>
 </ul>
 </li>
@@ -191,7 +191,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="API_ref/dataset.html" class="btn btn-neutral float-right" title="KG Datasets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="API_ref/dataset.html" class="btn btn-neutral float-right" title="Knowledge graph datasets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -40,7 +40,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
@@ -131,7 +131,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">n_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Number of entities in the KG.</span>
+<span class="sd">        Number of entities in the knowledge graph.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entity_to_shard</span><span class="p">)</span>
 
@@ -152,16 +152,16 @@
         <span class="n">type_offsets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Sharding&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Construct a random balanced sharding of entities.</span>
+<span class="sd">        Construct a random, balanced sharding of entities.</span>
 
 <span class="sd">        :param n_entity:</span>
-<span class="sd">            Number of entities in the KG.</span>
+<span class="sd">            Number of entities in the knowledge graph.</span>
 <span class="sd">        :param n_shard:</span>
 <span class="sd">            Number of shards.</span>
 <span class="sd">        :param seed:</span>
 <span class="sd">            Seed for random sharding.</span>
 <span class="sd">        :param type_offsets: shape: (n_types,)</span>
-<span class="sd">            Global offsets of entity types, defaults to None.</span>
+<span class="sd">            Global offsets of entity types. Default: None.</span>
 
 <span class="sd">        :return:</span>
 <span class="sd">            Random sharding of n_entity entities in n_shard shards.</span>
@@ -227,13 +227,13 @@
 <div class="viewcode-block" id="Sharding.load"><a class="viewcode-back" href="../../API_ref/sharding.html#besskge.sharding.Sharding.load">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Sharding&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Load a :class:`Sharding` saved with :func:`Sharding.save`.</span>
+<span class="sd">        Load a :class:`Sharding` object saved with :func:`Sharding.save`.</span>
 
 <span class="sd">        :param path:</span>
-<span class="sd">            Path to saved :class:`Sharding`.</span>
+<span class="sd">            Path to saved :class:`Sharding` object.</span>
 
 <span class="sd">        :return:</span>
-<span class="sd">            The saved :class:`Sharding`.</span>
+<span class="sd">            The saved :class:`Sharding` object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">n_shard</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;n_shard&quot;</span><span class="p">)),</span> <span class="o">**</span><span class="n">data</span><span class="p">)</span></div></div>
@@ -243,11 +243,14 @@
 <span class="k">class</span> <span class="nc">PartitionedTripleSet</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A partitioned collection of triples.</span>
-<span class="sd">    If :code:`partition_mode = &#39;h_shard&#39;` (resp. :code:`partition_mode = &#39;t_shard&#39;`)</span>
-<span class="sd">    each triple is assigned to one of `n_shard` partitions based on the</span>
-<span class="sd">    shard where the head (resp. tail) entity is stored.</span>
+<span class="sd">    If :code:`partition_mode = &#39;h_shard&#39;` each triple is assigned to one of</span>
+<span class="sd">    `n_shard` partitions based on the shard where the head entity is stored.</span>
+<span class="sd">    Similarly, if :code:`partition_mode = &#39;t_shard&#39;`, each triple is assigned</span>
+<span class="sd">    to one of `n_shard` partitions based on the shard where the tail entity is</span>
+<span class="sd">    stored.</span>
+
 <span class="sd">    If :code:`partition_mode = &#39;ht_shardpair&#39;`, each triple is assigned to one</span>
-<span class="sd">    of `n_shard^2` partitions based on the shardpair `(shard_h, shard_t)`.</span>
+<span class="sd">    of `n_shard^2` partitions based on the shard-pair `(shard_h, shard_t)`.</span>
 <span class="sd">    Shard-pairs are ordered as:</span>
 <span class="sd">    `(0,0), (0,1), ..., (0, n_shard-1), (1,0), ..., (n_shard-1, n_shard-1)`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -345,13 +348,13 @@
 <span class="sd">        Create a partitioned triple set from a :class:`KGDataset` part.</span>
 
 <span class="sd">        :param dataset:</span>
-<span class="sd">            KG dataset.</span>
+<span class="sd">            Knowledge graph dataset.</span>
 <span class="sd">        :param part:</span>
 <span class="sd">            The dataset part to shard.</span>
 <span class="sd">        :param sharding:</span>
 <span class="sd">            The entity sharding to use.</span>
 <span class="sd">        :param partition_mode:</span>
-<span class="sd">            The triple partition mode, to choose between</span>
+<span class="sd">            The triple partition mode. Can be</span>
 <span class="sd">            &quot;h_shard&quot;, &quot;t_shard&quot;, &quot;ht_shardpair&quot;.</span>
 
 <span class="sd">        :return:</span>
@@ -418,7 +421,7 @@
 <span class="sd">        Pairs are completed to triples by adding dummy entities.</span>
 
 <span class="sd">        :param dataset:</span>
-<span class="sd">            KG dataset.</span>
+<span class="sd">            Knowledge graph dataset.</span>
 <span class="sd">        :param sharding:</span>
 <span class="sd">            The entity sharding to use.</span>
 <span class="sd">        :param queries: shape: (n_query, 2)</span>
@@ -427,14 +430,15 @@
 <span class="sd">        :param query_mode:</span>
 <span class="sd">            &quot;hr&quot; for (h,r,?) queries, &quot;rt&quot; for (?,r,t) queries.</span>
 <span class="sd">        :param ground_truth: shape: (n_query,)</span>
-<span class="sd">            If know, the global ID of the ground truth tail/head.</span>
+<span class="sd">            If known, the global ID of the ground truth tail/head.</span>
 <span class="sd">        :param negative: shape: (N, n_negative)</span>
-<span class="sd">            Global IDs of negative entities to score against each query,</span>
-<span class="sd">            query-specific (N=n_query) or same for all queries (N=1).</span>
-<span class="sd">            Defaults to None (i.e. score queries against all entities in the graph).</span>
+<span class="sd">            Global IDs of negative entities to score against each query. This</span>
+<span class="sd">            can be query-specific (N=n_query) or the same for all queries (N=1).</span>
+<span class="sd">            Default: None (namely score each query against all entities in the</span>
+<span class="sd">            graph).</span>
 <span class="sd">        :param negative_type:</span>
-<span class="sd">            Score queries only against entities of a specific type.</span>
-<span class="sd">            Defaults to None (i.e. score queries against entities of any type).</span>
+<span class="sd">            Score each query only against entities of a specific type. Default:</span>
+<span class="sd">            None (namely score each query against entities of any type).</span>
 
 <span class="sd">        :return:</span>
 <span class="sd">            Partitioned set of queries (with dummy h/t completion).</span>

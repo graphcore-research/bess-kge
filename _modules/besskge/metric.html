@@ -40,7 +40,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
@@ -94,8 +94,10 @@
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction_rank</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns metric values for the elements in the batch.</span>
+
 <span class="sd">        :param prediction_rank: shape: (batch_size,)</span>
-<span class="sd">            Rank of ground truth among ordered predictions.</span>
+<span class="sd">            The rank of ground truth among ordered predictions.</span>
 
 <span class="sd">        :return:</span>
 <span class="sd">            Metric values for the element in the batch.</span>
@@ -105,9 +107,9 @@
 
 <div class="viewcode-block" id="ReciprocalRank"><a class="viewcode-back" href="../../API_ref/metric.html#besskge.metric.ReciprocalRank">[docs]</a><span class="k">class</span> <span class="nc">ReciprocalRank</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Reciprocal rank (e.g. to compute MRR).</span>
+<span class="sd">    Reciprocal rank (for example to compute MRR).</span>
 
-<span class="sd">    Returns reciprocal rank of ground truth among predictions.</span>
+<span class="sd">    Returns the reciprocal rank of ground truth among predictions.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -125,8 +127,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Hits@K metric.</span>
 
-<span class="sd">    Returns count of triples where the ground truth</span>
-<span class="sd">    is among the K most likely predicted entities.</span>
+<span class="sd">    Returns the count of triples where the ground truth</span>
+<span class="sd">    is among the K most-likely predicted entities.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
@@ -167,16 +169,17 @@
 <span class="sd">        :param metric_list:</span>
 <span class="sd">            List of metrics to compute. Currently supports &quot;mrr&quot; and &quot;hits@K&quot;.</span>
 <span class="sd">        :param mode:</span>
-<span class="sd">            &quot;optimistic&quot;/&quot;pessimistic&quot;/&quot;average&quot; metrics from scores.</span>
-<span class="sd">            Defaults to &quot;average&quot;.</span>
+<span class="sd">            Mode used for metrics. Can be &quot;optimistic&quot;, &quot;pessimistic&quot;</span>
+<span class="sd">            or &quot;average&quot;. Default: &quot;average&quot;.</span>
 <span class="sd">        :param worst_rank_infty:</span>
-<span class="sd">            Assign a prediction rank of infinity as worst possible rank</span>
-<span class="sd">            (as opposed to n_negative + 1). Defaults to False.</span>
+<span class="sd">            If True, assign a prediction rank of infinity as the worst possible</span>
+<span class="sd">            rank. If False, assign a prediction rank of `n_negative + 1` as the</span>
+<span class="sd">            worst possible rank. Default: False.</span>
 <span class="sd">        :param reduction:</span>
-<span class="sd">            How to reduce metrics along the batch dimension.</span>
+<span class="sd">            Method to use to reduce metrics along the batch dimension.</span>
 <span class="sd">            Currently supports &quot;none&quot; (no reduction) and &quot;sum&quot;.</span>
 <span class="sd">        :param return_ranks:</span>
-<span class="sd">            Whether to return prediction ranks alongside metrics.</span>
+<span class="sd">            If True, returns prediction ranks alongside metrics.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;pessimistic&quot;</span><span class="p">,</span> <span class="s2">&quot;optimistic&quot;</span><span class="p">,</span> <span class="s2">&quot;average&quot;</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mode </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> not supported for evaluation&quot;</span><span class="p">)</span>
@@ -262,12 +265,12 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the prediction rank from the ground truth ID and</span>
-<span class="sd">        ORDERED candidates&#39; IDs.</span>
+<span class="sd">        ORDERED candidate IDs.</span>
 
 <span class="sd">        :param ground_truth: shape: (batch_size,)</span>
 <span class="sd">            Indices of ground truth entities for each query.</span>
 <span class="sd">        :param candidate_indices: shape: (batch_size, n_candidates)</span>
-<span class="sd">            Indices of top n_candidates predicted entities,</span>
+<span class="sd">            Indices of top `n_candidates` predicted entities,</span>
 <span class="sd">            ordered by decreasing likelihood. The indices</span>
 <span class="sd">            on each row are assumed to be distinct.</span>
 
@@ -279,7 +282,8 @@
         <span class="n">ground_truth</span> <span class="o">=</span> <span class="n">ground_truth</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ground_truth</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">batch_size</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;`pos_score` and `candidate_score` need to have same size at dimension 0&quot;</span>
+                <span class="s2">&quot;`pos_score` and `candidate_score` need to have the same size&quot;</span>
+                <span class="s2">&quot; for dimension 0&quot;</span>
             <span class="p">)</span>
 
         <span class="n">worst_rank</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">inf</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">worst_rank_infty</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_negative</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
@@ -328,9 +332,9 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">batch_rank</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">triple_mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Like :meth:`Evaluation.dict_metrics_from_ranks`, but the outputs for different</span>
-<span class="sd">        metrics are returned stacked in a single tensor, according to the ordering</span>
-<span class="sd">        of :attr:`Evaluation.metrics`.</span>
+<span class="sd">        Like :meth:`Evaluation.dict_metrics_from_ranks`, but the outputs for</span>
+<span class="sd">        different metrics are returned stacked in a single tensor, according to</span>
+<span class="sd">        the ordering of :attr:`Evaluation.metrics`.</span>
 
 <span class="sd">        :param batch_rank: shape: (batch_size,)</span>
 <span class="sd">            see :meth:`Evaluation.dict_metrics_from_ranks`.</span>

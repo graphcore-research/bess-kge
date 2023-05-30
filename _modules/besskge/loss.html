@@ -40,7 +40,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
@@ -167,7 +167,7 @@
 <span class="sd">        Initialize margin-based loss function.</span>
 
 <span class="sd">        :param margin:</span>
-<span class="sd">            Margin to be used in the loss computation.</span>
+<span class="sd">            The margin to be used in the loss computation.</span>
 <span class="sd">        :param negative_adversarial_sampling:</span>
 <span class="sd">            see :class:`BaseLossFunction`</span>
 <span class="sd">        :param negative_adversarial_scale:</span>
@@ -237,7 +237,7 @@
 <span class="sd">        :param loss_scale:</span>
 <span class="sd">            see :class:`BaseLossFunction`</span>
 <span class="sd">        :param activation_function:</span>
-<span class="sd">            Activation function in loss computation, defaults to &quot;relu&quot;.</span>
+<span class="sd">            The activation function in loss computation. Default: &quot;relu&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MarginRankingLoss</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">margin</span><span class="p">,</span>
@@ -275,7 +275,7 @@
 
 <div class="viewcode-block" id="SampledSoftmaxCrossEntropyLoss"><a class="viewcode-back" href="../../API_ref/loss.html#besskge.loss.SampledSoftmaxCrossEntropyLoss">[docs]</a><span class="k">class</span> <span class="nc">SampledSoftmaxCrossEntropyLoss</span><span class="p">(</span><span class="n">BaseLossFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The sampled softmax cross entropy loss (see :cite:p:`large_vocabulary` and</span>
+<span class="sd">    The sampled softmax cross-entropy loss (see :cite:p:`large_vocabulary` and</span>
 <span class="sd">    :cite:p:`BESS`).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -285,10 +285,10 @@
         <span class="n">loss_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize the sampled softmax cross entropy loss.</span>
+<span class="sd">        Initialize the sampled softmax cross-entropy loss.</span>
 
 <span class="sd">        :param n_entity:</span>
-<span class="sd">            The total number of entities in the KG.</span>
+<span class="sd">            The total number of entities in the knowledge graph.</span>
 <span class="sd">        :param loss_scale:</span>
 <span class="sd">            see :class:`BaseLossFunction`</span>
 <span class="sd">        &quot;&quot;&quot;</span>

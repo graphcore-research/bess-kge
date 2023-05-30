@@ -1,5 +1,6 @@
 Loss functions
 ==============
+
 .. automodule:: besskge.loss
    :members:
    :undoc-members:

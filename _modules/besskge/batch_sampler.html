@@ -40,7 +40,7 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">KG Datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">Knowledge graph datasets</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
@@ -122,23 +122,25 @@
 <span class="sd">        :param negative_sampler:</span>
 <span class="sd">            The sampler for negative entities.</span>
 <span class="sd">        :param shard_bs:</span>
-<span class="sd">            The microbatch size, i.e. the number of positive triples</span>
+<span class="sd">            The micro-batch size. This is the number of positive triples</span>
 <span class="sd">            processed on each shard.</span>
 <span class="sd">        :param batches_per_step:</span>
 <span class="sd">            The number of batches to sample at each call.</span>
 <span class="sd">        :param seed:</span>
 <span class="sd">            The RNG seed.</span>
 <span class="sd">        :param hrt_freq_weighting:</span>
-<span class="sd">            Use frequency-based triple weighting, defaults to False.</span>
+<span class="sd">            If True, uses frequency-based triple weighting. Default: False.</span>
 <span class="sd">        :param weight_smoothing:</span>
 <span class="sd">            Weight-smoothing parameter for frequency-based</span>
-<span class="sd">            triple weigthing, defaults to 0.0.</span>
+<span class="sd">            triple weighting. Default: 0.0.</span>
 <span class="sd">        :param duplicate_batch:</span>
-<span class="sd">            The batch sampled from each triple partition has two identical halves;</span>
-<span class="sd">            to be used with &quot;ht&quot; corruption scheme at inference time. Defaults to False.</span>
+<span class="sd">            If True, the batch sampled from each triple partition has two</span>
+<span class="sd">            identical halves.</span>
+<span class="sd">            This is to be used with &quot;ht&quot; corruption scheme at inference time.</span>
+<span class="sd">            Default: False.</span>
 <span class="sd">        :param return_triple_idx:</span>
-<span class="sd">            Return the indices (wrt partitioned_triple_set.triples)</span>
-<span class="sd">            of the triples in the batch. Defaults to False.</span>
+<span class="sd">            If True, return the indices (wrt partitioned_triple_set.triples)</span>
+<span class="sd">            of the triples in the batch. Default: False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_shard</span> <span class="o">=</span> <span class="n">partitioned_triple_set</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">n_shard</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">triples</span> <span class="o">=</span> <span class="n">partitioned_triple_set</span><span class="o">.</span><span class="n">triples</span>
@@ -152,7 +154,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">batches_per_step</span> <span class="o">=</span> <span class="n">batches_per_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">duplicate_batch</span> <span class="o">=</span> <span class="n">duplicate_batch</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">triple_partition_mode</span> <span class="o">==</span> <span class="s2">&quot;ht_shardpair&quot;</span><span class="p">:</span>
-            <span class="c1"># The microbatch on device N is formed of n_shard blocks,</span>
+            <span class="c1"># The micro-batch on device N is formed of n_shard blocks,</span>
             <span class="c1"># corresponding to triple partitions (h_shard, t_shard)</span>
             <span class="c1"># with h_shard = N and t_shard = 0, ..., n_shard-1.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">positive_per_partition</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shard_bs</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_shard</span><span class="p">))</span>
@@ -161,7 +163,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">duplicate_batch</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">positive_per_partition</span> <span class="o">//=</span> <span class="mi">2</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;ht&quot;</span><span class="p">:</span>
-            <span class="c1"># Each partition is split in two halves, so we need positive_per_partition</span>
+            <span class="c1"># Each partition is split into two halves, so we need positive_per_partition</span>
             <span class="c1"># to be even.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">positive_per_partition</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positive_per_partition</span> <span class="o">//</span> <span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span>
 
@@ -196,6 +198,8 @@
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the length of the batch sampler.</span>
+
 <span class="sd">        The length of the batch sampler is based on the length of</span>
 <span class="sd">        the largest triple partition.</span>
 <span class="sd">        At each call, :attr:`ShardedBatchSampler.partition_sample_size` triples</span>
@@ -218,7 +222,7 @@
 
 <span class="sd">        :return:</span>
 <span class="sd">            Indices of head, relation, tail and negative entities in the batch,</span>
-<span class="sd">            and associated weights / masks.</span>
+<span class="sd">            and associated weights and masks.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">sample_triple_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_triples</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">duplicate_batch</span><span class="p">:</span>
@@ -287,8 +291,10 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Sampler</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Instantiate appropriate :class:`torch.data.Sampler` for the</span>
-<span class="sd">        :class:`torch.utils.data.DataLoader` to be used with the</span>
+<span class="sd">        Returns the dataloader sampler.</span>
+
+<span class="sd">        Instantiate the appropriate :class:`torch.data.Sampler` class for the</span>
+<span class="sd">        :class:`torch.utils.data.DataLoader` class to be used with the</span>
 <span class="sd">        sharded batch sampler.</span>
 
 <span class="sd">        :param shuffle:</span>
@@ -314,22 +320,24 @@
         <span class="n">buffer_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">poptorch</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Instantiate appropriate :class:`poptorch.DataLoader`</span>
-<span class="sd">        to iterate over the batch sampler.</span>
-<span class="sd">        It uses asynchronous dataloading to minimize CPU-IPU I/O.</span>
+<span class="sd">        Returns the PopTorch dataloader.</span>
+
+<span class="sd">        Instantiate the appropriate :class:`poptorch.DataLoader`</span>
+<span class="sd">        class to iterate over the batch sampler.</span>
+<span class="sd">        It uses asynchronous data-loading to minimize CPU-IPU I/O.</span>
 
 <span class="sd">        :param options:</span>
-<span class="sd">            poptorch.Options used to compile and run the model.</span>
+<span class="sd">            `poptorch.Options` used to compile and run the model.</span>
 <span class="sd">        :param shuffle:</span>
-<span class="sd">            Shuffle triples at each new epoch, defaults to True.</span>
+<span class="sd">            If True, shuffles triples at each new epoch. Default: True.</span>
 <span class="sd">        :param num_workers:</span>
-<span class="sd">            see :meth:`torch.utils.data.DataLoader.__init__`, defaults to 0.</span>
+<span class="sd">            see :meth:`torch.utils.data.DataLoader.__init__`. Default: 0.</span>
 <span class="sd">        :param persistent_workers:</span>
-<span class="sd">            see :meth:`torch.utils.data.DataLoader.__init__`, defaults to False.</span>
+<span class="sd">            see :meth:`torch.utils.data.DataLoader.__init__`. Default: False.</span>
 <span class="sd">        :param buffer_size:</span>
 <span class="sd">            Size of the ring buffer in shared memory used to preload batches.</span>
 <span class="sd">        :return:</span>
-<span class="sd">            The poptorch dataloader.</span>
+<span class="sd">            The PopTorch dataloader.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">poptorch</span><span class="o">.</span><span class="n">DataLoader</span><span class="p">(</span>
@@ -352,7 +360,7 @@
 <div class="viewcode-block" id="ShardedBatchSampler.worker_init_fn"><a class="viewcode-back" href="../../API_ref/batch_sampler.html#besskge.batch_sampler.ShardedBatchSampler.worker_init_fn">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">worker_init_fn</span><span class="p">(</span><span class="n">worker_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Worker intialization function to be passed to</span>
+<span class="sd">        Worker initialization function to be passed to</span>
 <span class="sd">        :class:`torch.utils.data.DataLoader`.</span>
 
 <span class="sd">        :param worker_id:</span>
@@ -367,9 +375,10 @@
 
 <div class="viewcode-block" id="RigidShardedBatchSampler"><a class="viewcode-back" href="../../API_ref/batch_sampler.html#besskge.batch_sampler.RigidShardedBatchSampler">[docs]</a><span class="k">class</span> <span class="nc">RigidShardedBatchSampler</span><span class="p">(</span><span class="n">ShardedBatchSampler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    At each call, sample triples with same specified indices from all triple partitions,</span>
-<span class="sd">    repeating triples in shorter ones to pad to same length.</span>
-<span class="sd">    Returns mask to identify padding triples.</span>
+<span class="sd">    At each call, sample triples with the same specified indices from all</span>
+<span class="sd">    triple partitions,</span>
+<span class="sd">    repeating triples in shorter ones to pad to the same length.</span>
+<span class="sd">    Returns a mask to identify padding triples.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
