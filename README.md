@@ -71,11 +71,11 @@ The batch in [Figure 2](#figure2) can then be reconstructed by sharing the embed
 </figure>
 </div>
 
-Additional variations of the distribution scheme are detailed in the [BESS-KGE user guide and API documentation](https://symmetrical-adventure-69267rm.pages.github.io/API_ref/bess.html).
+Additional variations of the distribution scheme are detailed in the [BESS-KGE user guide and API documentation](https://graphcore-research.github.io/bess-kge/API_ref/bess.html).
 
 ### Modules
 
-All APIs are documented in the [BESS-KGE user guide and API documentation](https://symmetrical-adventure-69267rm.pages.github.io/).
+All APIs are documented in the [BESS-KGE user guide and API documentation](https://graphcore-research.github.io/bess-kge/).
 
 | API | Functions
 | --- | --- |

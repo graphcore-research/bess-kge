@@ -77,8 +77,8 @@ class KGDataset:
         .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg
 
         :param root:
-            Local path to dataset. Make sure that the dataset has been saved to
-            this location after you have download.
+            Local path to the dataset. If the dataset is not present in this
+            location, then it is downloaded and stored here.
 
         :return: The ogbl-biokg KGDataset.
         """
@@ -140,8 +140,8 @@ class KGDataset:
         .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2
 
         :param root:
-            Local path to dataset. Make sure that the dataset has been saved to
-            this location after you have download.
+            Local path to the dataset. If the dataset is not present in this
+            location, then it is downloaded and stored here.
 
         :return: The ogbl-wikikg2 KGDataset.
         """
@@ -192,8 +192,8 @@ class KGDataset:
         .. seealso:: https://yago-knowledge.org/downloads/yago-3
 
         :param root:
-            Local path to dataset. Make sure that the dataset has been saved to
-            this location after you have download.
+            Local path to the dataset. If the dataset is not present in this
+            location, then it is downloaded and stored here.
 
         :return: The YAGO3-10 KGDataset.
         """
