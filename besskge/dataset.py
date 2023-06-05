@@ -5,7 +5,7 @@ import pickle
 import tarfile
 from io import BytesIO
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import ogb.linkproppred
@@ -44,7 +44,7 @@ class KGDataset:
     #: {part: int32[n_triple or 1, n_neg_heads]}
     neg_heads: Optional[Dict[str, NDArray[np.int32]]]
 
-    #: IDs of (possibly triple-specific) negative heads;
+    #: IDs of (possibly triple-specific) negative tails;
     #: {part: int32[n_triple or 1, n_neg_tails]}
     neg_tails: Optional[Dict[str, NDArray[np.int32]]]
 
@@ -74,7 +74,7 @@ class KGDataset:
         """
         Build the ogbl-biokg dataset :cite:p:`OGB`
 
-        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg
+        .. see also:: https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg
 
         :param root:
             Path to dataset. If dataset is not present, download it
@@ -137,7 +137,7 @@ class KGDataset:
         """
         Build the ogbl-wikikg2 dataset :cite:p:`OGB`
 
-        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2
+        .. see also:: https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2
 
         :param root:
             Path to dataset. If dataset is not present, download it
@@ -189,7 +189,7 @@ class KGDataset:
         entities which have at least 10 relations associated to them.
         First used in :cite:p:`ConvE`.
 
-        .. seealso:: https://yago-knowledge.org/downloads/yago-3
+        .. see also:: https://yago-knowledge.org/downloads/yago-3
 
         :param root:
             Path to dataset. If dataset is not present, download it
@@ -284,11 +284,69 @@ class KGDataset:
             neg_tails=None,
         )
 
+    @classmethod
+    def from_triples(
+            cls,
+            data: NDArray,
+            split: Optional[Tuple] = (0.7, 0.15, 0.15),
+            entity_dict: Optional[List] = None,
+            relation_dict: Optional[List] = None,
+            type_offsets: Optional[Dict[str, int]] = None,
+            neg_heads: Optional[Dict[str, NDArray[np.int32]]] = None,
+            neg_tails: Optional[Dict[str, NDArray[np.int32]]] = None,
+    ) -> "KGDataset":
+        """
+        Build a dataset from an array of triples.
+
+        :param data:
+            Numpy array of triples [head_id, relation_id, tail_id]. Shape
+            (num_triples, 3).
+        :param split:
+            Optional tuple to set the train/validation/test split.
+        :param entity_dict:
+            Optional entity labels by ID.
+        :param relation_dict:
+            Optional relation labels by ID.
+        :param neg_heads:
+            Optional IDs of negative heads.
+        :param neg_tails:
+            Optional IDs of negative tails.
+
+        :return: Instance of the KGDataset class.
+        """
+        num_triples = data.shape[0]
+        num_train = int(num_triples * split[0])
+        num_valid = int(num_triples * split[1])
+
+        rng = np.random.default_rng()
+        rng.shuffle(data, axis=0)
+
+        triples = dict()
+        triples["train"], triples["valid"], triples["test"] = np.split(
+            data, (num_train, num_train + num_valid), axis=0
+        )
+
+        if not entity_dict:
+            entity_dict = np.unique(data[:, [0, 2]]).tolist()
+        if not relation_dict:
+            relation_dict = np.unique(data[:, 1]).tolist()
+
+        return cls(
+            n_entity=data[:, [0, 2]].max() + 1,
+            n_relation_type=data[:, 1].max() + 1,
+            entity_dict=entity_dict,
+            relation_dict=relation_dict,
+            type_offsets=type_offsets,
+            triples=triples,
+            neg_heads=neg_heads,
+            neg_tails=neg_tails,
+        )
+
     def save(self, out_file: Path) -> None:
         """
         Save dataset to .pkl.
 
-        :param path:
+        :param out_file:
             Path to output file.
         """
         with open(out_file, "wb") as f:
