@@ -286,14 +286,14 @@ class KGDataset:
 
     @classmethod
     def from_triples(
-            cls,
-            data: NDArray,
-            split: Optional[Tuple] = (0.7, 0.15, 0.15),
-            entity_dict: Optional[List] = None,
-            relation_dict: Optional[List] = None,
-            type_offsets: Optional[Dict[str, int]] = None,
-            neg_heads: Optional[Dict[str, NDArray[np.int32]]] = None,
-            neg_tails: Optional[Dict[str, NDArray[np.int32]]] = None,
+        cls,
+        data: NDArray[np.int32],
+        split: Tuple[float, float, float] = (0.7, 0.15, 0.15),
+        entity_dict: Optional[List[str]] = None,
+        relation_dict: Optional[List[str]] = None,
+        type_offsets: Optional[Dict[str, int]] = None,
+        neg_heads: Optional[Dict[str, NDArray[np.int32]]] = None,
+        neg_tails: Optional[Dict[str, NDArray[np.int32]]] = None,
     ) -> "KGDataset":
         """
         Build a dataset from an array of triples.
@@ -307,6 +307,8 @@ class KGDataset:
             Optional entity labels by ID.
         :param relation_dict:
             Optional relation labels by ID.
+        :param type_offsets:
+            Offset of entity types
         :param neg_heads:
             Optional IDs of negative heads.
         :param neg_tails:
@@ -327,9 +329,9 @@ class KGDataset:
         )
 
         if not entity_dict:
-            entity_dict = np.unique(data[:, [0, 2]]).tolist()
+            entity_dict = list(map(str, np.unique(data[:, [0, 2]])))
         if not relation_dict:
-            relation_dict = np.unique(data[:, 1]).tolist()
+            relation_dict = list(map(str, np.unique(data[:, 1])))
 
         return cls(
             n_entity=data[:, [0, 2]].max() + 1,
