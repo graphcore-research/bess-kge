@@ -88,7 +88,7 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
         self.hrt_freq_weighting = hrt_freq_weighting
         self.return_triple_idx = return_triple_idx
         self.seed = seed
-        self.rng = np.random.RandomState(self.seed)
+        self.rng = np.random.default_rng(self.seed)
 
         if self.hrt_freq_weighting:
             if self.dummy != "none":
@@ -278,8 +278,8 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
         worker_info = torch.utils.data.get_worker_info()
         dataset_unwrapped = worker_info.dataset
         worker_seed = dataset_unwrapped.seed + worker_id
-        dataset_unwrapped.rng = np.random.RandomState(worker_seed)
-        dataset_unwrapped.negative_sampler.rng = np.random.RandomState(worker_seed)
+        dataset_unwrapped.rng = np.random.default_rng(worker_seed)
+        dataset_unwrapped.negative_sampler.rng = np.random.default_rng(worker_seed)
 
 
 class RigidShardedBatchSampler(ShardedBatchSampler):
@@ -375,7 +375,7 @@ class RandomShardedBatchSampler(ShardedBatchSampler):
 
         sample_idx = np.expand_dims(
             self.triple_offsets, axis=(0, -1)
-        ) + self.rng.randint(
+        ) + self.rng.integers(
             1 << 63,
             size=sample_size,
         ) % np.expand_dims(

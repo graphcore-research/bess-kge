@@ -89,7 +89,7 @@ class RandomShardedNegativeSampler(ShardedNegativeSampler):
         self.corruption_scheme = corruption_scheme
         self.local_sampling = local_sampling
         self.seed = seed
-        self.rng = np.random.RandomState(seed=self.seed)
+        self.rng = np.random.default_rng(seed=self.seed)
         self.flat_negative_format = flat_negative_format
 
     # docstr-coverage: inherited
@@ -109,7 +109,7 @@ class RandomShardedNegativeSampler(ShardedNegativeSampler):
         else:
             B = shard_bs
         negative_entities = (
-            self.rng.randint(
+            self.rng.integers(
                 1 << 31,
                 size=(
                     batches_per_step,
@@ -297,7 +297,7 @@ class TripleBasedShardedNegativeSampler(ShardedNegativeSampler):
         self.local_sampling = False
         self.flat_negative_format = self.N == 1
         self.return_sort_idx = return_sort_idx
-        self.rng = np.random.RandomState(seed=seed)
+        self.rng = np.random.default_rng(seed=seed)
 
         if self.corruption_scheme in ["h", "t"]:
             negatives = cast(
@@ -556,7 +556,7 @@ class PlaceholderNegativeSampler(ShardedNegativeSampler):
         self.local_sampling = False
         self.flat_negative_format = True
         self.seed = seed
-        self.rng = np.random.RandomState(seed=self.seed)
+        self.rng = np.random.default_rng(seed=self.seed)
 
     # docstr-coverage: inherited
     def __call__(
