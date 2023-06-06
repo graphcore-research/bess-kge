@@ -173,7 +173,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">hrt_freq_weighting</span> <span class="o">=</span> <span class="n">hrt_freq_weighting</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">return_triple_idx</span> <span class="o">=</span> <span class="n">return_triple_idx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hrt_freq_weighting</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dummy</span> <span class="o">!=</span> <span class="s2">&quot;none&quot;</span><span class="p">:</span>
@@ -369,8 +369,8 @@
         <span class="n">worker_info</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get_worker_info</span><span class="p">()</span>
         <span class="n">dataset_unwrapped</span> <span class="o">=</span> <span class="n">worker_info</span><span class="o">.</span><span class="n">dataset</span>
         <span class="n">worker_seed</span> <span class="o">=</span> <span class="n">dataset_unwrapped</span><span class="o">.</span><span class="n">seed</span> <span class="o">+</span> <span class="n">worker_id</span>
-        <span class="n">dataset_unwrapped</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">worker_seed</span><span class="p">)</span>
-        <span class="n">dataset_unwrapped</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">worker_seed</span><span class="p">)</span></div></div>
+        <span class="n">dataset_unwrapped</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">worker_seed</span><span class="p">)</span>
+        <span class="n">dataset_unwrapped</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">worker_seed</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="RigidShardedBatchSampler"><a class="viewcode-back" href="../../API_ref/batch_sampler.html#besskge.batch_sampler.RigidShardedBatchSampler">[docs]</a><span class="k">class</span> <span class="nc">RigidShardedBatchSampler</span><span class="p">(</span><span class="n">ShardedBatchSampler</span><span class="p">):</span>
@@ -467,7 +467,7 @@
 
         <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">triple_offsets</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span>
+        <span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span>
             <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">63</span><span class="p">,</span>
             <span class="n">size</span><span class="o">=</span><span class="n">sample_size</span><span class="p">,</span>
         <span class="p">)</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span>
