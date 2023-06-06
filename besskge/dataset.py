@@ -319,7 +319,7 @@ class KGDataset:
         num_train = int(num_triples * split[0])
         num_valid = int(num_triples * split[1])
 
-        rng = np.random.default_rng()
+        rng = np.random.default_rng(seed=seed)
         rng.shuffle(data, axis=0)
 
         triples = dict()
