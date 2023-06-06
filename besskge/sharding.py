@@ -83,7 +83,7 @@ class Sharding:
         :return:
             Random sharding of n_entity entities in n_shard shards.
         """
-        rng = np.random.RandomState(seed)
+        rng = np.random.default_rng(seed)
         max_entity_per_shard = int(np.ceil(n_entity / n_shard))
         # Keep global entity ID sorted on each shard, to preserve type-based clustering
         shard_and_idx_to_entity = np.sort(

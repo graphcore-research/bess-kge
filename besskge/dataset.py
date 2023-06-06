@@ -5,7 +5,7 @@ import pickle
 import tarfile
 from io import BytesIO
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 import ogb.linkproppred
@@ -31,22 +31,22 @@ class KGDataset:
     triples: Dict[str, NDArray[np.int32]]
 
     #: Entity labels by ID; str[n_entity]
-    entity_dict: Optional[List[str]]
+    entity_dict: Optional[List[str]] = None
 
     #: Relation type labels by ID; str[n_relation_type]
-    relation_dict: Optional[List[str]]
+    relation_dict: Optional[List[str]] = None
 
     #: If entities have types, IDs are assumed to be clustered by type;
     #: {entity_type: int}
-    type_offsets: Optional[Dict[str, int]]
+    type_offsets: Optional[Dict[str, int]] = None
 
     #: IDs of (possibly triple-specific) negative heads;
     #: {part: int32[n_triple or 1, n_neg_heads]}
-    neg_heads: Optional[Dict[str, NDArray[np.int32]]]
+    neg_heads: Optional[Dict[str, NDArray[np.int32]]] = None
 
-    #: IDs of (possibly triple-specific) negative heads;
+    #: IDs of (possibly triple-specific) negative tails;
     #: {part: int32[n_triple or 1, n_neg_tails]}
-    neg_tails: Optional[Dict[str, NDArray[np.int32]]]
+    neg_tails: Optional[Dict[str, NDArray[np.int32]]] = None
 
     @property
     def ht_types(self) -> Optional[Dict[str, NDArray[np.int32]]]:
@@ -284,11 +284,63 @@ class KGDataset:
             neg_tails=None,
         )
 
+    @classmethod
+    def from_triples(
+        cls,
+        data: NDArray[np.int32],
+        split: Tuple[float, float, float] = (0.7, 0.15, 0.15),
+        seed: int = 1234,
+        entity_dict: Optional[List[str]] = None,
+        relation_dict: Optional[List[str]] = None,
+        type_offsets: Optional[Dict[str, int]] = None,
+    ) -> "KGDataset":
+        """
+        Build a dataset from an array of triples. Note that if a pre-defined
+        train/validation/test split is wanted the KGDataset class should be instantiated
+        manually.
+
+        :param data:
+            Numpy array of triples [head_id, relation_id, tail_id]. Shape
+            (num_triples, 3).
+        :param split:
+            Tuple to set the train/validation/test split.
+        :param seed:
+            Random seed for the train/validation/test split.
+        :param entity_dict:
+            Optional entity labels by ID.
+        :param relation_dict:
+            Optional relation labels by ID.
+        :param type_offsets:
+            Offset of entity types
+
+        :return: Instance of the KGDataset class.
+        """
+        num_triples = data.shape[0]
+        num_train = int(num_triples * split[0])
+        num_valid = int(num_triples * split[1])
+
+        rng = np.random.default_rng(seed=seed)
+        rng.shuffle(data, axis=0)
+
+        triples = dict()
+        triples["train"], triples["valid"], triples["test"] = np.split(
+            data, (num_train, num_train + num_valid), axis=0
+        )
+
+        return cls(
+            n_entity=data[:, [0, 2]].max() + 1,
+            n_relation_type=data[:, 1].max() + 1,
+            entity_dict=entity_dict,
+            relation_dict=relation_dict,
+            type_offsets=type_offsets,
+            triples=triples,
+        )
+
     def save(self, out_file: Path) -> None:
         """
         Save dataset to .pkl.
 
-        :param path:
+        :param out_file:
             Path to output file.
         """
         with open(out_file, "wb") as f:
