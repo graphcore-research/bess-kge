@@ -74,7 +74,7 @@ class KGDataset:
         """
         Build the ogbl-biokg dataset :cite:p:`OGB`
 
-        .. see also:: https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg
+        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg
 
         :param root:
             Path to dataset. If dataset is not present, download it
@@ -137,7 +137,7 @@ class KGDataset:
         """
         Build the ogbl-wikikg2 dataset :cite:p:`OGB`
 
-        .. see also:: https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2
+        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2
 
         :param root:
             Path to dataset. If dataset is not present, download it
@@ -189,7 +189,7 @@ class KGDataset:
         entities which have at least 10 relations associated to them.
         First used in :cite:p:`ConvE`.
 
-        .. see also:: https://yago-knowledge.org/downloads/yago-3
+        .. seealso:: https://yago-knowledge.org/downloads/yago-3
 
         :param root:
             Path to dataset. If dataset is not present, download it
@@ -289,30 +289,29 @@ class KGDataset:
         cls,
         data: NDArray[np.int32],
         split: Tuple[float, float, float] = (0.7, 0.15, 0.15),
+        seed: int = 1234,
         entity_dict: Optional[List[str]] = None,
         relation_dict: Optional[List[str]] = None,
         type_offsets: Optional[Dict[str, int]] = None,
-        neg_heads: Optional[Dict[str, NDArray[np.int32]]] = None,
-        neg_tails: Optional[Dict[str, NDArray[np.int32]]] = None,
     ) -> "KGDataset":
         """
-        Build a dataset from an array of triples.
+        Build a dataset from an array of triples. Note that if a pre-defined
+        train/validation/test split is wanted the KGDataset class should be instantiated
+        manually.
 
         :param data:
             Numpy array of triples [head_id, relation_id, tail_id]. Shape
             (num_triples, 3).
         :param split:
-            Optional tuple to set the train/validation/test split.
+            Tuple to set the train/validation/test split.
+        :param seed:
+            Random seed for the train/validation/test split.
         :param entity_dict:
             Optional entity labels by ID.
         :param relation_dict:
             Optional relation labels by ID.
         :param type_offsets:
             Offset of entity types
-        :param neg_heads:
-            Optional IDs of negative heads.
-        :param neg_tails:
-            Optional IDs of negative tails.
 
         :return: Instance of the KGDataset class.
         """
@@ -328,11 +327,6 @@ class KGDataset:
             data, (num_train, num_train + num_valid), axis=0
         )
 
-        if not entity_dict:
-            entity_dict = list(map(str, np.unique(data[:, [0, 2]])))
-        if not relation_dict:
-            relation_dict = list(map(str, np.unique(data[:, 1])))
-
         return cls(
             n_entity=data[:, [0, 2]].max() + 1,
             n_relation_type=data[:, 1].max() + 1,
@@ -340,8 +334,6 @@ class KGDataset:
             relation_dict=relation_dict,
             type_offsets=type_offsets,
             triples=triples,
-            neg_heads=neg_heads,
-            neg_tails=neg_tails,
         )
 
     def save(self, out_file: Path) -> None:
