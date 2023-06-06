@@ -31,22 +31,22 @@ class KGDataset:
     triples: Dict[str, NDArray[np.int32]]
 
     #: Entity labels by ID; str[n_entity]
-    entity_dict: Optional[List[str]]
+    entity_dict: Optional[List[str]] = None
 
     #: Relation type labels by ID; str[n_relation_type]
-    relation_dict: Optional[List[str]]
+    relation_dict: Optional[List[str]] = None
 
     #: If entities have types, IDs are assumed to be clustered by type;
     #: {entity_type: int}
-    type_offsets: Optional[Dict[str, int]]
+    type_offsets: Optional[Dict[str, int]] = None
 
     #: IDs of (possibly triple-specific) negative heads;
     #: {part: int32[n_triple or 1, n_neg_heads]}
-    neg_heads: Optional[Dict[str, NDArray[np.int32]]]
+    neg_heads: Optional[Dict[str, NDArray[np.int32]]] = None
 
     #: IDs of (possibly triple-specific) negative tails;
     #: {part: int32[n_triple or 1, n_neg_tails]}
-    neg_tails: Optional[Dict[str, NDArray[np.int32]]]
+    neg_tails: Optional[Dict[str, NDArray[np.int32]]] = None
 
     @property
     def ht_types(self) -> Optional[Dict[str, NDArray[np.int32]]]:
