@@ -158,7 +158,7 @@ If you get an error message during compilation about the ONNX protobuffer exceed
 
 ## Usage
 
-Tested on Poplar SDK 3.2.0+1277, Ubuntu 20.04, Python 3.8
+Tested on Poplar SDK 3.3.0+1403, Ubuntu 20.04, Python 3.8
 
 1\. Install the Poplar SDK following the instructions in the [Getting Started guide for your IPU system](https://docs.graphcore.ai/en/latest/getting-started.html#getting-started).
 

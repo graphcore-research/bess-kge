@@ -21,6 +21,8 @@ class ShardedNegativeSampler(ABC):
     local_sampling: bool
     #: Which entity to corrupt; "h", "t", "ht"
     corruption_scheme: str
+    #: RNG
+    rng: np.random.Generator
 
     @abstractmethod
     def __call__(
