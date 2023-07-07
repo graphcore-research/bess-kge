@@ -21,7 +21,9 @@ jobs:
       run: |
         apt-get update
         apt-get install -y git
+        source /opt/setup-bash-env.sh
         pip install -r requirements-dev.txt --no-cache-dir
+      shell: bash
     - name: Run CI
       run: |
         source /opt/setup-bash-env.sh
