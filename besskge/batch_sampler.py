@@ -284,10 +284,11 @@ class ShardedBatchSampler(torch.utils.data.Dataset[Dict[str, torch.Tensor]], ABC
             Worker ID.
         """
         worker_info = torch.utils.data.get_worker_info()
-        dataset_unwrapped = worker_info.dataset
-        worker_seed = dataset_unwrapped.seed + worker_id
-        dataset_unwrapped.rng = np.random.default_rng(worker_seed)
-        dataset_unwrapped.negative_sampler.rng = np.random.default_rng(worker_seed)
+        if worker_info:
+            dataset_unwrapped = cast(ShardedBatchSampler, worker_info.dataset)
+            worker_seed = dataset_unwrapped.seed + worker_id
+            dataset_unwrapped.rng = np.random.default_rng(worker_seed)
+            dataset_unwrapped.negative_sampler.rng = np.random.default_rng(worker_seed)
 
 
 class RigidShardedBatchSampler(ShardedBatchSampler):
