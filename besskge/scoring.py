@@ -164,11 +164,11 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
         """
         return cast(torch.Tensor, torch.norm(v, p=self.scoring_norm, dim=-1))
 
-    def broadcasted_score(self, v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
+    def broadcasted_distance(self, v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
         """
-        Broadcasted scores of queries against sets of entities.
+        Broadcasted distances of queries against sets of entities.
 
-        For each query and candidate, the score is given by the p-distance
+        For each query and candidate, the computes the p-distance
         of the embeddings.
 
         :param v1: shape: (batch_size, embedding_size)
@@ -219,11 +219,13 @@ class MatrixDecompositionScoreFunction(BaseScoreFunction, ABC):
         """
         return torch.sum(v, dim=-1)
 
-    def broadcasted_score(self, v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
+    def broadcasted_dot_product(
+        self, v1: torch.Tensor, v2: torch.Tensor
+    ) -> torch.Tensor:
         """
-        Broadcasted scores of queries against sets of entities.
+        Broadcasted dot product of queries against sets of entities.
 
-        For each query and candidate, the score is given by the dot product of
+        For each query and candidate, computes the dot product of
         the embeddings.
 
         :param v1: shape: (batch_size, embedding_size)
@@ -321,7 +323,7 @@ class TransE(DistanceBasedScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return -self.broadcasted_score(tail_emb - relation_emb, head_emb)
+        return -self.broadcasted_distance(tail_emb - relation_emb, head_emb)
 
     # docstr-coverage: inherited
     def score_tails(
@@ -333,7 +335,7 @@ class TransE(DistanceBasedScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return -self.broadcasted_score(head_emb + relation_emb, tail_emb)
+        return -self.broadcasted_distance(head_emb + relation_emb, tail_emb)
 
 
 class RotatE(DistanceBasedScoreFunction):
@@ -418,7 +420,7 @@ class RotatE(DistanceBasedScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return -self.broadcasted_score(
+        return -self.broadcasted_distance(
             complex_rotation(tail_emb, -relation_emb), head_emb
         )
 
@@ -432,7 +434,7 @@ class RotatE(DistanceBasedScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return -self.broadcasted_score(
+        return -self.broadcasted_distance(
             complex_rotation(head_emb, relation_emb), tail_emb
         )
 
@@ -509,7 +511,7 @@ class DistMult(MatrixDecompositionScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return self.broadcasted_score(relation_emb * tail_emb, head_emb)
+        return self.broadcasted_dot_product(relation_emb * tail_emb, head_emb)
 
     # docstr-coverage: inherited
     def score_tails(
@@ -521,7 +523,7 @@ class DistMult(MatrixDecompositionScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return self.broadcasted_score(head_emb * relation_emb, tail_emb)
+        return self.broadcasted_dot_product(head_emb * relation_emb, tail_emb)
 
 
 class ComplEx(MatrixDecompositionScoreFunction):
@@ -604,7 +606,7 @@ class ComplEx(MatrixDecompositionScoreFunction):
         )
         cutpoint = relation_emb.shape[-1] // 2
         relation_emb[:, cutpoint:] = -relation_emb[:, cutpoint:]  # conjugate relations
-        return self.broadcasted_score(
+        return self.broadcasted_dot_product(
             complex_multiplication(relation_emb, tail_emb), head_emb
         )
 
@@ -618,7 +620,7 @@ class ComplEx(MatrixDecompositionScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return self.broadcasted_score(
+        return self.broadcasted_dot_product(
             complex_multiplication(head_emb, relation_emb), tail_emb
         )
 
@@ -684,6 +686,41 @@ class BoxE(DistanceBasedScoreFunction):
         )
         self.embedding_size = embedding_size
 
+    def boxe_score(self, center_dist_ht, width_ht):
+        """
+        BoxE score with relation broadcasting for batched negative scoring.
+
+        :param center_dist_ht: shape: (batch_size, 2, emb_size)
+            or (batch_size, n_negative, 2, emb_size)
+            Distances of bumped h/t entity embeddings from center of h/t relation boxes
+            (heads: `center_dist_ht[...,0,:]`, tails: `center_dist_ht[...,1,:]`).
+        :param width_ht: shape: (batch_size, 2, emb_size) or (batch_size, 1, 2, emb_size)
+            Widths or h/t relation boxes
+            (heads: `width_ht[...,0,:]`, tails: `width_ht[...,1,:]`).
+
+        :return: shape: shape: (batch_size,) or (batch_size, n_negative)
+            Negative sum of head and tail scores, as defined in :cite:p:`BoxE`.
+        """
+        width_plus1_ht = width_ht + torch.tensor(
+            1.0, dtype=torch.float32, device=width_ht.device
+        )
+        k_ht = (
+            torch.tensor(0.5, dtype=torch.float32, device=width_ht.device)
+            * width_ht
+            * (width_plus1_ht - torch.reciprocal(width_plus1_ht))
+        )
+
+        final_dist_ht = torch.where(
+            torch.all(
+                torch.le(center_dist_ht, torch.div(width_ht, 2.0)),
+                dim=-1,
+                keepdim=True,
+            ),
+            center_dist_ht / width_plus1_ht,
+            center_dist_ht * width_plus1_ht - k_ht,
+        )
+        return -self.reduce_embedding(final_dist_ht).sum(-1)
+
     # docstr-coverage: inherited
     def score_triple(
         self,
@@ -696,14 +733,6 @@ class BoxE(DistanceBasedScoreFunction):
         )
         center_ht, width_ht = torch.split(relation_emb, 2 * self.embedding_size, dim=-1)
         width_ht = torch.abs(width_ht.view(-1, 2, self.embedding_size))
-        width_plus1_ht = width_ht + torch.tensor(
-            1.0, dtype=torch.float32, device=width_ht.device
-        )
-        k_ht = (
-            torch.tensor(0.5, dtype=torch.float32, device=width_ht.device)
-            * width_ht
-            * (width_plus1_ht - torch.reciprocal(width_plus1_ht))
-        )
 
         bumped_ht = (
             head_emb.view(-1, 2, self.embedding_size)
@@ -712,17 +741,10 @@ class BoxE(DistanceBasedScoreFunction):
         center_dist_ht = torch.abs(
             bumped_ht - center_ht.view(-1, 2, self.embedding_size)
         )
-        final_dist_ht = torch.where(
-            torch.all(
-                torch.le(center_dist_ht, torch.div(width_ht, 2.0)),
-                dim=-1,
-                keepdim=True,
-            ),
-            center_dist_ht / width_plus1_ht,
-            center_dist_ht * width_plus1_ht - k_ht,
-        )  # shape (batch_size, 2, emb_size)
-
-        return -self.reduce_embedding(final_dist_ht).sum(-1)
+        return self.boxe_score(
+            center_dist_ht,  # shape (batch_size, 2, emb_size)
+            width_ht,  # shape (batch_size, 2, emb_size)
+        )
 
     # docstr-coverage: inherited
     def score_heads(
@@ -736,14 +758,6 @@ class BoxE(DistanceBasedScoreFunction):
         )
         center_ht, width_ht = torch.split(relation_emb, 2 * self.embedding_size, dim=-1)
         width_ht = torch.abs(width_ht.view(-1, 1, 2, self.embedding_size))
-        width_plus1_ht = width_ht + torch.tensor(
-            1.0, dtype=torch.float32, device=width_ht.device
-        )
-        k_ht = (
-            torch.tensor(0.5, dtype=torch.float32, device=width_ht.device)
-            * width_ht
-            * (width_plus1_ht - torch.reciprocal(width_plus1_ht))
-        )
 
         if self.negative_sample_sharing:
             head_emb = head_emb.view(1, -1, 2 * self.embedding_size)
@@ -752,21 +766,13 @@ class BoxE(DistanceBasedScoreFunction):
             head_emb.view(head_emb.shape[0], -1, 2, self.embedding_size)
             + tail_emb.view(-1, 1, 2, self.embedding_size)[:, :, [1, 0]]
         )
-
         center_dist_ht = torch.abs(
             bumped_ht - center_ht.view(-1, 1, 2, self.embedding_size)
         )
-        final_dist_ht = torch.where(
-            torch.all(
-                torch.le(center_dist_ht, torch.div(width_ht, 2.0)),
-                dim=-1,
-                keepdim=True,
-            ),
-            center_dist_ht / width_plus1_ht,
-            center_dist_ht * width_plus1_ht - k_ht,
-        )  # shape (batch_size, B * n_heads, 2, emb_size)
-
-        return -self.reduce_embedding(final_dist_ht).sum(-1)
+        return self.boxe_score(
+            center_dist_ht,  # shape (batch_size, B * n_heads, 2, emb_size)
+            width_ht,  # shape (batch_size, 1, 2, emb_size)
+        )
 
     # docstr-coverage: inherited
     def score_tails(
@@ -780,14 +786,6 @@ class BoxE(DistanceBasedScoreFunction):
         )
         center_ht, width_ht = torch.split(relation_emb, 2 * self.embedding_size, dim=-1)
         width_ht = torch.abs(width_ht.view(-1, 1, 2, self.embedding_size))
-        width_plus1_ht = width_ht + torch.tensor(
-            1.0, dtype=torch.float32, device=width_ht.device
-        )
-        k_ht = (
-            torch.tensor(0.5, dtype=torch.float32, device=width_ht.device)
-            * width_ht
-            * (width_plus1_ht - torch.reciprocal(width_plus1_ht))
-        )
 
         if self.negative_sample_sharing:
             tail_emb = tail_emb.view(1, -1, 2 * self.embedding_size)
@@ -796,18 +794,10 @@ class BoxE(DistanceBasedScoreFunction):
             head_emb.view(-1, 1, 2, self.embedding_size)
             + tail_emb.view(tail_emb.shape[0], -1, 2, self.embedding_size)[:, :, [1, 0]]
         )
-
         center_dist_ht = torch.abs(
             bumped_ht - center_ht.view(-1, 1, 2, self.embedding_size)
         )
-        final_dist_ht = torch.where(
-            torch.all(
-                torch.le(center_dist_ht, torch.div(width_ht, 2.0)),
-                dim=-1,
-                keepdim=True,
-            ),
-            center_dist_ht / width_plus1_ht,
-            center_dist_ht * width_plus1_ht - k_ht,
-        )  # shape (batch_size, B * n_tails, 2, emb_size)
-
-        return -self.reduce_embedding(final_dist_ht).sum(-1)
+        return self.boxe_score(
+            center_dist_ht,  # shape (batch_size, B * n_tails, 2, emb_size)
+            width_ht,  # shape (batch_size, 1, 2, emb_size)
+        )
