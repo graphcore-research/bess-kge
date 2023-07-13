@@ -33,7 +33,7 @@ class UniformInitializer(EmbeddingInitializer):
     def __init__(self, range_scale: float = 1.0):
         """
         Initialize embeddings according to uniform distribution
-        in the range `[-range_scale / embedding_size, + range_scale / embedding_size]`.
+        in the range `[-range_scale / row_size, + range_scale / row_size]`.
 
         :param range_scale:
             Scaling factor for the range.
@@ -50,7 +50,7 @@ class NormalInitializer(EmbeddingInitializer):
     def __init__(self, std_scale: float = 1.0):
         """
         Initialize embeddings according to a normal distribution with
-        mean 0 and standard deviation `std_scale / embedding_size`.
+        mean 0 and standard deviation `std_scale / row_size`.
 
         :param std_scale:
             Scaling factor for standard deviation.
@@ -66,7 +66,7 @@ class NormalInitializer(EmbeddingInitializer):
 def initialize_entity_embedding(
     initializer: Union[torch.Tensor, EmbeddingInitializer],
     sharding: Sharding,
-    embedding_size: Optional[int] = None,
+    row_size: Optional[int] = None,
 ) -> torch.nn.Parameter:
     """
     Initialize entity embedding table.
@@ -74,15 +74,15 @@ def initialize_entity_embedding(
     :param initializer:
         Embedding table or embedding initializer. If providing
         an embedding table, this can either be sharded
-        (shape: [n_shard, max_entity_per_shard, embedding_size])
-        or unsharded [shape: (n_entity, embedding_size]).
+        (shape: [n_shard, max_entity_per_shard, row_size])
+        or unsharded [shape: (n_entity, row_size]).
     :param sharding:
         Entity sharding.
-    :param embedding_size:
-        Entity embedding size. Can be omitted if passing an
-        embedding table.
+    :param row_size:
+        Number of parameters per entity.
+        Can be omitted if passing an embedding table.
 
-    :return: shape: (n_shard, max_ent_per_shard, embedding_size)
+    :return: shape: (n_shard, max_ent_per_shard, row_size)
         Entity embedding table.
     """
 
@@ -111,22 +111,21 @@ def initialize_entity_embedding(
         else:
             raise ValueError("Table for initialization needs to be 2- or 3-dimensional")
 
-        if embedding_size:
+        if row_size:
             assert (
-                embedding_size == entity_embedding.shape[-1]
-            ), "Initialization tensor and embedding_size provided are incompatible"
+                row_size == entity_embedding.shape[-1]
+            ), "Initialization tensor and row_size provided are incompatible"
     else:
-        if not embedding_size:
+        if not row_size:
             raise ValueError(
-                "If not providing an embedding table, embedding_size needs to"
-                " be specified"
+                "If not providing an embedding table, row_size needs to" " be specified"
             )
         entity_embedding = torch.nn.Parameter(
             torch.empty(
                 size=(
                     sharding.n_shard,
                     sharding.max_entity_per_shard,
-                    embedding_size,
+                    row_size,
                 ),
                 dtype=torch.float32,
             )
@@ -139,7 +138,7 @@ def initialize_entity_embedding(
 def initialize_relation_embedding(
     initializer: Union[torch.Tensor, EmbeddingInitializer],
     n_relation_type: int,
-    embedding_size: Optional[int] = None,
+    row_size: Optional[int] = None,
 ) -> torch.nn.Parameter:
     """
     Initialize relation embedding table.
@@ -148,9 +147,9 @@ def initialize_relation_embedding(
         Embedding table or embedding initializer.
     :param n_relation_type:
         Number of relation types.
-    :param embedding_size:
-        Relation embedding size. Can be omitted if passing an
-        embedding table.
+    :param row_size:
+        Number of parameters per relation.
+        Can be omitted if passing an embedding table.
 
     :return:
         Relation embedding table.
@@ -161,18 +160,17 @@ def initialize_relation_embedding(
             raise ValueError("Table for initialization needs to be 2-dimensional")
         relation_embedding = torch.nn.Parameter(initializer.to(torch.float32))
 
-        if embedding_size:
+        if row_size:
             assert (
-                embedding_size == relation_embedding.shape[-1]
-            ), "Initialization tensor and embedding_size provided are incompatible"
+                row_size == relation_embedding.shape[-1]
+            ), "Initialization tensor and row_size provided are incompatible"
     else:
-        if not embedding_size:
+        if not row_size:
             raise ValueError(
-                "If not providing an embedding table, embedding_size needs to"
-                " be specified"
+                "If not providing an embedding table, row_size needs to" " be specified"
             )
         relation_embedding = torch.nn.Parameter(
-            torch.empty(size=(n_relation_type, embedding_size), dtype=torch.float32)
+            torch.empty(size=(n_relation_type, row_size), dtype=torch.float32)
         )
         initializer.initialize(relation_embedding)
 
@@ -188,14 +186,14 @@ def refactor_embedding_sharding(
     Refactor sharded entity embedding table to pass from
     one entity sharding to a different one.
 
-    :param entity_embedding: shape: (n_shard_old, max_ent_per_shard_old, embedding_size)
+    :param entity_embedding: shape: (n_shard_old, max_ent_per_shard_old, row_size)
         Entity embedding table sharded according to `old_sharding`.
     :param old_sharding:
         The current entity sharding.
     :param new_sharding:
         The new entity sharding.
 
-    :return: shape: (n_shard_new, max_ent_per_shard_new, embedding_size)
+    :return: shape: (n_shard_new, max_ent_per_shard_new, row_size)
         The refactored entity embedding table, sharded according
         to `new_sharding`.
     """
