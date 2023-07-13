@@ -1,7 +1,7 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
 from abc import ABC, abstractmethod
-from typing import Optional, Union, cast
+from typing import Union, cast
 
 import poptorch_experimental_addons as pea
 import torch
@@ -266,9 +266,9 @@ class TransE(DistanceBasedScoreFunction):
 
         :param negative_sample_sharing:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type scoring_norm:
+        :param scoring_norm:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type sharding:
+        :param sharding:
             Entity sharding.
         :param n_relation_type:
             Number of relation types in the knowledge graph.
@@ -358,9 +358,9 @@ class RotatE(DistanceBasedScoreFunction):
 
         :param negative_sample_sharing:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type scoring_norm:
+        :param scoring_norm:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type sharding:
+        :param sharding:
             Entity sharding.
         :param n_relation_type:
             Number of relation types in the knowledge graph.
@@ -458,7 +458,7 @@ class DistMult(MatrixDecompositionScoreFunction):
 
         :param negative_sample_sharing:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type sharding:
+        :param sharding:
             Entity sharding.
         :param n_relation_type:
             Number of relation types in the knowledge graph.
@@ -545,7 +545,7 @@ class ComplEx(MatrixDecompositionScoreFunction):
 
         :param negative_sample_sharing:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type sharding:
+        :param sharding:
             Entity sharding.
         :param n_relation_type:
             Number of relation types in the knowledge graph.
@@ -639,15 +639,17 @@ class BoxE(DistanceBasedScoreFunction):
         embedding_size: int,
         entity_initializer: Union[torch.Tensor, EmbeddingInitializer],
         relation_initializer: Union[torch.Tensor, EmbeddingInitializer],
+        apply_tanh: bool = True,
+        dist_func_per_dim: bool = True,
     ) -> None:
         """
         Initialize BoxE model.
 
         :param negative_sample_sharing:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type scoring_norm:
+        :param scoring_norm:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type sharding:
+        :param sharding:
             Entity sharding.
         :param n_relation_type:
             Number of relation types in the knowledge graph.
@@ -657,52 +659,91 @@ class BoxE(DistanceBasedScoreFunction):
             Initialization scheme or table for entity embeddings.
         :param relation_initializer:
             Initialization scheme or table for relation embeddings.
+        :param apply_tanh:
+            If True, bound relation box sizes and bumped entity
+            representations with tanh.
+        :param dist_func_per_dim:
+            If True, instead of selecting between the two BoxE distance
+            functions based on whether the bumped representation is inside
+            or outside the relation box, make the choice separately for
+            each dimension of the embedding space.
         """
         super(BoxE, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
         )
+        self.apply_tanh = apply_tanh
+        self.dist_func_per_dim = dist_func_per_dim
 
         self.sharding = sharding
 
-        # self.entity_embedding[..., :embedding_size] : base positions
-        # self.entity_embedding[..., embedding_size:] : translational bumps
+        # self.entity_embedding[..., :embedding_size] base positions
+        # self.entity_embedding[..., embedding_size:] translational bumps
         self.entity_embedding = initialize_entity_embedding(
             entity_initializer, self.sharding, 2 * embedding_size
         )
-        # self.relation_embedding[..., :embedding_size] : head box centers
-        # self.relation_embedding[..., embedding_size:2*embedding_size] : tail box centers
-        # self.relation_embedding[..., 2*embedding_size:3*embedding_size] : head box widths
-        # self.relation_embedding[..., 3*embedding_size:] : tail box widths
+        # self.relation_embedding[..., :embedding_size] head box centers
+        # self.relation_embedding[..., embedding_size:2*embedding_size] tail box centers
+        # self.relation_embedding[..., 2*embedding_size:3*embedding_size] head box widths
+        # self.relation_embedding[..., 3*embedding_size:4*embedding_size] tail box widths
+        # self.relation_embedding[..., -2] head box size
+        # self.relation_embedding[..., -2] tail box size
         self.relation_embedding = initialize_relation_embedding(
-            relation_initializer, n_relation_type, 4 * embedding_size
+            relation_initializer, n_relation_type, 4 * embedding_size + 2
         )
         assert (
             2 * self.entity_embedding.shape[-1]
-            == self.relation_embedding.shape[-1]
+            == self.relation_embedding.shape[-1] - 2
             == 4 * embedding_size
         ), (
             "BoxE requires `2*embedding_size` embedding parameters for each entity"
-            " and `4*embedding_size` embedding parameters for each relation"
+            " and `4*embedding_size + 2` embedding parameters for each relation"
         )
         self.embedding_size = embedding_size
+        self.soft = 1e-6
 
-    def boxe_score(self, center_dist_ht, width_ht):
+    def boxe_score(
+        self,
+        center_dist_ht: torch.Tensor,
+        width_ht: torch.Tensor,
+        box_size: torch.Tensor,
+    ) -> torch.Tensor:
         """
-        BoxE score with relation broadcasting for batched negative scoring.
+        BoxE score with relation broadcasting, for optimized batched negative scoring.
 
         :param center_dist_ht: shape: (batch_size, 2, emb_size)
             or (batch_size, n_negative, 2, emb_size)
             Distances of bumped h/t entity embeddings from center of h/t relation boxes
             (heads: `center_dist_ht[...,0,:]`, tails: `center_dist_ht[...,1,:]`).
         :param width_ht: shape: (batch_size, 2, emb_size) or (batch_size, 1, 2, emb_size)
-            Widths or h/t relation boxes
+            Widths of h/t relation boxes, before normalization
             (heads: `width_ht[...,0,:]`, tails: `width_ht[...,1,:]`).
+        :param box_size: shape: (batch_size, 2) or (batch_size, 1, 2)
+            Parameter controlling the size of the (normalized)
+            h/t relation boxes
+            (heads: `box_size[...,0]`, tails: `box_size[...,1]`).
 
         :return: shape: shape: (batch_size,) or (batch_size, n_negative)
             Negative sum of head and tail scores, as defined in :cite:p:`BoxE`.
         """
-        width_plus1_ht = width_ht + torch.tensor(
-            1.0, dtype=torch.float32, device=width_ht.device
+        width_ht = torch.abs(width_ht)
+        width_ht = width_ht / torch.clamp(
+            torch.exp(
+                torch.mean(
+                    torch.log(torch.clamp(width_ht, min=self.soft)),
+                    dim=-1,
+                    keepdim=True,
+                )
+            ),
+            min=self.soft,
+        )
+        width_ht = width_ht * (
+            torch.tensor(1.0, dtype=torch.float32, device=width_ht.device)
+            + torch.nn.functional.elu(box_size.unsqueeze(-1))
+        )
+        if self.apply_tanh:
+            width_ht = torch.tanh(width_ht)
+        width_plus1_ht = (
+            torch.tensor(1.0, dtype=torch.float32, device=width_ht.device) + width_ht
         )
         k_ht = (
             torch.tensor(0.5, dtype=torch.float32, device=width_ht.device)
@@ -710,12 +751,17 @@ class BoxE(DistanceBasedScoreFunction):
             * (width_plus1_ht - torch.reciprocal(width_plus1_ht))
         )
 
-        final_dist_ht = torch.where(
-            torch.all(
+        if self.dist_func_per_dim:
+            in_or_out = torch.le(center_dist_ht, torch.div(width_ht, 2.0))
+        else:
+            in_or_out = torch.all(
                 torch.le(center_dist_ht, torch.div(width_ht, 2.0)),
                 dim=-1,
                 keepdim=True,
-            ),
+            )
+
+        final_dist_ht = torch.where(
+            in_or_out,
             center_dist_ht / width_plus1_ht,
             center_dist_ht * width_plus1_ht - k_ht,
         )
@@ -731,19 +777,22 @@ class BoxE(DistanceBasedScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        center_ht, width_ht = torch.split(relation_emb, 2 * self.embedding_size, dim=-1)
-        width_ht = torch.abs(width_ht.view(-1, 2, self.embedding_size))
-
+        center_ht, width_ht, box_size = torch.split(
+            relation_emb, 2 * self.embedding_size, dim=-1
+        )
         bumped_ht = (
             head_emb.view(-1, 2, self.embedding_size)
             + tail_emb.view(-1, 2, self.embedding_size)[:, [1, 0]]
         )
+        if self.apply_tanh:
+            bumped_ht = torch.tanh(bumped_ht)
         center_dist_ht = torch.abs(
             bumped_ht - center_ht.view(-1, 2, self.embedding_size)
         )
         return self.boxe_score(
             center_dist_ht,  # shape (batch_size, 2, emb_size)
-            width_ht,  # shape (batch_size, 2, emb_size)
+            width_ht.view(-1, 2, self.embedding_size),
+            box_size.view(-1, 2),
         )
 
     # docstr-coverage: inherited
@@ -756,22 +805,24 @@ class BoxE(DistanceBasedScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        center_ht, width_ht = torch.split(relation_emb, 2 * self.embedding_size, dim=-1)
-        width_ht = torch.abs(width_ht.view(-1, 1, 2, self.embedding_size))
-
+        center_ht, width_ht, box_size = torch.split(
+            relation_emb, 2 * self.embedding_size, dim=-1
+        )
         if self.negative_sample_sharing:
             head_emb = head_emb.view(1, -1, 2 * self.embedding_size)
-
         bumped_ht = (
             head_emb.view(head_emb.shape[0], -1, 2, self.embedding_size)
             + tail_emb.view(-1, 1, 2, self.embedding_size)[:, :, [1, 0]]
         )
+        if self.apply_tanh:
+            bumped_ht = torch.tanh(bumped_ht)
         center_dist_ht = torch.abs(
             bumped_ht - center_ht.view(-1, 1, 2, self.embedding_size)
         )
         return self.boxe_score(
             center_dist_ht,  # shape (batch_size, B * n_heads, 2, emb_size)
-            width_ht,  # shape (batch_size, 1, 2, emb_size)
+            width_ht.view(-1, 1, 2, self.embedding_size),
+            box_size.view(-1, 1, 2),
         )
 
     # docstr-coverage: inherited
@@ -784,20 +835,22 @@ class BoxE(DistanceBasedScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        center_ht, width_ht = torch.split(relation_emb, 2 * self.embedding_size, dim=-1)
-        width_ht = torch.abs(width_ht.view(-1, 1, 2, self.embedding_size))
-
+        center_ht, width_ht, box_size = torch.split(
+            relation_emb, 2 * self.embedding_size, dim=-1
+        )
         if self.negative_sample_sharing:
             tail_emb = tail_emb.view(1, -1, 2 * self.embedding_size)
-
         bumped_ht = (
             head_emb.view(-1, 1, 2, self.embedding_size)
             + tail_emb.view(tail_emb.shape[0], -1, 2, self.embedding_size)[:, :, [1, 0]]
         )
+        if self.apply_tanh:
+            bumped_ht = torch.tanh(bumped_ht)
         center_dist_ht = torch.abs(
             bumped_ht - center_ht.view(-1, 1, 2, self.embedding_size)
         )
         return self.boxe_score(
             center_dist_ht,  # shape (batch_size, B * n_tails, 2, emb_size)
-            width_ht,  # shape (batch_size, 1, 2, emb_size)
+            width_ht.view(-1, 1, 2, self.embedding_size),
+            box_size.view(-1, 1, 2),
         )
