@@ -27,7 +27,7 @@ class BaseScoreFunction(torch.nn.Module, ABC):
     #: Sharding of entities
     sharding: Sharding
 
-    #: Relation embedding table
+    #: Entity embedding table
     entity_embedding: torch.nn.Parameter
 
     #: Relation embedding table
