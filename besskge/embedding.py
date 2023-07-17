@@ -1,7 +1,6 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
-from abc import ABC, abstractmethod
-from typing import Optional, Union
+from typing import Callable, List, Optional, Union
 
 import numpy as np
 import torch
@@ -13,74 +12,80 @@ Utilities for entity/relation embeddings.
 """
 
 
-class EmbeddingInitializer(ABC):
+def init_uniform_norm(embedding_table: torch.Tensor) -> torch.Tensor:
     """
-    Base class for custom embedding initialization scheme.
+    Initialize embeddings according to uniform distribution
+    and normalize so that each row has norm 1.
+
+    :return:
+        Initialized tensor.
     """
-
-    @abstractmethod
-    def initialize(self, embedding_table: torch.nn.Parameter) -> None:
-        """
-        Initialize embedding table.
-
-        :param embedding_table:
-            The embedding table to initialize (in-place)
-        """
-        raise NotImplementedError
+    return torch.nn.functional.normalize(torch.nn.init.uniform(embedding_table), dim=-1)
 
 
-class UniformInitializer(EmbeddingInitializer):
-    def __init__(self, range_scale: float = 1.0):
-        """
-        Initialize embeddings according to uniform distribution
-        in the range `[-range_scale / row_size, + range_scale / row_size]`.
+def init_KGE_uniform(
+    embedding_table: torch.Tensor, b: float = 1.0, divide_by_embedding_size: bool = True
+) -> torch.Tensor:
+    """
+    Initialize embeddings according to symmetric uniform distribution.
 
-        :param range_scale:
-            Scaling factor for the range.
-        """
-        self.range_scale = range_scale
+    :param b:
+        Positive boundary of distribution support.
+    :param divide_by_embedding_size:
+        Rescale distribution support by `1/row_size`.
 
-    # docstr-coverage: inherited
-    def initialize(self, embedding_table: torch.nn.Parameter) -> None:
-        embedding_range = self.range_scale / embedding_table.shape[-1]
-        torch.nn.init.uniform_(embedding_table, -embedding_range, embedding_range)
+    :return:
+        Initialized tensor.
+    """
+    if divide_by_embedding_size:
+        b /= embedding_table.shape[-1]
+    return torch.nn.init.uniform_(embedding_table, -b, b)
 
 
-class NormalInitializer(EmbeddingInitializer):
-    def __init__(self, std_scale: float = 1.0):
-        """
-        Initialize embeddings according to a normal distribution with
-        mean 0 and standard deviation `std_scale / row_size`.
+def init_KGE_normal(
+    embedding_table: torch.Tensor,
+    std: float = 1.0,
+    divide_by_embedding_size: bool = True,
+) -> torch.Tensor:
+    """
+    Initialize embeddings according to normal distribution with mean 0.
 
-        :param std_scale:
-            Scaling factor for standard deviation.
-        """
-        self.std_scale = std_scale
+    :param std:
+        Standard deviation.
+    :param divide_by_embedding_size:
+        Rescale standard deviation by `1/row_size`.
 
-    # docstr-coverage: inherited
-    def initialize(self, embedding_table: torch.nn.Parameter) -> None:
-        std = self.std_scale / embedding_table.shape[-1]
-        torch.nn.init.normal_(embedding_table, std=std)
+    :return:
+        Initialized tensor.
+    """
+    if divide_by_embedding_size:
+        std /= embedding_table.shape[-1]
+    return torch.nn.init.normal_(embedding_table, std=std)
 
 
 def initialize_entity_embedding(
-    initializer: Union[torch.Tensor, EmbeddingInitializer],
     sharding: Sharding,
-    row_size: Optional[int] = None,
+    initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]],
+    row_size: Optional[List[int]] = None,
 ) -> torch.nn.Parameter:
     """
     Initialize entity embedding table.
 
+    :param sharding:
+        Entity sharding.
     :param initializer:
-        Embedding table or embedding initializer. If providing
+        Embedding table or list of initializing functions. If providing
         an embedding table, this can either be sharded
         (shape: [n_shard, max_entity_per_shard, row_size])
         or unsharded [shape: (n_entity, row_size]).
-    :param sharding:
-        Entity sharding.
+        If providing list of initializers, this needs to be of same length
+        as :attr:`row_size`.
     :param row_size:
-        Number of parameters per entity.
-        Can be omitted if passing an embedding table.
+        Number of parameters for each entity.
+        This needs to be a list, with the lengths of the different embedding tensors
+        to allocate for each entity. Each embedding tensor, once allocated, is
+        initialized with the corresponding entry of :attr:`initializer`.
+        Can be omitted if passing an embedding table as :attr:`initializer`.
 
     :return: shape: (n_shard, max_ent_per_shard, row_size)
         Entity embedding table.
@@ -95,7 +100,7 @@ def initialize_entity_embedding(
                     "Shape of sharded table provided for initialization"
                     " is not compatible with sharding"
                 )
-            entity_embedding = torch.nn.Parameter(initializer.to(torch.float32))
+            entity_embedding = initializer.to(torch.float32)
         elif initializer.dim() == 2:
             if initializer.shape[0] != sharding.n_entity:
                 raise ValueError(
@@ -107,49 +112,63 @@ def initialize_entity_embedding(
                     np.minimum(sharding.shard_and_idx_to_entity, sharding.n_entity - 1)
                 )
             ]
-            entity_embedding = torch.nn.Parameter(initializer_sharded.to(torch.float32))
+            entity_embedding = initializer_sharded.to(torch.float32)
         else:
             raise ValueError("Table for initialization needs to be 2- or 3-dimensional")
 
         if row_size:
             assert (
-                row_size == entity_embedding.shape[-1]
+                sum(row_size) == entity_embedding.shape[-1]
             ), "Initialization tensor and row_size provided are incompatible"
     else:
         if not row_size:
             raise ValueError(
-                "If not providing an embedding table, row_size needs to" " be specified"
+                "If not providing an embedding table, row_size needs to be specified"
             )
-        entity_embedding = torch.nn.Parameter(
-            torch.empty(
-                size=(
-                    sharding.n_shard,
-                    sharding.max_entity_per_shard,
-                    row_size,
-                ),
-                dtype=torch.float32,
+        if len(initializer) != len(row_size):
+            raise ValueError(
+                "Different number of embedding splits and initializers provided"
             )
+        entity_embedding = torch.empty(
+            (sharding.n_shard, sharding.max_entity_per_shard, 0),
+            dtype=torch.float32,
         )
-        initializer.initialize(entity_embedding)
+        for slice_size, init in zip(row_size, initializer):
+            table_slice = init(
+                torch.empty(
+                    size=(
+                        sharding.n_shard,
+                        sharding.max_entity_per_shard,
+                        slice_size,
+                    ),
+                    dtype=torch.float32,
+                )
+            )
+            entity_embedding = torch.concat([entity_embedding, table_slice], dim=-1)
 
-    return entity_embedding
+    return torch.nn.Parameter(entity_embedding)
 
 
 def initialize_relation_embedding(
-    initializer: Union[torch.Tensor, EmbeddingInitializer],
     n_relation_type: int,
-    row_size: Optional[int] = None,
+    initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]],
+    row_size: Optional[List[int]] = None,
 ) -> torch.nn.Parameter:
     """
     Initialize relation embedding table.
 
-    :param initializer:
-        Embedding table or embedding initializer.
     :param n_relation_type:
         Number of relation types.
+    :param initializer:
+         Embedding table or list of initializing functions.
+         If providing list of initializers, this needs to be of same length
+        as :attr:`row_size`.
     :param row_size:
-        Number of parameters per relation.
-        Can be omitted if passing an embedding table.
+        Number of parameters for each relation type.
+        This needs to be a list, with the lengths of the different embedding tensors
+        to allocate for each relation. Each embedding tensor, once allocated, is
+        initialized with the corresponding entry of :attr:`initializer`.
+        Can be omitted if passing an embedding table as :attr:`initializer`.
 
     :return:
         Relation embedding table.
@@ -158,23 +177,38 @@ def initialize_relation_embedding(
     if isinstance(initializer, torch.Tensor):
         if initializer.dim() != 2:
             raise ValueError("Table for initialization needs to be 2-dimensional")
-        relation_embedding = torch.nn.Parameter(initializer.to(torch.float32))
+        relation_embedding = initializer.to(torch.float32)
 
         if row_size:
             assert (
-                row_size == relation_embedding.shape[-1]
+                sum(row_size) == relation_embedding.shape[-1]
             ), "Initialization tensor and row_size provided are incompatible"
     else:
         if not row_size:
             raise ValueError(
-                "If not providing an embedding table, row_size needs to" " be specified"
+                "If not providing an embedding table, row_size needs to be specified"
             )
-        relation_embedding = torch.nn.Parameter(
-            torch.empty(size=(n_relation_type, row_size), dtype=torch.float32)
+        if len(initializer) != len(row_size):
+            raise ValueError(
+                "Different number of embedding splits and initializers provided"
+            )
+        relation_embedding = torch.empty(
+            (n_relation_type, 0),
+            dtype=torch.float32,
         )
-        initializer.initialize(relation_embedding)
+        for slice_size, init in zip(row_size, initializer):
+            table_slice = init(
+                torch.empty(
+                    size=(
+                        n_relation_type,
+                        slice_size,
+                    ),
+                    dtype=torch.float32,
+                )
+            )
+            relation_embedding = torch.concat([relation_embedding, table_slice], dim=-1)
 
-    return relation_embedding
+    return torch.nn.Parameter(relation_embedding)
 
 
 def refactor_embedding_sharding(
