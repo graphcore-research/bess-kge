@@ -705,7 +705,11 @@ class BoxE(DistanceBasedScoreFunction):
         # self.entity_embedding[..., :embedding_size] base positions
         # self.entity_embedding[..., embedding_size:] translational bumps
         self.entity_embedding = initialize_entity_embedding(
-            self.sharding, 2 * entity_initializer, [embedding_size, embedding_size]
+            self.sharding,
+            2 * entity_initializer
+            if isinstance(entity_initializer, list)
+            else entity_initializer,
+            [embedding_size, embedding_size],
         )
         # self.relation_embedding[..., :embedding_size] head box centers
         # self.relation_embedding[..., embedding_size:2*embedding_size] tail box centers
