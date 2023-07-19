@@ -664,6 +664,7 @@ class BoxE(DistanceBasedScoreFunction):
         ],
         apply_tanh: bool = True,
         dist_func_per_dim: bool = True,
+        eps: float = 1e-6,
     ) -> None:
         """
         Initialize BoxE model.
@@ -687,28 +688,35 @@ class BoxE(DistanceBasedScoreFunction):
             (scalar) head/tail box sizes.
         :param apply_tanh:
             If True, bound relation box sizes and bumped entity
-            representations with tanh.
+            representations with tanh. Default: True.
         :param dist_func_per_dim:
             If True, instead of selecting between the two BoxE distance
             functions based on whether the bumped representation is inside
             or outside the relation box, make the choice separately for
-            each dimension of the embedding space.
+            each dimension of the embedding space. Default: True.
+        :param eps:
+            Softening parameter for geometric normalization of box widths.
+            Default: 1e-6.
         """
         super(BoxE, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
         )
         self.apply_tanh = apply_tanh
         self.dist_func_per_dim = dist_func_per_dim
-        self.soft = 1e-6
+        self.eps = eps
         self.sharding = sharding
 
+        if isinstance(entity_initializer, list):
+            entity_initializer = 2 * entity_initializer
+        if isinstance(relation_initializer, list):
+            relation_initializer = 4 * [relation_initializer[0]] + 2 * [
+                relation_initializer[1]
+            ]
         # self.entity_embedding[..., :embedding_size] base positions
         # self.entity_embedding[..., embedding_size:] translational bumps
         self.entity_embedding = initialize_entity_embedding(
             self.sharding,
-            2 * entity_initializer
-            if isinstance(entity_initializer, list)
-            else entity_initializer,
+            entity_initializer,
             [embedding_size, embedding_size],
         )
         # self.relation_embedding[..., :embedding_size] head box centers
@@ -719,9 +727,7 @@ class BoxE(DistanceBasedScoreFunction):
         # self.relation_embedding[..., -1] tail box size
         self.relation_embedding = initialize_relation_embedding(
             n_relation_type,
-            4 * [relation_initializer[0]] + 2 * [relation_initializer[1]]
-            if isinstance(relation_initializer, list)
-            else relation_initializer,
+            relation_initializer,
             [embedding_size, embedding_size, embedding_size, embedding_size, 1, 1],
         )
         assert (
@@ -763,12 +769,12 @@ class BoxE(DistanceBasedScoreFunction):
         width_ht = width_ht / torch.clamp(
             torch.exp(
                 torch.mean(
-                    torch.log(torch.clamp(width_ht, min=self.soft)),
+                    torch.log(torch.clamp(width_ht, min=self.eps)),
                     dim=-1,
                     keepdim=True,
                 )
             ),
-            min=self.soft,
+            min=self.eps,
         )
         # Rescale by box_size
         width_ht = width_ht * (
@@ -776,7 +782,9 @@ class BoxE(DistanceBasedScoreFunction):
             + torch.nn.functional.elu(box_size.unsqueeze(-1))
         )
         if self.apply_tanh:
-            width_ht = torch.tanh(width_ht)
+            width_ht = torch.tanh(width_ht) * torch.tensor(
+                2.0, dtype=torch.float32, device=width_ht.device
+            )
         width_plus1_ht = (
             torch.tensor(1.0, dtype=torch.float32, device=width_ht.device) + width_ht
         )
@@ -821,6 +829,7 @@ class BoxE(DistanceBasedScoreFunction):
         )
         if self.apply_tanh:
             bumped_ht = torch.tanh(bumped_ht)
+            center_ht = torch.tanh(center_ht)
         center_dist_ht = torch.abs(
             bumped_ht - center_ht.view(-1, 2, self.embedding_size)
         )
@@ -851,6 +860,7 @@ class BoxE(DistanceBasedScoreFunction):
         )
         if self.apply_tanh:
             bumped_ht = torch.tanh(bumped_ht)
+            center_ht = torch.tanh(center_ht)
         center_dist_ht = torch.abs(
             bumped_ht - center_ht.view(-1, 1, 2, self.embedding_size)
         )
@@ -881,6 +891,7 @@ class BoxE(DistanceBasedScoreFunction):
         )
         if self.apply_tanh:
             bumped_ht = torch.tanh(bumped_ht)
+            center_ht = torch.tanh(center_ht)
         center_dist_ht = torch.abs(
             bumped_ht - center_ht.view(-1, 1, 2, self.embedding_size)
         )
