@@ -32,14 +32,15 @@ extensions = [
     "sphinx_autodoc_typehints",
     "sphinx_automodapi.automodapi",
     "sphinx_automodapi.smart_resolver",
+    "sphinx.ext.intersphinx",
     "sphinxcontrib.bibtex",
     "sphinx.ext.autosectionlabel",
 ]
 numpydoc_show_class_members = False
 todo_include_todos = True
 autosummary_generate = True
-# autoclass_content = "both"
-# autodoc_typehints = "both"
+autoclass_content = "both"
+autodoc_typehints = "both"
 bibtex_default_style = "alpha"
 
 bibtex_bibfiles = ["KGbib.bib"]
@@ -54,7 +55,8 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 
 
-# intersphinx_mapping = {
-#     "https://docs.python.org/3/": None,
-#     "torch": ("https://pytorch.org/docs/stable", None),
-# }
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "torch": ("https://pytorch.org/docs/stable", None),
+}

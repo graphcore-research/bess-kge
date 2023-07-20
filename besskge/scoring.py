@@ -749,6 +749,7 @@ class BoxE(DistanceBasedScoreFunction):
     ) -> torch.Tensor:
         """
         BoxE score with relation broadcasting, for optimized batched negative scoring.
+
         :param bumped_ht: shape: (batch_size, 2, emb_size)
             or (batch_size, n_negative, 2, emb_size)
             Bumped h/t entity embeddings (heads: `bumped_ht[...,0,:]`,
