@@ -742,17 +742,21 @@ class BoxE(DistanceBasedScoreFunction):
 
     def boxe_score(
         self,
-        center_dist_ht: torch.Tensor,
+        bumped_ht: torch.Tensor,
+        center_ht: torch.Tensor,
         width_ht: torch.Tensor,
         box_size: torch.Tensor,
     ) -> torch.Tensor:
         """
         BoxE score with relation broadcasting, for optimized batched negative scoring.
-
-        :param center_dist_ht: shape: (batch_size, 2, emb_size)
+        :param bumped_ht: shape: (batch_size, 2, emb_size)
             or (batch_size, n_negative, 2, emb_size)
-            Distances of bumped h/t entity embeddings from center of h/t relation boxes
-            (heads: `center_dist_ht[...,0,:]`, tails: `center_dist_ht[...,1,:]`).
+            Bumped h/t entity embeddings (heads: `bumped_ht[...,0,:]`,
+            tails: `bumped_ht[...,1,:]`).
+        :param center_ht: shape: (batch_size, 2, emb_size)
+            or (batch_size, 1, 2, emb_size)
+            Centers of h/t relation boxes
+            (heads: `center_ht[...,0,:]`, tails: `center_ht[...,1,:]`).
         :param width_ht: shape: (batch_size, 2, emb_size) or (batch_size, 1, 2, emb_size)
             Widths of h/t relation boxes, before normalization
             (heads: `width_ht[...,0,:]`, tails: `width_ht[...,1,:]`).
@@ -778,27 +782,41 @@ class BoxE(DistanceBasedScoreFunction):
         )
         # Rescale by box_size
         width_ht = width_ht * (
-            torch.tensor(1.0, dtype=torch.float32, device=width_ht.device)
+            torch.tensor(1.0, dtype=width_ht.dtype, device=width_ht.device)
             + torch.nn.functional.elu(box_size.unsqueeze(-1))
         )
+
         if self.apply_tanh:
-            width_ht = torch.tanh(width_ht) * torch.tensor(
-                2.0, dtype=torch.float32, device=width_ht.device
+            box_low = torch.tanh(
+                center_ht
+                - torch.tensor(0.5, dtype=width_ht.dtype, device=width_ht.device)
+                * width_ht
             )
+            box_up = torch.tanh(box_low + width_ht)
+            center_ht = torch.tensor(
+                0.5, dtype=width_ht.dtype, device=width_ht.device
+            ) * (box_low + box_up)
+            width_ht = box_up - box_low
+            center_dist_ht = torch.abs(torch.tanh(bumped_ht) - center_ht)
+        else:
+            center_dist_ht = torch.abs(bumped_ht - center_ht)
+
         width_plus1_ht = (
-            torch.tensor(1.0, dtype=torch.float32, device=width_ht.device) + width_ht
+            torch.tensor(1.0, dtype=width_ht.dtype, device=width_ht.device) + width_ht
         )
         k_ht = (
-            torch.tensor(0.5, dtype=torch.float32, device=width_ht.device)
+            torch.tensor(0.5, dtype=width_ht.dtype, device=width_ht.device)
             * width_ht
             * (width_plus1_ht - torch.reciprocal(width_plus1_ht))
         )
 
-        if self.dist_func_per_dim:
-            in_or_out = torch.le(center_dist_ht, torch.div(width_ht, 2.0))
-        else:
+        in_or_out = torch.le(
+            center_dist_ht,
+            torch.tensor(0.5, dtype=width_ht.dtype, device=width_ht.device) * width_ht,
+        )
+        if not self.dist_func_per_dim:
             in_or_out = torch.all(
-                torch.le(center_dist_ht, torch.div(width_ht, 2.0)),
+                in_or_out,
                 dim=-1,
                 keepdim=True,
             )
@@ -827,14 +845,9 @@ class BoxE(DistanceBasedScoreFunction):
             head_emb.view(-1, 2, self.embedding_size)
             + tail_emb.view(-1, 2, self.embedding_size)[:, [1, 0]]
         )
-        if self.apply_tanh:
-            bumped_ht = torch.tanh(bumped_ht)
-            center_ht = torch.tanh(center_ht)
-        center_dist_ht = torch.abs(
-            bumped_ht - center_ht.view(-1, 2, self.embedding_size)
-        )
         return self.boxe_score(
-            center_dist_ht,  # shape (batch_size, 2, emb_size)
+            bumped_ht,  # shape (batch_size, 2, emb_size)
+            center_ht.view(-1, 2, self.embedding_size),
             width_ht.view(-1, 2, self.embedding_size),
             box_size.view(-1, 2),
         )
@@ -858,14 +871,9 @@ class BoxE(DistanceBasedScoreFunction):
             head_emb.view(head_emb.shape[0], -1, 2, self.embedding_size)
             + tail_emb.view(-1, 1, 2, self.embedding_size)[:, :, [1, 0]]
         )
-        if self.apply_tanh:
-            bumped_ht = torch.tanh(bumped_ht)
-            center_ht = torch.tanh(center_ht)
-        center_dist_ht = torch.abs(
-            bumped_ht - center_ht.view(-1, 1, 2, self.embedding_size)
-        )
         return self.boxe_score(
-            center_dist_ht,  # shape (batch_size, B * n_heads, 2, emb_size)
+            bumped_ht,  # shape (batch_size, B*n_heads, 2, emb_size)
+            center_ht.view(-1, 1, 2, self.embedding_size),
             width_ht.view(-1, 1, 2, self.embedding_size),
             box_size.view(-1, 1, 2),
         )
@@ -889,14 +897,9 @@ class BoxE(DistanceBasedScoreFunction):
             head_emb.view(-1, 1, 2, self.embedding_size)
             + tail_emb.view(tail_emb.shape[0], -1, 2, self.embedding_size)[:, :, [1, 0]]
         )
-        if self.apply_tanh:
-            bumped_ht = torch.tanh(bumped_ht)
-            center_ht = torch.tanh(center_ht)
-        center_dist_ht = torch.abs(
-            bumped_ht - center_ht.view(-1, 1, 2, self.embedding_size)
-        )
         return self.boxe_score(
-            center_dist_ht,  # shape (batch_size, B * n_tails, 2, emb_size)
+            bumped_ht,  # shape (batch_size, B*n_tails, 2, emb_size)
+            center_ht.view(-1, 1, 2, self.embedding_size),
             width_ht.view(-1, 1, 2, self.embedding_size),
             box_size.view(-1, 1, 2),
         )
