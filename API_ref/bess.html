@@ -206,11 +206,28 @@ of the <span class="math notranslate nohighlight">\(n\)</span> triple blocks it 
 <span class="target" id="module-besskge.bess"></span><dl class="py class">
 <dt class="sig sig-object py" id="besskge.bess.BessKGE">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.bess.</span></span><span class="sig-name descname"><span class="pre">BessKGE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">negative_sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_scores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment_negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#BessKGE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.BessKGE" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
 <p>Base class for distributed training and inference of KGE models, using
 the distribution framework BESS <span id="id1">[<a class="reference internal" href="../bibliography.html#id11" title="Alberto Cattaneo, Daniel Justus, Harry Mellor, Douglas Orr, Jerome Maloberti, Zhenying Liu, Thorin Farnsworth, Andrew Fitzgibbon, Blazej Banaszewski, and Carlo Luschi. BESS: balanced entity sampling and sharing for large-scale knowledge graph completion. arXiv preprint arXiv:2211.12281, 2021.">CJM+21</a>]</span>.
 To be used in combination with a batch sampler based on a
 “ht_shardpair”-partitioned triple set.</p>
+<p>Initialize BESS-KGE module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>negative_sampler</strong> (<a class="reference internal" href="negative_sampler.html#besskge.negative_sampler.ShardedNegativeSampler" title="besskge.negative_sampler.ShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code></a>) – Sampler of negative entities.</p></li>
+<li><p><strong>score_fn</strong> (<a class="reference internal" href="scoring.html#besskge.scoring.BaseScoreFunction" title="besskge.scoring.BaseScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a>) – Scoring function.</p></li>
+<li><p><strong>loss_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="loss.html#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a>]) – Loss function, required when training. Default: None.</p></li>
+<li><p><strong>evaluation</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="metric.html#besskge.metric.Evaluation" title="besskge.metric.Evaluation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Evaluation</span></code></a>]) – Evaluation module, for computing metrics on device.
+Default: None.</p></li>
+<li><p><strong>return_scores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, return positive and negative scores of batches to the host.
+Default: False.</p></li>
+<li><p><strong>augment_negative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, augment sampled negative entities with the head/tails
+(according to the corruption scheme) of other positive triples
+in the micro-batch. Default: False.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.bess.BessKGE.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#BessKGE.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.BessKGE.forward" title="Permalink to this definition"></a></dt>
@@ -226,26 +243,26 @@ To be used in combination with a batch sampler based on a
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (1, n_shard, positive_per_partition)
+<li><p><strong>head</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (1, n_shard, positive_per_partition)
 Head indices.</p></li>
-<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (1, n_shard, positive_per_partition)
+<li><p><strong>relation</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (1, n_shard, positive_per_partition)
 Relation indices.</p></li>
-<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (1, n_shard, positive_per_partition)
+<li><p><strong>tail</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (1, n_shard, positive_per_partition)
 Tail indices.</p></li>
-<li><p><strong>triple_mask</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (1, n_shard, positive_per_partition)
+<li><p><strong>triple_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (1, n_shard, positive_per_partition)
 Mask to filter the triples in the micro-batch
 before computing metrics.</p></li>
-<li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (1, n_shard, B, padded_negative)
+<li><p><strong>negative</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (1, n_shard, B, padded_negative)
 Indices of negative entities,
 with <cite>B = 1, 2 or n_shard * positive_per_partition</cite>.</p></li>
-<li><p><strong>triple_weight</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (1, n_shard * positive_per_partition,) or (1,)
+<li><p><strong>triple_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (1, n_shard * positive_per_partition,) or (1,)
 Weights of positive triples.</p></li>
-<li><p><strong>negative_mask</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (1, B, n_shard, padded_negative)
+<li><p><strong>negative_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (1, B, n_shard, padded_negative)
 Mask to identify padding negatives, to discard when computing metrics.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Micro-batch loss, scores and metrics.</p>
@@ -255,7 +272,7 @@ Mask to identify padding negatives, to discard when computing metrics.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="besskge.bess.BessKGE.n_embedding_parameters">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_embedding_parameters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#besskge.bess.BessKGE.n_embedding_parameters" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_embedding_parameters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#besskge.bess.BessKGE.n_embedding_parameters" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the number of trainable parameters in the embedding tables</p>
 </dd></dl>
 
@@ -266,14 +283,14 @@ Mask to identify padding negatives, to discard when computing metrics.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>relation</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>negative</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Positive (shape: (n_shard * positive_per_partition,))
@@ -285,7 +302,7 @@ scores of the micro-batch.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.bess.BessKGE.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.bess.BessKGE.training" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.bess.BessKGE.training" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -302,6 +319,23 @@ which can be done with a single AllToAll collective.</p>
 <cite>n_negative * n_shard</cite> if negative sample sharing is disabled, or to
 <cite>n_negative * n_shard * B</cite> otherwise (see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a>) for “h”, “t”
 corruption scheme, <cite>n_negative * n_shard * (B &gt; 2 ? B // 2 : 1)</cite> for “ht”.</p>
+<p>Initialize BESS-KGE module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>negative_sampler</strong> (<a class="reference internal" href="negative_sampler.html#besskge.negative_sampler.ShardedNegativeSampler" title="besskge.negative_sampler.ShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code></a>) – Sampler of negative entities.</p></li>
+<li><p><strong>score_fn</strong> (<a class="reference internal" href="scoring.html#besskge.scoring.BaseScoreFunction" title="besskge.scoring.BaseScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a>) – Scoring function.</p></li>
+<li><p><strong>loss_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="loss.html#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a>]) – Loss function, required when training. Default: None.</p></li>
+<li><p><strong>evaluation</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="metric.html#besskge.metric.Evaluation" title="besskge.metric.Evaluation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Evaluation</span></code></a>]) – Evaluation module, for computing metrics on device.
+Default: None.</p></li>
+<li><p><strong>return_scores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, return positive and negative scores of batches to the host.
+Default: False.</p></li>
+<li><p><strong>augment_negative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, augment sampled negative entities with the head/tails
+(according to the corruption scheme) of other positive triples
+in the micro-batch. Default: False.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.bess.EmbeddingMovingBessKGE.entity_embedding_size">
 <span class="sig-name descname"><span class="pre">entity_embedding_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#besskge.bess.EmbeddingMovingBessKGE.entity_embedding_size" title="Permalink to this definition"></a></dt>
@@ -314,14 +348,14 @@ corruption scheme, <cite>n_negative * n_shard * (B &gt; 2 ? B // 2 : 1)</cite> f
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>relation</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>negative</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Positive (shape: (n_shard * positive_per_partition,))
@@ -333,7 +367,7 @@ scores of the micro-batch.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.bess.EmbeddingMovingBessKGE.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.bess.EmbeddingMovingBessKGE.training" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.bess.EmbeddingMovingBessKGE.training" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -353,6 +387,23 @@ is then used to send the scores back to the correct device.</p>
 value documented in <a class="reference internal" href="#besskge.bess.EmbeddingMovingBessKGE" title="besskge.bess.EmbeddingMovingBessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmbeddingMovingBessKGE</span></code></a> and, if using negative
 sample sharing, multiply that by <cite>n_shard</cite>.</p>
 <p>Does not support local sampling or negative augmentation.</p>
+<p>Initialize BESS-KGE module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>negative_sampler</strong> (<a class="reference internal" href="negative_sampler.html#besskge.negative_sampler.ShardedNegativeSampler" title="besskge.negative_sampler.ShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code></a>) – Sampler of negative entities.</p></li>
+<li><p><strong>score_fn</strong> (<a class="reference internal" href="scoring.html#besskge.scoring.BaseScoreFunction" title="besskge.scoring.BaseScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a>) – Scoring function.</p></li>
+<li><p><strong>loss_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="loss.html#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a>]) – Loss function, required when training. Default: None.</p></li>
+<li><p><strong>evaluation</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="metric.html#besskge.metric.Evaluation" title="besskge.metric.Evaluation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Evaluation</span></code></a>]) – Evaluation module, for computing metrics on device.
+Default: None.</p></li>
+<li><p><strong>return_scores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, return positive and negative scores of batches to the host.
+Default: False.</p></li>
+<li><p><strong>augment_negative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, augment sampled negative entities with the head/tails
+(according to the corruption scheme) of other positive triples
+in the micro-batch. Default: False.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.bess.ScoreMovingBessKGE.entity_embedding_size">
 <span class="sig-name descname"><span class="pre">entity_embedding_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#besskge.bess.ScoreMovingBessKGE.entity_embedding_size" title="Permalink to this definition"></a></dt>
@@ -365,14 +416,14 @@ sample sharing, multiply that by <cite>n_shard</cite>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>tail</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
-<li><p><strong>negative</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>head</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>relation</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>negative</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Positive (shape: (n_shard * positive_per_partition,))
@@ -384,7 +435,7 @@ scores of the micro-batch.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.bess.ScoreMovingBessKGE.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.bess.ScoreMovingBessKGE.training" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.bess.ScoreMovingBessKGE.training" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -392,7 +443,7 @@ scores of the micro-batch.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.bess.TopKQueryBessKGE">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.bess.</span></span><span class="sig-name descname"><span class="pre">TopKQueryBessKGE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">candidate_sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_scores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#TopKQueryBessKGE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.TopKQueryBessKGE" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a></p>
 <p>Distributed scoring of (h, r, ?) or (?, r, t) queries (against
 all entities in the knowledge graph, or a query-specific set)
 returning the top-k most likely completions, based on the BESS <span id="id2">[<a class="reference internal" href="../bibliography.html#id11" title="Alberto Cattaneo, Daniel Justus, Harry Mellor, Douglas Orr, Jerome Maloberti, Zhenying Liu, Thorin Farnsworth, Andrew Fitzgibbon, Blazej Banaszewski, and Carlo Luschi. BESS: balanced entity sampling and sharing for large-scale knowledge graph completion. arXiv preprint arXiv:2211.12281, 2021.">CJM+21</a>]</span>
@@ -406,6 +457,27 @@ negatives is large, for example when one wants to score queries against
 all entities in the knowledge graph, as it uses a sliding window over the
 negative sample size via an on-device for-loop.</p>
 <p>Only to be used for inference.</p>
+<p>Initialize TopK BESS-KGE module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – For each query return the top-k most likely predictions.</p></li>
+<li><p><strong>candidate_sampler</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference internal" href="negative_sampler.html#besskge.negative_sampler.TripleBasedShardedNegativeSampler" title="besskge.negative_sampler.TripleBasedShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">TripleBasedShardedNegativeSampler</span></code></a>, <a class="reference internal" href="negative_sampler.html#besskge.negative_sampler.PlaceholderNegativeSampler" title="besskge.negative_sampler.PlaceholderNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlaceholderNegativeSampler</span></code></a>]) – Sampler of candidate entities to score against queries.
+Use <a class="reference internal" href="negative_sampler.html#besskge.negative_sampler.PlaceholderNegativeSampler" title="besskge.negative_sampler.PlaceholderNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">besskge.negative_sampler.PlaceholderNegativeSampler</span></code></a>
+to score queries against all entities in the knowledge graph, avoiding
+unnecessary loading of negative entities on device.</p></li>
+<li><p><strong>score_fn</strong> (<a class="reference internal" href="scoring.html#besskge.scoring.BaseScoreFunction" title="besskge.scoring.BaseScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a>) – Scoring function.</p></li>
+<li><p><strong>evaluation</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="metric.html#besskge.metric.Evaluation" title="besskge.metric.Evaluation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Evaluation</span></code></a>]) – Evaluation module, for computing metrics on device.
+Default: None.</p></li>
+<li><p><strong>return_scores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, return scores of the top-k best completions.
+Default: False.</p></li>
+<li><p><strong>window_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Size of the sliding window, namely the number of negative entities
+scored against each query at each step of the on-device for-loop.
+Should be decreased with large batch sizes, to avoid an OOM error.
+Default: 100.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.bess.TopKQueryBessKGE.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#TopKQueryBessKGE.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.TopKQueryBessKGE.forward" title="Permalink to this definition"></a></dt>
@@ -419,22 +491,22 @@ the rest are discarded.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>relation</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (shard_bs,)
+<li><p><strong>relation</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (shard_bs,)
 Relation indices.</p></li>
-<li><p><strong>head</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (shard_bs,)
+<li><p><strong>head</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (shard_bs,)
 Head indices, if known. Default: None.</p></li>
-<li><p><strong>tail</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (shard_bs,)
+<li><p><strong>tail</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (shard_bs,)
 Tail indices, if known. Default: None.</p></li>
-<li><p><strong>negative</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (n_shard, B, padded_negative)
+<li><p><strong>negative</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (n_shard, B, padded_negative)
 Candidates to score against the queries.
 It can be the same set for all queries (B=1),
 or specific for each query in the batch (B=shard_bs).
 If None, score each query against all entities in the knowledge
 graph. Default: None.</p></li>
-<li><p><strong>triple_mask</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (shard_bs,)
+<li><p><strong>triple_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (shard_bs,)
 Mask to filter the triples in the micro-batch
 before computing metrics. Default: None.</p></li>
-<li><p><strong>negative_mask</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>]) – shape: (n_shard, B, padded_negative)
+<li><p><strong>negative_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (n_shard, B, padded_negative)
 If candidates are provided, mask to discard padding
 negatives when computing best completions.
 Requires the use of <code class="code docutils literal notranslate"><span class="pre">mask_on_gather=True</span></code> in the candidate
@@ -444,14 +516,14 @@ Default: None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code>]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.bess.TopKQueryBessKGE.training">
-<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.bess.TopKQueryBessKGE.training" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">training</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.bess.TopKQueryBessKGE.training" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>

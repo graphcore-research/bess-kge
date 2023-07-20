@@ -178,11 +178,14 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.scoring.BaseScoreFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">BaseScoreFunction</span></span><a class="reference internal" href="../_modules/besskge/scoring.html#BaseScoreFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.BaseScoreFunction" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
 <p>Base class for scoring functions.</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
+<dl class="field-list simple">
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.BaseScoreFunction.entity_embedding">
-<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.BaseScoreFunction.entity_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.BaseScoreFunction.entity_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Entity embedding table</p>
 </dd></dl>
 
@@ -192,20 +195,27 @@
 <dd><p>see <a class="reference internal" href="#besskge.scoring.BaseScoreFunction.score_triple" title="besskge.scoring.BaseScoreFunction.score_triple"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseScoreFunction.score_triple()</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>Tensor</em></a>) – </p></li>
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>Tensor</em></a>) – </p></li>
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>Tensor</em></a>) – </p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.BaseScoreFunction.negative_sample_sharing">
-<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.scoring.BaseScoreFunction.negative_sample_sharing" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.scoring.BaseScoreFunction.negative_sample_sharing" title="Permalink to this definition"></a></dt>
 <dd><p>Share negative entities to construct negative samples</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.BaseScoreFunction.relation_embedding">
-<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.BaseScoreFunction.relation_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.BaseScoreFunction.relation_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Relation embedding table</p>
 </dd></dl>
 
@@ -216,16 +226,16 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
 Embeddings of head entities.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embedding of tail entities in batch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_heads)
@@ -243,16 +253,16 @@ Scores of broadcasted triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of head entities in batch.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
 Embedding of tail entities.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_tails)
@@ -270,16 +280,16 @@ Scores of broadcasted triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of head entities in batch.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of tail entities in batch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size,)
@@ -303,7 +313,7 @@ Scores of a batch of triples.</p>
 <dd class="field-odd"><p><strong>new_sharding</strong> (<a class="reference internal" href="sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – The new entity sharding.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -315,35 +325,57 @@ Scores of a batch of triples.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">BoxE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">negative_sample_sharing,</span> <span class="pre">scoring_norm,</span> <span class="pre">sharding,</span> <span class="pre">n_relation_type,</span> <span class="pre">embedding_size,</span> <span class="pre">entity_initializer=[&lt;function</span> <span class="pre">uniform_&gt;],</span> <span class="pre">relation_initializer=[&lt;function</span> <span class="pre">uniform_&gt;,</span> <span class="pre">&lt;function</span> <span class="pre">init_uniform_norm&gt;],</span> <span class="pre">apply_tanh=True,</span> <span class="pre">dist_func_per_dim=True,</span> <span class="pre">eps=1e-06</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#BoxE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.BoxE" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#besskge.scoring.DistanceBasedScoreFunction" title="besskge.scoring.DistanceBasedScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction</span></code></a></p>
 <p>BoxE scoring function <span id="id1">[<a class="reference internal" href="../bibliography.html#id14" title="Ralph Abboud, İsmail İlkan Ceylan, Thomas Lukasiewicz, and Tommaso Salvatori. BoxE: A box embedding model for knowledge base completion. In Advances in Neural Information Processing Systems 33: Annual Conference on Neural Information Processing Systems 2020, NeurIPS 2020, 1–13. 2020.">ACLS20</a>]</span>.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="besskge.scoring.BoxE.boxe_score">
-<span class="sig-name descname"><span class="pre">boxe_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bumped_ht</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_ht</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width_ht</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#BoxE.boxe_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.BoxE.boxe_score" title="Permalink to this definition"></a></dt>
-<dd><p>BoxE score with relation broadcasting, for optimized batched negative scoring.
-:type bumped_ht: <code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>
-:param bumped_ht: shape: (batch_size, 2, emb_size)</p>
-<blockquote>
-<div><p>or (batch_size, n_negative, 2, emb_size)
-Bumped h/t entity embeddings (heads: <cite>bumped_ht[…,0,:]</cite>,
-tails: <cite>bumped_ht[…,1,:]</cite>).</p>
-</div></blockquote>
+<p>Initialize BoxE model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>center_ht</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, 2, emb_size)
+<li><p><strong>negative_sample_sharing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.__init__()</span></code></p></li>
+<li><p><strong>scoring_norm</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.__init__()</span></code></p></li>
+<li><p><strong>sharding</strong> (<a class="reference internal" href="sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – Entity sharding.</p></li>
+<li><p><strong>n_relation_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of relation types in the knowledge graph.</p></li>
+<li><p><strong>embedding_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Size of final entity embeddings.</p></li>
+<li><p><strong>entity_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization function or table for entity embeddings.</p></li>
+<li><p><strong>relation_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization functions or table for relation embeddings.
+If not passing a table, two functions are needed: the initializer
+for head/tail box centers and the initializer for
+(scalar) head/tail box sizes.</p></li>
+<li><p><strong>apply_tanh</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, bound relation box sizes and bumped entity
+representations with tanh. Default: True.</p></li>
+<li><p><strong>dist_func_per_dim</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, instead of selecting between the two BoxE distance
+functions based on whether the bumped representation is inside
+or outside the relation box, make the choice separately for
+each dimension of the embedding space. Default: True.</p></li>
+<li><p><strong>eps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Softening parameter for geometric normalization of box widths.
+Default: 1e-6.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.BoxE.boxe_score">
+<span class="sig-name descname"><span class="pre">boxe_score</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bumped_ht</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">center_ht</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width_ht</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">box_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#BoxE.boxe_score"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.BoxE.boxe_score" title="Permalink to this definition"></a></dt>
+<dd><p>BoxE score with relation broadcasting, for optimized batched negative scoring.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bumped_ht</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, 2, emb_size)
+or (batch_size, n_negative, 2, emb_size)
+Bumped h/t entity embeddings (heads: <cite>bumped_ht[…,0,:]</cite>,
+tails: <cite>bumped_ht[…,1,:]</cite>).</p></li>
+<li><p><strong>center_ht</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, 2, emb_size)
 or (batch_size, 1, 2, emb_size)
 Centers of h/t relation boxes
 (heads: <cite>center_ht[…,0,:]</cite>, tails: <cite>center_ht[…,1,:]</cite>).</p></li>
-<li><p><strong>width_ht</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, 2, emb_size) or (batch_size, 1, 2, emb_size)
+<li><p><strong>width_ht</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, 2, emb_size) or (batch_size, 1, 2, emb_size)
 Widths of h/t relation boxes, before normalization
 (heads: <cite>width_ht[…,0,:]</cite>, tails: <cite>width_ht[…,1,:]</cite>).</p></li>
-<li><p><strong>box_size</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, 2) or (batch_size, 1, 2)
+<li><p><strong>box_size</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, 2) or (batch_size, 1, 2)
 Parameter controlling the size of the (normalized)
 h/t relation boxes
 (heads: <cite>box_size[…,0]</cite>, tails: <cite>box_size[…,1]</cite>).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: shape: (batch_size,) or (batch_size, n_negative)
@@ -354,19 +386,19 @@ Negative sum of head and tail scores, as defined in <span id="id2">[<a class="re
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.BoxE.entity_embedding">
-<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.BoxE.entity_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.BoxE.entity_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Entity embedding table</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.BoxE.negative_sample_sharing">
-<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.scoring.BoxE.negative_sample_sharing" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.scoring.BoxE.negative_sample_sharing" title="Permalink to this definition"></a></dt>
 <dd><p>Share negative entities to construct negative samples</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.BoxE.relation_embedding">
-<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.BoxE.relation_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.BoxE.relation_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Relation embedding table</p>
 </dd></dl>
 
@@ -377,16 +409,16 @@ Negative sum of head and tail scores, as defined in <span id="id2">[<a class="re
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
 Embeddings of head entities.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embedding of tail entities in batch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_heads)
@@ -404,16 +436,16 @@ Scores of broadcasted triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of head entities in batch.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
 Embedding of tail entities.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_tails)
@@ -431,16 +463,16 @@ Scores of broadcasted triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of head entities in batch.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of tail entities in batch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size,)
@@ -467,21 +499,34 @@ Scores of a batch of triples.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">ComplEx</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">negative_sample_sharing,</span> <span class="pre">sharding,</span> <span class="pre">n_relation_type,</span> <span class="pre">embedding_size,</span> <span class="pre">entity_initializer=[&lt;function</span> <span class="pre">init_KGE_normal&gt;],</span> <span class="pre">relation_initializer=[&lt;function</span> <span class="pre">init_KGE_normal&gt;]</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#ComplEx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.ComplEx" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#besskge.scoring.MatrixDecompositionScoreFunction" title="besskge.scoring.MatrixDecompositionScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">MatrixDecompositionScoreFunction</span></code></a></p>
 <p>ComplEx scoring function <span id="id3">[<a class="reference internal" href="../bibliography.html#id3" title="Théo Trouillon, Johannes Welbl, Sebastian Riedel, Éric Gaussier, and Guillaume Bouchard. Complex embeddings for simple link prediction. In Proceedings of the 33rd International Conference on Machine Learning, ICML 2016, volume 48 of JMLR Workshop and Conference Proceedings, 2071–2080. 2016.">TWR+16</a>]</span>.</p>
+<p>Initialize ComplEx model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>negative_sample_sharing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.__init__()</span></code></p></li>
+<li><p><strong>sharding</strong> (<a class="reference internal" href="sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – Entity sharding.</p></li>
+<li><p><strong>n_relation_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of relation types in the knowledge graph.</p></li>
+<li><p><strong>embedding_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Complex size of entity and relation embeddings.</p></li>
+<li><p><strong>entity_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization function or table for entity embeddings.</p></li>
+<li><p><strong>relation_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization function or table for relation embeddings.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.ComplEx.entity_embedding">
-<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.ComplEx.entity_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.ComplEx.entity_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Entity embedding table</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.ComplEx.negative_sample_sharing">
-<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.scoring.ComplEx.negative_sample_sharing" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.scoring.ComplEx.negative_sample_sharing" title="Permalink to this definition"></a></dt>
 <dd><p>Share negative entities to construct negative samples</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.ComplEx.relation_embedding">
-<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.ComplEx.relation_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.ComplEx.relation_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Relation embedding table</p>
 </dd></dl>
 
@@ -492,16 +537,16 @@ Scores of a batch of triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
 Embeddings of head entities.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embedding of tail entities in batch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_heads)
@@ -519,16 +564,16 @@ Scores of broadcasted triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of head entities in batch.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
 Embedding of tail entities.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_tails)
@@ -546,16 +591,16 @@ Scores of broadcasted triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of head entities in batch.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of tail entities in batch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size,)
@@ -582,21 +627,34 @@ Scores of a batch of triples.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">DistMult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">negative_sample_sharing,</span> <span class="pre">sharding,</span> <span class="pre">n_relation_type,</span> <span class="pre">embedding_size,</span> <span class="pre">entity_initializer=[&lt;function</span> <span class="pre">init_KGE_uniform&gt;],</span> <span class="pre">relation_initializer=[&lt;function</span> <span class="pre">init_KGE_uniform&gt;]</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#DistMult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.DistMult" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#besskge.scoring.MatrixDecompositionScoreFunction" title="besskge.scoring.MatrixDecompositionScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">MatrixDecompositionScoreFunction</span></code></a></p>
 <p>DistMult scoring function <span id="id4">[<a class="reference internal" href="../bibliography.html#id4" title="Bishan Yang, Wen-tau Yih, Xiaodong He, Jianfeng Gao, and Li Deng. Embedding entities and relations for learning and inference in knowledge bases. In 3rd International Conference on Learning Representations, ICLR 2015. 2015.">YYH+15</a>]</span>.</p>
+<p>Initialize DistMult model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>negative_sample_sharing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.__init__()</span></code></p></li>
+<li><p><strong>sharding</strong> (<a class="reference internal" href="sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – Entity sharding.</p></li>
+<li><p><strong>n_relation_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of relation types in the knowledge graph.</p></li>
+<li><p><strong>embedding_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Size of entity and relation embeddings.</p></li>
+<li><p><strong>entity_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization function or table for entity embeddings.</p></li>
+<li><p><strong>relation_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization function or table for relation embeddings.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.DistMult.entity_embedding">
-<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.DistMult.entity_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.DistMult.entity_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Entity embedding table</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.DistMult.negative_sample_sharing">
-<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.scoring.DistMult.negative_sample_sharing" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.scoring.DistMult.negative_sample_sharing" title="Permalink to this definition"></a></dt>
 <dd><p>Share negative entities to construct negative samples</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.DistMult.relation_embedding">
-<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.DistMult.relation_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.DistMult.relation_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Relation embedding table</p>
 </dd></dl>
 
@@ -607,16 +665,16 @@ Scores of a batch of triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
 Embeddings of head entities.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embedding of tail entities in batch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_heads)
@@ -634,16 +692,16 @@ Scores of broadcasted triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of head entities in batch.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
 Embedding of tail entities.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_tails)
@@ -661,16 +719,16 @@ Scores of broadcasted triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of head entities in batch.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of tail entities in batch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size,)
@@ -695,8 +753,17 @@ Scores of a batch of triples.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.scoring.DistanceBasedScoreFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">DistanceBasedScoreFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">negative_sample_sharing</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scoring_norm</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#DistanceBasedScoreFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.DistanceBasedScoreFunction" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#besskge.scoring.BaseScoreFunction" title="besskge.scoring.BaseScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#besskge.scoring.BaseScoreFunction" title="besskge.scoring.BaseScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
 <p>Base class for distance-based scoring functions.</p>
+<p>Initialize distance-based scoring function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>negative_sample_sharing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – see <a class="reference internal" href="#besskge.scoring.BaseScoreFunction" title="besskge.scoring.BaseScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a></p></li>
+<li><p><strong>scoring_norm</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – p for p-norm to use in distance computation.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.scoring.DistanceBasedScoreFunction.broadcasted_distance">
 <span class="sig-name descname"><span class="pre">broadcasted_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#DistanceBasedScoreFunction.broadcasted_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.DistanceBasedScoreFunction.broadcasted_distance" title="Permalink to this definition"></a></dt>
@@ -706,14 +773,14 @@ of the embeddings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>v1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>v1</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Batch queries.</p></li>
-<li><p><strong>v2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_neg, embedding_size) with B = 1, batch_size
+<li><p><strong>v2</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_neg, embedding_size) with B = 1, batch_size
 Negative embeddings to score against queries.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_neg) if
@@ -725,13 +792,13 @@ else (batch_size, n_neg)</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.DistanceBasedScoreFunction.entity_embedding">
-<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.DistanceBasedScoreFunction.entity_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.DistanceBasedScoreFunction.entity_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Entity embedding table</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.DistanceBasedScoreFunction.negative_sample_sharing">
-<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.scoring.DistanceBasedScoreFunction.negative_sample_sharing" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.scoring.DistanceBasedScoreFunction.negative_sample_sharing" title="Permalink to this definition"></a></dt>
 <dd><p>Share negative entities to construct negative samples</p>
 </dd></dl>
 
@@ -741,11 +808,11 @@ else (batch_size, n_neg)</p>
 <dd><p>p-norm reduction along embedding dimension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>v</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (<a href="#id5"><span class="problematic" id="id6">*</span></a>, embedding_size)
+<dd class="field-odd"><p><strong>v</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (<a href="#id5"><span class="problematic" id="id6">*</span></a>, embedding_size)
 The tensor to reduce.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (<a href="#id7"><span class="problematic" id="id8">*</span></a>,)
@@ -756,7 +823,7 @@ p-norm reduction.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.DistanceBasedScoreFunction.relation_embedding">
-<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.DistanceBasedScoreFunction.relation_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.DistanceBasedScoreFunction.relation_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Relation embedding table</p>
 </dd></dl>
 
@@ -776,8 +843,14 @@ p-norm reduction.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">MatrixDecompositionScoreFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">negative_sample_sharing</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#MatrixDecompositionScoreFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#besskge.scoring.BaseScoreFunction" title="besskge.scoring.BaseScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#besskge.scoring.BaseScoreFunction" title="besskge.scoring.BaseScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
 <p>Base class for matrix-decomposition scoring functions.</p>
+<p>Initialize matrix-decomposition scoring function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>negative_sample_sharing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – see <a class="reference internal" href="#besskge.scoring.BaseScoreFunction" title="besskge.scoring.BaseScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a></p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.broadcasted_dot_product">
 <span class="sig-name descname"><span class="pre">broadcasted_dot_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#MatrixDecompositionScoreFunction.broadcasted_dot_product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.broadcasted_dot_product" title="Permalink to this definition"></a></dt>
@@ -787,14 +860,14 @@ the embeddings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>v1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>v1</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Batch queries.</p></li>
-<li><p><strong>v2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_neg, embedding_size) with B = 1, batch_size
+<li><p><strong>v2</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_neg, embedding_size) with B = 1, batch_size
 Negative embeddings to score against queries.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_neg) if
@@ -806,13 +879,13 @@ else (batch_size, n_neg)</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.entity_embedding">
-<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.entity_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.entity_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Entity embedding table</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.negative_sample_sharing">
-<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.negative_sample_sharing" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.negative_sample_sharing" title="Permalink to this definition"></a></dt>
 <dd><p>Share negative entities to construct negative samples</p>
 </dd></dl>
 
@@ -822,11 +895,11 @@ else (batch_size, n_neg)</p>
 <dd><p>Sum reduction along the embedding dimension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>v</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (<a href="#id9"><span class="problematic" id="id10">*</span></a>, embedding_size)
+<dd class="field-odd"><p><strong>v</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (<a href="#id9"><span class="problematic" id="id10">*</span></a>, embedding_size)
 The tensor to reduce.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (<a href="#id11"><span class="problematic" id="id12">*</span></a>,)
@@ -837,7 +910,7 @@ Sum reduction.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.relation_embedding">
-<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.relation_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.relation_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Relation embedding table</p>
 </dd></dl>
 
@@ -859,21 +932,36 @@ Sum reduction.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">RotatE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">negative_sample_sharing,</span> <span class="pre">scoring_norm,</span> <span class="pre">sharding,</span> <span class="pre">n_relation_type,</span> <span class="pre">embedding_size,</span> <span class="pre">entity_initializer=[&lt;function</span> <span class="pre">init_KGE_uniform&gt;],</span> <span class="pre">relation_initializer=[&lt;function</span> <span class="pre">init_KGE_uniform&gt;]</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#RotatE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.RotatE" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#besskge.scoring.DistanceBasedScoreFunction" title="besskge.scoring.DistanceBasedScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction</span></code></a></p>
 <p>RotatE scoring function <span id="id13">[<a class="reference internal" href="../bibliography.html#id5" title="Zhiqing Sun, Zhi-Hong Deng, Jian-Yun Nie, and Jian Tang. RotatE: knowledge graph embedding by relational rotation in complex space. In 7th International Conference on Learning Representations, ICLR 2019. 2019.">SDNT19</a>]</span>.</p>
+<p>Initialize RotatE model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>negative_sample_sharing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.__init__()</span></code></p></li>
+<li><p><strong>scoring_norm</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.__init__()</span></code></p></li>
+<li><p><strong>sharding</strong> (<a class="reference internal" href="sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – Entity sharding.</p></li>
+<li><p><strong>n_relation_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of relation types in the knowledge graph.</p></li>
+<li><p><strong>embedding_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Complex size of entity embeddings (and real size of
+relation embeddings).</p></li>
+<li><p><strong>entity_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization function or table for entity embeddings.</p></li>
+<li><p><strong>relation_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization function or table for relation embeddings.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.RotatE.entity_embedding">
-<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.RotatE.entity_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.RotatE.entity_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Entity embedding table</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.RotatE.negative_sample_sharing">
-<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.scoring.RotatE.negative_sample_sharing" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.scoring.RotatE.negative_sample_sharing" title="Permalink to this definition"></a></dt>
 <dd><p>Share negative entities to construct negative samples</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.RotatE.relation_embedding">
-<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.RotatE.relation_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.RotatE.relation_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Relation embedding table</p>
 </dd></dl>
 
@@ -884,16 +972,16 @@ Sum reduction.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
 Embeddings of head entities.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embedding of tail entities in batch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_heads)
@@ -911,16 +999,16 @@ Scores of broadcasted triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of head entities in batch.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
 Embedding of tail entities.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_tails)
@@ -938,16 +1026,16 @@ Scores of broadcasted triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of head entities in batch.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of tail entities in batch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size,)
@@ -974,21 +1062,35 @@ Scores of a batch of triples.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">TransE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">negative_sample_sharing,</span> <span class="pre">scoring_norm,</span> <span class="pre">sharding,</span> <span class="pre">n_relation_type,</span> <span class="pre">embedding_size,</span> <span class="pre">entity_initializer=[&lt;function</span> <span class="pre">init_KGE_uniform&gt;],</span> <span class="pre">relation_initializer=[&lt;function</span> <span class="pre">init_KGE_uniform&gt;]</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#TransE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.TransE" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#besskge.scoring.DistanceBasedScoreFunction" title="besskge.scoring.DistanceBasedScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction</span></code></a></p>
 <p>TransE scoring function <span id="id14">[<a class="reference internal" href="../bibliography.html#id2" title="Antoine Bordes, Nicolas Usunier, Alberto García-Durán, Jason Weston, and Oksana Yakhnenko. Translating embeddings for modeling multi-relational data. In Advances in Neural Information Processing Systems 26: 27th Annual Conference on Neural Information Processing Systems 2013, 2787–2795. 2013.">BUGD+13</a>]</span>.</p>
+<p>Initialize TransE model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>negative_sample_sharing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.__init__()</span></code></p></li>
+<li><p><strong>scoring_norm</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.__init__()</span></code></p></li>
+<li><p><strong>sharding</strong> (<a class="reference internal" href="sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – Entity sharding.</p></li>
+<li><p><strong>n_relation_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of relation types in the knowledge graph.</p></li>
+<li><p><strong>embedding_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Size of entities and relation embeddings.</p></li>
+<li><p><strong>entity_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization function or table for entity embeddings.</p></li>
+<li><p><strong>relation_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization function or table for relation embeddings.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.TransE.entity_embedding">
-<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.TransE.entity_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.TransE.entity_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Entity embedding table</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.TransE.negative_sample_sharing">
-<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.scoring.TransE.negative_sample_sharing" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.scoring.TransE.negative_sample_sharing" title="Permalink to this definition"></a></dt>
 <dd><p>Share negative entities to construct negative samples</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.scoring.TransE.relation_embedding">
-<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></em><a class="headerlink" href="#besskge.scoring.TransE.relation_embedding" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.TransE.relation_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Relation embedding table</p>
 </dd></dl>
 
@@ -999,16 +1101,16 @@ Scores of a batch of triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
 Embeddings of head entities.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embedding of tail entities in batch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_heads)
@@ -1026,16 +1128,16 @@ Scores of broadcasted triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of head entities in batch.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
 Embedding of tail entities.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, B * n_tails)
@@ -1053,16 +1155,16 @@ Scores of broadcasted triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>head_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of head entities in batch.</p></li>
-<li><p><strong>relation_id</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 IDs of relation types in batch.</p></li>
-<li><p><strong>tail_emb</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, embedding_size)
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
 Embeddings of tail entities in batch.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size,)

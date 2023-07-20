@@ -130,9 +130,12 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.loss.BaseLossFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.loss.</span></span><span class="sig-name descname"><span class="pre">BaseLossFunction</span></span><a class="reference internal" href="../_modules/besskge/loss.html#BaseLossFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.loss.BaseLossFunction" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dd><p>Bases: <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
 <p>Base class for a loss function.</p>
 <p>Losses are always computed in FP32.</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p>
+<dl class="field-list simple">
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.loss.BaseLossFunction.forward">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positive_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_weight</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/loss.html#BaseLossFunction.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.loss.BaseLossFunction.forward" title="Permalink to this definition"></a></dt>
@@ -140,16 +143,16 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>positive_score</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>positive_score</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 Scores of positive triples.</p></li>
-<li><p><strong>negative_score</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, n_negative)
+<li><p><strong>negative_score</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, n_negative)
 Scores of negative triples.</p></li>
-<li><p><strong>triple_weight</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,) or ()
+<li><p><strong>triple_weight</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,) or ()
 Weights of positive triples.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The batch loss.</p>
@@ -163,11 +166,11 @@ Weights of positive triples.</p></li>
 <dd><p>Construct weights of negative samples, based on their score.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>negative_score</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – : (batch_size, n_negative)
+<dd class="field-odd"><p><strong>negative_score</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – : (batch_size, n_negative)
 Scores of negative samples.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (batch_size, n_negative)
@@ -179,19 +182,19 @@ Weights of negative samples.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.BaseLossFunction.loss_scale">
-<span class="sig-name descname"><span class="pre">loss_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.BaseLossFunction.loss_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">loss_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></em><a class="headerlink" href="#besskge.loss.BaseLossFunction.loss_scale" title="Permalink to this definition"></a></dt>
 <dd><p>Loss scaling factor, might be needed when using FP16 weights</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.BaseLossFunction.negative_adversarial_sampling">
-<span class="sig-name descname"><span class="pre">negative_adversarial_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.loss.BaseLossFunction.negative_adversarial_sampling" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.loss.BaseLossFunction.negative_adversarial_sampling" title="Permalink to this definition"></a></dt>
 <dd><p>Use self-adversarial weighting of negative samples.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.BaseLossFunction.negative_adversarial_scale">
-<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.BaseLossFunction.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></em><a class="headerlink" href="#besskge.loss.BaseLossFunction.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
 <dd><p>Reciprocal temperature of self-adversarial weighting</p>
 </dd></dl>
 
@@ -202,6 +205,17 @@ Weights of negative samples.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.loss.</span></span><span class="sig-name descname"><span class="pre">LogSigmoidLoss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">margin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_adversarial_sampling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_adversarial_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/loss.html#LogSigmoidLoss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.loss.LogSigmoidLoss" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#besskge.loss.MarginBasedLossFunction" title="besskge.loss.MarginBasedLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarginBasedLossFunction</span></code></a></p>
 <p>The log-sigmoid loss function (see <span id="id1">[<a class="reference internal" href="../bibliography.html#id5" title="Zhiqing Sun, Zhi-Hong Deng, Jian-Yun Nie, and Jian Tang. RotatE: knowledge graph embedding by relational rotation in complex space. In 7th International Conference on Learning Representations, ICLR 2019. 2019.">SDNT19</a>]</span>).</p>
+<p>Initialize margin-based loss function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>margin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – The margin to be used in the loss computation.</p></li>
+<li><p><strong>negative_adversarial_sampling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – see <a class="reference internal" href="#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a></p></li>
+<li><p><strong>negative_adversarial_scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – see <a class="reference internal" href="#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a></p></li>
+<li><p><strong>loss_scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – see <a class="reference internal" href="#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.loss.LogSigmoidLoss.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positive_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_weight</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/loss.html#LogSigmoidLoss.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.loss.LogSigmoidLoss.forward" title="Permalink to this definition"></a></dt>
@@ -209,16 +223,16 @@ Weights of negative samples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>positive_score</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>positive_score</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 Scores of positive triples.</p></li>
-<li><p><strong>negative_score</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, n_negative)
+<li><p><strong>negative_score</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, n_negative)
 Scores of negative triples.</p></li>
-<li><p><strong>triple_weight</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,) or ()
+<li><p><strong>triple_weight</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,) or ()
 Weights of positive triples.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The batch loss.</p>
@@ -228,19 +242,19 @@ Weights of positive triples.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.LogSigmoidLoss.loss_scale">
-<span class="sig-name descname"><span class="pre">loss_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.LogSigmoidLoss.loss_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">loss_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></em><a class="headerlink" href="#besskge.loss.LogSigmoidLoss.loss_scale" title="Permalink to this definition"></a></dt>
 <dd><p>Loss scaling factor, might be needed when using FP16 weights</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.LogSigmoidLoss.negative_adversarial_sampling">
-<span class="sig-name descname"><span class="pre">negative_adversarial_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.loss.LogSigmoidLoss.negative_adversarial_sampling" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.loss.LogSigmoidLoss.negative_adversarial_sampling" title="Permalink to this definition"></a></dt>
 <dd><p>Use self-adversarial weighting of negative samples.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.LogSigmoidLoss.negative_adversarial_scale">
-<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.LogSigmoidLoss.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></em><a class="headerlink" href="#besskge.loss.LogSigmoidLoss.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
 <dd><p>Reciprocal temperature of self-adversarial weighting</p>
 </dd></dl>
 
@@ -254,23 +268,34 @@ Weights of positive triples.</p></li>
 <dl class="py class">
 <dt class="sig sig-object py" id="besskge.loss.MarginBasedLossFunction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.loss.</span></span><span class="sig-name descname"><span class="pre">MarginBasedLossFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">margin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_adversarial_sampling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_adversarial_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/loss.html#MarginBasedLossFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.loss.MarginBasedLossFunction" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
 <p>Base class for margin-based loss functions.</p>
+<p>Initialize margin-based loss function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>margin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – The margin to be used in the loss computation.</p></li>
+<li><p><strong>negative_adversarial_sampling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – see <a class="reference internal" href="#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a></p></li>
+<li><p><strong>negative_adversarial_scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – see <a class="reference internal" href="#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a></p></li>
+<li><p><strong>loss_scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – see <a class="reference internal" href="#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.MarginBasedLossFunction.loss_scale">
-<span class="sig-name descname"><span class="pre">loss_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.MarginBasedLossFunction.loss_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">loss_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></em><a class="headerlink" href="#besskge.loss.MarginBasedLossFunction.loss_scale" title="Permalink to this definition"></a></dt>
 <dd><p>Loss scaling factor, might be needed when using FP16 weights</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.MarginBasedLossFunction.negative_adversarial_sampling">
-<span class="sig-name descname"><span class="pre">negative_adversarial_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.loss.MarginBasedLossFunction.negative_adversarial_sampling" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.loss.MarginBasedLossFunction.negative_adversarial_sampling" title="Permalink to this definition"></a></dt>
 <dd><p>Use self-adversarial weighting of negative samples.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.MarginBasedLossFunction.negative_adversarial_scale">
-<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.MarginBasedLossFunction.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></em><a class="headerlink" href="#besskge.loss.MarginBasedLossFunction.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
 <dd><p>Reciprocal temperature of self-adversarial weighting</p>
 </dd></dl>
 
@@ -286,6 +311,18 @@ Weights of positive triples.</p></li>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.loss.</span></span><span class="sig-name descname"><span class="pre">MarginRankingLoss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">margin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_adversarial_sampling</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_adversarial_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">activation_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'relu'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/loss.html#MarginRankingLoss"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.loss.MarginRankingLoss" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#besskge.loss.MarginBasedLossFunction" title="besskge.loss.MarginBasedLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">MarginBasedLossFunction</span></code></a></p>
 <p>The margin ranking (or pairwise hinge) loss function.</p>
+<p>Initialize margin ranking loss function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>margin</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">MarginBasedLossFunction.__init__()</span></code></p></li>
+<li><p><strong>negative_adversarial_sampling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – see <a class="reference internal" href="#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a></p></li>
+<li><p><strong>negative_adversarial_scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – see <a class="reference internal" href="#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a></p></li>
+<li><p><strong>loss_scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – see <a class="reference internal" href="#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a></p></li>
+<li><p><strong>activation_function</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – The activation function in loss computation. Default: “relu”.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.loss.MarginRankingLoss.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positive_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_weight</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/loss.html#MarginRankingLoss.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.loss.MarginRankingLoss.forward" title="Permalink to this definition"></a></dt>
@@ -293,16 +330,16 @@ Weights of positive triples.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>positive_score</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>positive_score</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 Scores of positive triples.</p></li>
-<li><p><strong>negative_score</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, n_negative)
+<li><p><strong>negative_score</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, n_negative)
 Scores of negative triples.</p></li>
-<li><p><strong>triple_weight</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,) or ()
+<li><p><strong>triple_weight</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,) or ()
 Weights of positive triples.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The batch loss.</p>
@@ -312,7 +349,7 @@ Weights of positive triples.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.MarginRankingLoss.loss_scale">
-<span class="sig-name descname"><span class="pre">loss_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.MarginRankingLoss.loss_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">loss_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></em><a class="headerlink" href="#besskge.loss.MarginRankingLoss.loss_scale" title="Permalink to this definition"></a></dt>
 <dd><p>Loss scaling factor, might be needed when using FP16 weights</p>
 </dd></dl>
 
@@ -323,13 +360,13 @@ Weights of positive triples.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.MarginRankingLoss.negative_adversarial_sampling">
-<span class="sig-name descname"><span class="pre">negative_adversarial_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.loss.MarginRankingLoss.negative_adversarial_sampling" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.loss.MarginRankingLoss.negative_adversarial_sampling" title="Permalink to this definition"></a></dt>
 <dd><p>Use self-adversarial weighting of negative samples.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.MarginRankingLoss.negative_adversarial_scale">
-<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.MarginRankingLoss.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></em><a class="headerlink" href="#besskge.loss.MarginRankingLoss.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
 <dd><p>Reciprocal temperature of self-adversarial weighting</p>
 </dd></dl>
 
@@ -346,6 +383,15 @@ Weights of positive triples.</p></li>
 <dd><p>Bases: <a class="reference internal" href="#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a></p>
 <p>The sampled softmax cross-entropy loss (see <span id="id2">[<a class="reference internal" href="../bibliography.html#id10" title="Sébastien Jean, Kyunghyun Cho, Roland Memisevic, and Yoshua Bengio. On using very large target vocabulary for neural machine translation. In Proceedings of the 53rd Annual Meeting of the Association for Computational Linguistics and the 7th International Joint Conference on Natural Language Processing (Volume 1: Long Papers), 1–10. 2015.">JCMB15</a>]</span> and
 <span id="id3">[<a class="reference internal" href="../bibliography.html#id11" title="Alberto Cattaneo, Daniel Justus, Harry Mellor, Douglas Orr, Jerome Maloberti, Zhenying Liu, Thorin Farnsworth, Andrew Fitzgibbon, Blazej Banaszewski, and Carlo Luschi. BESS: balanced entity sampling and sharing for large-scale knowledge graph completion. arXiv preprint arXiv:2211.12281, 2021.">CJM+21</a>]</span>).</p>
+<p>Initialize the sampled softmax cross-entropy loss.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_entity</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – The total number of entities in the knowledge graph.</p></li>
+<li><p><strong>loss_scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – see <a class="reference internal" href="#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a></p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="besskge.loss.SampledSoftmaxCrossEntropyLoss.forward">
 <span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positive_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_score</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_weight</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/loss.html#SampledSoftmaxCrossEntropyLoss.forward"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.loss.SampledSoftmaxCrossEntropyLoss.forward" title="Permalink to this definition"></a></dt>
@@ -353,16 +399,16 @@ Weights of positive triples.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>positive_score</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,)
+<li><p><strong>positive_score</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 Scores of positive triples.</p></li>
-<li><p><strong>negative_score</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size, n_negative)
+<li><p><strong>negative_score</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, n_negative)
 Scores of negative triples.</p></li>
-<li><p><strong>triple_weight</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (batch_size,) or ()
+<li><p><strong>triple_weight</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,) or ()
 Weights of positive triples.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The batch loss.</p>
@@ -372,19 +418,19 @@ Weights of positive triples.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.SampledSoftmaxCrossEntropyLoss.loss_scale">
-<span class="sig-name descname"><span class="pre">loss_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.SampledSoftmaxCrossEntropyLoss.loss_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">loss_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></em><a class="headerlink" href="#besskge.loss.SampledSoftmaxCrossEntropyLoss.loss_scale" title="Permalink to this definition"></a></dt>
 <dd><p>Loss scaling factor, might be needed when using FP16 weights</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.SampledSoftmaxCrossEntropyLoss.negative_adversarial_sampling">
-<span class="sig-name descname"><span class="pre">negative_adversarial_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></em><a class="headerlink" href="#besskge.loss.SampledSoftmaxCrossEntropyLoss.negative_adversarial_sampling" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.loss.SampledSoftmaxCrossEntropyLoss.negative_adversarial_sampling" title="Permalink to this definition"></a></dt>
 <dd><p>Use self-adversarial weighting of negative samples.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.loss.SampledSoftmaxCrossEntropyLoss.negative_adversarial_scale">
-<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></em><a class="headerlink" href="#besskge.loss.SampledSoftmaxCrossEntropyLoss.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">negative_adversarial_scale</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></em><a class="headerlink" href="#besskge.loss.SampledSoftmaxCrossEntropyLoss.negative_adversarial_scale" title="Permalink to this definition"></a></dt>
 <dd><p>Reciprocal temperature of self-adversarial weighting</p>
 </dd></dl>
 

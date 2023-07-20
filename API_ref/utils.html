@@ -98,14 +98,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>v1</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, 2*e)
+<li><p><strong>v1</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (a, 2*e)
 <code class="code docutils literal notranslate"><span class="pre">v1[:,:e]</span></code> real part, <code class="code docutils literal notranslate"><span class="pre">v1[:,e:]</span></code> imaginary part.</p></li>
-<li><p><strong>v2</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, 2*e)
+<li><p><strong>v2</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (a, 2*e)
 <code class="code docutils literal notranslate"><span class="pre">v2[:,:e]</span></code> real part, <code class="code docutils literal notranslate"><span class="pre">v2[:,e:]</span></code> imaginary part.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (a, 2*e)
@@ -121,15 +121,15 @@ Row-wise complex multiplication.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>v</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, 2*e)
+<li><p><strong>v</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (a, 2*e)
 Complex tensor to rotate:
 <code class="code docutils literal notranslate"><span class="pre">v[:,:e]</span></code> real part, <code class="code docutils literal notranslate"><span class="pre">v[:,e:]</span></code> imaginary part.</p></li>
-<li><p><strong>r</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, e)
+<li><p><strong>r</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (a, e)
 Rotate <code class="code docutils literal notranslate"><span class="pre">v[k]</span></code> by <span class="math notranslate nohighlight">\(e^{i \pi r[k]}\)</span></p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (a, 2*e)
@@ -141,17 +141,17 @@ Row-wise rotated tensors.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="besskge.utils.gather_indices">
 <span class="sig-prename descclassname"><span class="pre">besskge.utils.</span></span><span class="sig-name descname"><span class="pre">gather_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/utils.html#gather_indices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.utils.gather_indices" title="Permalink to this definition"></a></dt>
-<dd><p>IPU-friendly gather function like <code class="xref py py-func docutils literal notranslate"><span class="pre">torch.take_along_dim()</span></code>
+<dd><p>IPU-friendly gather function like <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.take_along_dim.html#torch.take_along_dim" title="(in PyTorch v2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">torch.take_along_dim()</span></code></a>
 for 2-dimensional tensors (indices along dim=1).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (a, e)</p></li>
-<li><p><strong>index</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code>) – shape: (b, k)</p></li>
+<li><p><strong>x</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (a, e)</p></li>
+<li><p><strong>index</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (b, k)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (b, k)
