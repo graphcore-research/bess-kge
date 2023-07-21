@@ -17,6 +17,9 @@ def init_uniform_norm(embedding_table: torch.Tensor) -> torch.Tensor:
     Initialize embeddings according to uniform distribution
     and normalize so that each row has norm 1.
 
+    :param embedding_table:
+        Tensor of embedding parameters to initialize.
+
     :return:
         Initialized tensor.
     """
@@ -29,10 +32,12 @@ def init_KGE_uniform(
     """
     Initialize embeddings according to symmetric uniform distribution.
 
+    :param embedding_table:
+        Tensor of embedding parameters to initialize.
     :param b:
-        Positive boundary of distribution support.
+        Positive boundary of distribution support. Default: 1.0.
     :param divide_by_embedding_size:
-        Rescale distribution support by `1/row_size`.
+        Rescale distribution support by `1/row_size`. Default: True.
 
     :return:
         Initialized tensor.
@@ -50,10 +55,12 @@ def init_KGE_normal(
     """
     Initialize embeddings according to normal distribution with mean 0.
 
+    :param embedding_table:
+        Tensor of embedding parameters to initialize.
     :param std:
-        Standard deviation.
+        Standard deviation. Default: 1.0.
     :param divide_by_embedding_size:
-        Rescale standard deviation by `1/row_size`.
+        Rescale standard deviation by `1/row_size`. Default: True.
 
     :return:
         Initialized tensor.
