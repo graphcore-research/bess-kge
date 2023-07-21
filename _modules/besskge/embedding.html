@@ -100,6 +100,9 @@
 <span class="sd">    Initialize embeddings according to uniform distribution</span>
 <span class="sd">    and normalize so that each row has norm 1.</span>
 
+<span class="sd">    :param embedding_table:</span>
+<span class="sd">        Tensor of embedding parameters to initialize.</span>
+
 <span class="sd">    :return:</span>
 <span class="sd">        Initialized tensor.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -112,10 +115,12 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initialize embeddings according to symmetric uniform distribution.</span>
 
+<span class="sd">    :param embedding_table:</span>
+<span class="sd">        Tensor of embedding parameters to initialize.</span>
 <span class="sd">    :param b:</span>
-<span class="sd">        Positive boundary of distribution support.</span>
+<span class="sd">        Positive boundary of distribution support. Default: 1.0.</span>
 <span class="sd">    :param divide_by_embedding_size:</span>
-<span class="sd">        Rescale distribution support by `1/row_size`.</span>
+<span class="sd">        Rescale distribution support by `1/row_size`. Default: True.</span>
 
 <span class="sd">    :return:</span>
 <span class="sd">        Initialized tensor.</span>
@@ -133,10 +138,12 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initialize embeddings according to normal distribution with mean 0.</span>
 
+<span class="sd">    :param embedding_table:</span>
+<span class="sd">        Tensor of embedding parameters to initialize.</span>
 <span class="sd">    :param std:</span>
-<span class="sd">        Standard deviation.</span>
+<span class="sd">        Standard deviation. Default: 1.0.</span>
 <span class="sd">    :param divide_by_embedding_size:</span>
-<span class="sd">        Rescale standard deviation by `1/row_size`.</span>
+<span class="sd">        Rescale standard deviation by `1/row_size`. Default: True.</span>
 
 <span class="sd">    :return:</span>
 <span class="sd">        Initialized tensor.</span>
