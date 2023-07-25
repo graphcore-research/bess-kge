@@ -278,9 +278,13 @@
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.MatrixDecompositionScoreFunction.entity_embedding">(besskge.scoring.MatrixDecompositionScoreFunction attribute)</a>
 </li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.PairRE.entity_embedding">(besskge.scoring.PairRE attribute)</a>
+</li>
         <li><a href="API_ref/scoring.html#besskge.scoring.RotatE.entity_embedding">(besskge.scoring.RotatE attribute)</a>
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.TransE.entity_embedding">(besskge.scoring.TransE attribute)</a>
+</li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.TripleRE.entity_embedding">(besskge.scoring.TripleRE attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -551,9 +555,13 @@
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.MatrixDecompositionScoreFunction.negative_sample_sharing">(besskge.scoring.MatrixDecompositionScoreFunction attribute)</a>
 </li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.PairRE.negative_sample_sharing">(besskge.scoring.PairRE attribute)</a>
+</li>
         <li><a href="API_ref/scoring.html#besskge.scoring.RotatE.negative_sample_sharing">(besskge.scoring.RotatE attribute)</a>
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.TransE.negative_sample_sharing">(besskge.scoring.TransE attribute)</a>
+</li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.TripleRE.negative_sample_sharing">(besskge.scoring.TripleRE attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -563,6 +571,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="API_ref/negative_sampler.html#besskge.negative_sampler.TripleBasedShardedNegativeSampler.pad_negatives">pad_negatives() (besskge.negative_sampler.TripleBasedShardedNegativeSampler method)</a>
+</li>
+      <li><a href="API_ref/scoring.html#besskge.scoring.PairRE">PairRE (class in besskge.scoring)</a>
 </li>
       <li><a href="API_ref/sharding.html#besskge.sharding.PartitionedTripleSet.partition_mode">partition_mode (besskge.sharding.PartitionedTripleSet attribute)</a>
 </li>
@@ -600,8 +610,6 @@
 </li>
       <li><a href="API_ref/dataset.html#besskge.dataset.KGDataset.relation_dict">relation_dict (besskge.dataset.KGDataset attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="API_ref/scoring.html#besskge.scoring.BaseScoreFunction.relation_embedding">relation_embedding (besskge.scoring.BaseScoreFunction attribute)</a>
 
       <ul>
@@ -615,11 +623,17 @@
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.MatrixDecompositionScoreFunction.relation_embedding">(besskge.scoring.MatrixDecompositionScoreFunction attribute)</a>
 </li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.PairRE.relation_embedding">(besskge.scoring.PairRE attribute)</a>
+</li>
         <li><a href="API_ref/scoring.html#besskge.scoring.RotatE.relation_embedding">(besskge.scoring.RotatE attribute)</a>
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.TransE.relation_embedding">(besskge.scoring.TransE attribute)</a>
 </li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.TripleRE.relation_embedding">(besskge.scoring.TripleRE attribute)</a>
+</li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="API_ref/batch_sampler.html#besskge.batch_sampler.RigidShardedBatchSampler">RigidShardedBatchSampler (class in besskge.batch_sampler)</a>
 </li>
       <li><a href="API_ref/scoring.html#besskge.scoring.RotatE">RotatE (class in besskge.scoring)</a>
@@ -663,9 +677,13 @@
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.DistMult.score_heads">(besskge.scoring.DistMult method)</a>
 </li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.PairRE.score_heads">(besskge.scoring.PairRE method)</a>
+</li>
         <li><a href="API_ref/scoring.html#besskge.scoring.RotatE.score_heads">(besskge.scoring.RotatE method)</a>
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.TransE.score_heads">(besskge.scoring.TransE method)</a>
+</li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.TripleRE.score_heads">(besskge.scoring.TripleRE method)</a>
 </li>
       </ul></li>
       <li><a href="API_ref/scoring.html#besskge.scoring.BaseScoreFunction.score_tails">score_tails() (besskge.scoring.BaseScoreFunction method)</a>
@@ -677,9 +695,13 @@
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.DistMult.score_tails">(besskge.scoring.DistMult method)</a>
 </li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.PairRE.score_tails">(besskge.scoring.PairRE method)</a>
+</li>
         <li><a href="API_ref/scoring.html#besskge.scoring.RotatE.score_tails">(besskge.scoring.RotatE method)</a>
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.TransE.score_tails">(besskge.scoring.TransE method)</a>
+</li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.TripleRE.score_tails">(besskge.scoring.TripleRE method)</a>
 </li>
       </ul></li>
       <li><a href="API_ref/scoring.html#besskge.scoring.BaseScoreFunction.score_triple">score_triple() (besskge.scoring.BaseScoreFunction method)</a>
@@ -691,9 +713,13 @@
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.DistMult.score_triple">(besskge.scoring.DistMult method)</a>
 </li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.PairRE.score_triple">(besskge.scoring.PairRE method)</a>
+</li>
         <li><a href="API_ref/scoring.html#besskge.scoring.RotatE.score_triple">(besskge.scoring.RotatE method)</a>
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.TransE.score_triple">(besskge.scoring.TransE method)</a>
+</li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.TripleRE.score_triple">(besskge.scoring.TripleRE method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -723,9 +749,13 @@
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.MatrixDecompositionScoreFunction.sharding">(besskge.scoring.MatrixDecompositionScoreFunction attribute)</a>
 </li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.PairRE.sharding">(besskge.scoring.PairRE attribute)</a>
+</li>
         <li><a href="API_ref/scoring.html#besskge.scoring.RotatE.sharding">(besskge.scoring.RotatE attribute)</a>
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.TransE.sharding">(besskge.scoring.TransE attribute)</a>
+</li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.TripleRE.sharding">(besskge.scoring.TripleRE attribute)</a>
 </li>
         <li><a href="API_ref/sharding.html#besskge.sharding.PartitionedTripleSet.sharding">(besskge.sharding.PartitionedTripleSet attribute)</a>
 </li>
@@ -769,9 +799,13 @@
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.MatrixDecompositionScoreFunction.training">(besskge.scoring.MatrixDecompositionScoreFunction attribute)</a>
 </li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.PairRE.training">(besskge.scoring.PairRE attribute)</a>
+</li>
         <li><a href="API_ref/scoring.html#besskge.scoring.RotatE.training">(besskge.scoring.RotatE attribute)</a>
 </li>
         <li><a href="API_ref/scoring.html#besskge.scoring.TransE.training">(besskge.scoring.TransE attribute)</a>
+</li>
+        <li><a href="API_ref/scoring.html#besskge.scoring.TripleRE.training">(besskge.scoring.TripleRE attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -785,6 +819,8 @@
       <li><a href="API_ref/sharding.html#besskge.sharding.PartitionedTripleSet.triple_sort_idx">triple_sort_idx (besskge.sharding.PartitionedTripleSet attribute)</a>
 </li>
       <li><a href="API_ref/negative_sampler.html#besskge.negative_sampler.TripleBasedShardedNegativeSampler">TripleBasedShardedNegativeSampler (class in besskge.negative_sampler)</a>
+</li>
+      <li><a href="API_ref/scoring.html#besskge.scoring.TripleRE">TripleRE (class in besskge.scoring)</a>
 </li>
       <li><a href="API_ref/dataset.html#besskge.dataset.KGDataset.triples">triples (besskge.dataset.KGDataset attribute)</a>
 
