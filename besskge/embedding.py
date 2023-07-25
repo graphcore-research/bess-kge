@@ -169,7 +169,7 @@ def initialize_relation_embedding(
     :param initializer:
          Embedding table or list of initializing functions.
          If providing list of initializers, this needs to be of same length
-        as :attr:`row_size`.
+         as :attr:`row_size`.
     :param row_size:
         Number of parameters for each relation type.
         This needs to be a list, with the lengths of the different embedding tensors
