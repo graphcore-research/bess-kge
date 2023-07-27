@@ -22,11 +22,8 @@ jobs:
         apt-get update
         apt-get install -y git
         pip install -r requirements-dev.txt --no-cache-dir
-      shell: bash
     - name: Run CI
-      run: |
-        ./dev ci
-      shell: bash
+      run: ./dev ci
     - name: Publish docs
       if: ${{github.ref == 'refs/heads/main'}}
       uses: Cecilapp/GitHub-Pages-deploy@3.2.1
