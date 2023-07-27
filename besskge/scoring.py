@@ -1,13 +1,15 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
 from abc import ABC, abstractmethod
-from typing import Optional, Union, cast
+from typing import Callable, List, Union, cast
 
 import poptorch_experimental_addons as pea
 import torch
 
 from besskge.embedding import (
-    EmbeddingInitializer,
+    init_KGE_normal,
+    init_KGE_uniform,
+    init_uniform_norm,
     initialize_entity_embedding,
     initialize_relation_embedding,
     refactor_embedding_sharding,
@@ -27,7 +29,7 @@ class BaseScoreFunction(torch.nn.Module, ABC):
     #: Sharding of entities
     sharding: Sharding
 
-    #: Relation embedding table
+    #: Entity embedding table
     entity_embedding: torch.nn.Parameter
 
     #: Relation embedding table
@@ -164,11 +166,11 @@ class DistanceBasedScoreFunction(BaseScoreFunction, ABC):
         """
         return cast(torch.Tensor, torch.norm(v, p=self.scoring_norm, dim=-1))
 
-    def broadcasted_score(self, v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
+    def broadcasted_distance(self, v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
         """
-        Broadcasted scores of queries against sets of entities.
+        Broadcasted distances of queries against sets of entities.
 
-        For each query and candidate, the score is given by the p-distance
+        For each query and candidate, the computes the p-distance
         of the embeddings.
 
         :param v1: shape: (batch_size, embedding_size)
@@ -219,11 +221,13 @@ class MatrixDecompositionScoreFunction(BaseScoreFunction, ABC):
         """
         return torch.sum(v, dim=-1)
 
-    def broadcasted_score(self, v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
+    def broadcasted_dot_product(
+        self, v1: torch.Tensor, v2: torch.Tensor
+    ) -> torch.Tensor:
         """
-        Broadcasted scores of queries against sets of entities.
+        Broadcasted dot product of queries against sets of entities.
 
-        For each query and candidate, the score is given by the dot product of
+        For each query and candidate, computes the dot product of
         the embeddings.
 
         :param v1: shape: (batch_size, embedding_size)
@@ -255,29 +259,31 @@ class TransE(DistanceBasedScoreFunction):
         scoring_norm: int,
         sharding: Sharding,
         n_relation_type: int,
-        embedding_size: Optional[int],
-        entity_initializer: Union[torch.Tensor, EmbeddingInitializer],
-        relation_initializer: Union[torch.Tensor, EmbeddingInitializer],
+        embedding_size: int,
+        entity_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_uniform
+        ],
+        relation_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_uniform
+        ],
     ) -> None:
         """
         Initialize TransE model.
 
         :param negative_sample_sharing:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type scoring_norm:
+        :param scoring_norm:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type sharding:
+        :param sharding:
             Entity sharding.
         :param n_relation_type:
             Number of relation types in the knowledge graph.
         :param embedding_size:
-            Size of entities and relation embeddings. Can be omitted
-            if passing tensors for initialization of entity and relation
-            embeddings.
+            Size of entity and relation embeddings.
         :param entity_initializer:
-            Initialization scheme or table for entity embeddings.
+            Initialization function or table for entity embeddings.
         :param relation_initializer:
-            Initialization scheme or table for relation embeddings.
+            Initialization function or table for relation embeddings.
         """
         super(TransE, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
@@ -286,14 +292,20 @@ class TransE(DistanceBasedScoreFunction):
         self.sharding = sharding
 
         self.entity_embedding = initialize_entity_embedding(
-            entity_initializer, self.sharding, embedding_size
+            self.sharding, entity_initializer, [embedding_size]
         )
         self.relation_embedding = initialize_relation_embedding(
-            relation_initializer, n_relation_type, embedding_size
+            n_relation_type, relation_initializer, [embedding_size]
         )
         assert (
-            self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
-        ), "TransE requires the same embedding size for entities and relations"
+            self.entity_embedding.shape[-1]
+            == self.relation_embedding.shape[-1]
+            == embedding_size
+        ), (
+            "TransE requires `embedding_size` embedding parameters"
+            " for each entity and relation"
+        )
+        self.embedding_size = embedding_size
 
     # docstr-coverage: inherited
     def score_triple(
@@ -317,7 +329,7 @@ class TransE(DistanceBasedScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return -self.broadcasted_score(tail_emb - relation_emb, head_emb)
+        return -self.broadcasted_distance(tail_emb - relation_emb, head_emb)
 
     # docstr-coverage: inherited
     def score_tails(
@@ -329,7 +341,7 @@ class TransE(DistanceBasedScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return -self.broadcasted_score(head_emb + relation_emb, tail_emb)
+        return -self.broadcasted_distance(head_emb + relation_emb, tail_emb)
 
 
 class RotatE(DistanceBasedScoreFunction):
@@ -344,29 +356,31 @@ class RotatE(DistanceBasedScoreFunction):
         sharding: Sharding,
         n_relation_type: int,
         embedding_size: int,
-        entity_initializer: Union[torch.Tensor, EmbeddingInitializer],
-        relation_initializer: Union[torch.Tensor, EmbeddingInitializer],
+        entity_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_uniform
+        ],
+        relation_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_uniform
+        ],
     ) -> None:
         """
         Initialize RotatE model.
 
         :param negative_sample_sharing:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type scoring_norm:
+        :param scoring_norm:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type sharding:
+        :param sharding:
             Entity sharding.
         :param n_relation_type:
             Number of relation types in the knowledge graph.
         :param embedding_size:
-            Size of entity embeddings (relation embedding size
-            will be half of this). Can be omitted
-            if passing tensors for initialization of entity and relation
-            embeddings.
+            Complex size of entity embeddings (and real size of
+            relation embeddings).
         :param entity_initializer:
-            Initialization scheme or table for entity embeddings.
+            Initialization function or table for entity embeddings.
         :param relation_initializer:
-            Initialization scheme or table for relation embeddings.
+            Initialization function or table for relation embeddings.
         """
         super(RotatE, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
@@ -374,18 +388,23 @@ class RotatE(DistanceBasedScoreFunction):
 
         self.sharding = sharding
 
+        # self.entity_embedding[..., :embedding_size] : real part
+        # self.entity_embedding[..., embedding_size:] : imaginary part
         self.entity_embedding = initialize_entity_embedding(
-            entity_initializer, self.sharding, embedding_size
+            self.sharding, entity_initializer, [2 * embedding_size]
         )
         self.relation_embedding = initialize_relation_embedding(
-            relation_initializer, n_relation_type, embedding_size // 2
+            n_relation_type, relation_initializer, [embedding_size]
         )
         assert (
-            self.entity_embedding.shape[-1] % 2 == 0
-        ), "RotatE requires an even real embedding size for entities"
-        assert (
-            self.entity_embedding.shape[-1] // 2 == self.relation_embedding.shape[-1]
-        ), "RotatE requires relation embedding size to be half entity embedding size"
+            self.entity_embedding.shape[-1]
+            == 2 * self.relation_embedding.shape[-1]
+            == 2 * embedding_size
+        ), (
+            "RotatE requires `2*embedding_size` embedding parameters for each entity"
+            "and `embedding_size` embedding parameters for each relation"
+        )
+        self.embedding_size = embedding_size
 
     # docstr-coverage: inherited
     def score_triple(
@@ -411,7 +430,7 @@ class RotatE(DistanceBasedScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return -self.broadcasted_score(
+        return -self.broadcasted_distance(
             complex_rotation(tail_emb, -relation_emb), head_emb
         )
 
@@ -425,8 +444,279 @@ class RotatE(DistanceBasedScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return -self.broadcasted_score(
+        return -self.broadcasted_distance(
             complex_rotation(head_emb, relation_emb), tail_emb
+        )
+
+
+class PairRE(DistanceBasedScoreFunction):
+    """
+    PairRE scoring function :cite:p:`PairRE`.
+    """
+
+    def __init__(
+        self,
+        negative_sample_sharing: bool,
+        scoring_norm: int,
+        sharding: Sharding,
+        n_relation_type: int,
+        embedding_size: int,
+        entity_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_uniform
+        ],
+        relation_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_uniform
+        ],
+        normalize_entities: bool = True,
+    ) -> None:
+        """
+        Initialize PairRE model.
+
+        :param negative_sample_sharing:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :param scoring_norm:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :param sharding:
+            Entity sharding.
+        :param n_relation_type:
+            Number of relation types in the knowledge graph.
+        :param embedding_size:
+            Size of entity and relation embeddings.
+        :param entity_initializer:
+            Initialization function or table for entity embeddings.
+        :param relation_initializer:
+            Initialization function or table for relation embeddings.
+        :param normalize_entities:
+            If True, L2-normalize head and tail entity embeddings before projecting,
+            as in :cite:p:`PairRE`. Default: True.
+        """
+        super(PairRE, self).__init__(
+            negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
+        )
+
+        self.sharding = sharding
+        self.normalize = normalize_entities
+
+        if isinstance(relation_initializer, list):
+            relation_initializer = 2 * relation_initializer
+        self.entity_embedding = initialize_entity_embedding(
+            self.sharding, entity_initializer, [embedding_size]
+        )
+        # self.relation_embedding[..., :embedding_size] : relation projection for heads
+        # self.relation_embedding[..., embedding_size:] : relation projection for tails
+        self.relation_embedding = initialize_relation_embedding(
+            n_relation_type, relation_initializer, [embedding_size, embedding_size]
+        )
+        assert (
+            2 * self.entity_embedding.shape[-1]
+            == self.relation_embedding.shape[-1]
+            == 2 * embedding_size
+        ), (
+            "PairRE requires `embedding_size` embedding parameters for each entity"
+            "and `2*embedding_size` embedding parameters for each relation"
+        )
+        self.embedding_size = embedding_size
+
+    # docstr-coverage: inherited
+    def score_triple(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        r_h, r_t = torch.split(relation_emb, self.embedding_size, dim=-1)
+        if self.normalize:
+            head_emb = torch.nn.functional.normalize(head_emb, p=2, dim=-1)
+            tail_emb = torch.nn.functional.normalize(tail_emb, p=2, dim=-1)
+        return -self.reduce_embedding(head_emb * r_h - tail_emb * r_t)
+
+    # docstr-coverage: inherited
+    def score_heads(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        r_h, r_t = torch.split(relation_emb, self.embedding_size, dim=-1)
+        if self.normalize:
+            head_emb = torch.nn.functional.normalize(head_emb, p=2, dim=-1)
+            tail_emb = torch.nn.functional.normalize(tail_emb, p=2, dim=-1)
+        if self.negative_sample_sharing:
+            head_emb = head_emb.view(1, -1, self.embedding_size)
+        return -self.reduce_embedding(
+            head_emb * r_h.unsqueeze(1) - (tail_emb * r_t).unsqueeze(1)
+        )
+
+    # docstr-coverage: inherited
+    def score_tails(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        r_h, r_t = torch.split(relation_emb, self.embedding_size, dim=-1)
+        if self.normalize:
+            head_emb = torch.nn.functional.normalize(head_emb, p=2, dim=-1)
+            tail_emb = torch.nn.functional.normalize(tail_emb, p=2, dim=-1)
+        if self.negative_sample_sharing:
+            tail_emb = tail_emb.view(1, -1, self.embedding_size)
+        return -self.reduce_embedding(
+            tail_emb * r_t.unsqueeze(1) - (head_emb * r_h).unsqueeze(1)
+        )
+
+
+class TripleRE(DistanceBasedScoreFunction):
+    """
+    TripleRE scoring function :cite:p:`TripleRE`.
+    """
+
+    def __init__(
+        self,
+        negative_sample_sharing: bool,
+        scoring_norm: int,
+        sharding: Sharding,
+        n_relation_type: int,
+        embedding_size: int,
+        entity_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_uniform
+        ],
+        relation_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_uniform
+        ],
+        normalize_entities: bool = True,
+        u: float = 0.0,
+    ) -> None:
+        """
+        Initialize TripleRE model.
+
+        :param negative_sample_sharing:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :param scoring_norm:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :param sharding:
+            Entity sharding.
+        :param n_relation_type:
+            Number of relation types in the knowledge graph.
+        :param embedding_size:
+            Size of entity and relation embeddings.
+        :param entity_initializer:
+            Initialization function or table for entity embeddings.
+        :param relation_initializer:
+            Initialization function or table for relation embeddings.
+        :param normalize_entities:
+            If True, L2-normalize head and tail entity embeddings before projecting.
+            Default: False.
+        :param u:
+            Offset factor for head/tail relation projections, as in TripleREv2.
+            Default: 0.0 (no offset).
+        """
+        super(TripleRE, self).__init__(
+            negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
+        )
+
+        self.sharding = sharding
+        self.normalize = normalize_entities
+
+        if isinstance(relation_initializer, list):
+            relation_initializer = 3 * relation_initializer
+        self.entity_embedding = initialize_entity_embedding(
+            self.sharding, entity_initializer, [embedding_size]
+        )
+        # self.relation_embedding[..., :embedding_size] : relation projection for heads
+        # self.relation_embedding[..., embedding_size:2*embedding_size] : relation emb
+        # self.relation_embedding[..., 2*embedding_size:] : relation projection for tails
+        self.relation_embedding = initialize_relation_embedding(
+            n_relation_type,
+            relation_initializer,
+            [embedding_size, embedding_size, embedding_size],
+        )
+        assert (
+            3 * self.entity_embedding.shape[-1]
+            == self.relation_embedding.shape[-1]
+            == 3 * embedding_size
+        ), (
+            "TripleRE requires `embedding_size` embedding parameters for each entity"
+            "and `3*embedding_size` embedding parameters for each relation"
+        )
+        self.embedding_size = embedding_size
+
+        self.use_v2 = u > 0.0
+        self.register_buffer(
+            "rel_u", torch.tensor([u], dtype=self.entity_embedding.dtype)
+        )
+
+    # docstr-coverage: inherited
+    def score_triple(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        r_h, r_m, r_t = torch.split(relation_emb, self.embedding_size, dim=-1)
+        if self.use_v2:
+            r_h = r_h + self.rel_u
+            r_t = r_t + self.rel_u
+        if self.normalize:
+            head_emb = torch.nn.functional.normalize(head_emb, p=2, dim=-1)
+            tail_emb = torch.nn.functional.normalize(tail_emb, p=2, dim=-1)
+        return -self.reduce_embedding(head_emb * r_h - tail_emb * r_t + r_m)
+
+    # docstr-coverage: inherited
+    def score_heads(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        r_h, r_m, r_t = torch.split(relation_emb, self.embedding_size, dim=-1)
+        if self.use_v2:
+            r_h = r_h + self.rel_u
+            r_t = r_t + self.rel_u
+        if self.normalize:
+            head_emb = torch.nn.functional.normalize(head_emb, p=2, dim=-1)
+            tail_emb = torch.nn.functional.normalize(tail_emb, p=2, dim=-1)
+        if self.negative_sample_sharing:
+            head_emb = head_emb.view(1, -1, self.embedding_size)
+        return -self.reduce_embedding(
+            head_emb * r_h.unsqueeze(1) - (tail_emb * r_t - r_m).unsqueeze(1)
+        )
+
+    # docstr-coverage: inherited
+    def score_tails(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        r_h, r_m, r_t = torch.split(relation_emb, self.embedding_size, dim=-1)
+        if self.use_v2:
+            r_h = r_h + self.rel_u
+            r_t = r_t + self.rel_u
+        if self.normalize:
+            head_emb = torch.nn.functional.normalize(head_emb, p=2, dim=-1)
+            tail_emb = torch.nn.functional.normalize(tail_emb, p=2, dim=-1)
+        if self.negative_sample_sharing:
+            tail_emb = tail_emb.view(1, -1, self.embedding_size)
+        return -self.reduce_embedding(
+            tail_emb * r_t.unsqueeze(1) - (head_emb * r_h + r_m).unsqueeze(1)
         )
 
 
@@ -440,41 +730,49 @@ class DistMult(MatrixDecompositionScoreFunction):
         negative_sample_sharing: bool,
         sharding: Sharding,
         n_relation_type: int,
-        embedding_size: Optional[int],
-        entity_initializer: Union[torch.Tensor, EmbeddingInitializer],
-        relation_initializer: Union[torch.Tensor, EmbeddingInitializer],
+        embedding_size: int,
+        entity_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_uniform
+        ],
+        relation_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_uniform
+        ],
     ) -> None:
         """
         Initialize DistMult model.
 
         :param negative_sample_sharing:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type sharding:
+        :param sharding:
             Entity sharding.
         :param n_relation_type:
             Number of relation types in the knowledge graph.
         :param embedding_size:
-            Size of entity and relation embeddings. Can be omitted
-            if passing tensors for initialization of entity and relation
-            embeddings.
+            Size of entity and relation embeddings.
         :param entity_initializer:
-            Initialization scheme or table for entity embeddings.
+            Initialization function or table for entity embeddings.
         :param relation_initializer:
-            Initialization scheme or table for relation embeddings.
+            Initialization function or table for relation embeddings.
         """
         super(DistMult, self).__init__(negative_sample_sharing=negative_sample_sharing)
 
         self.sharding = sharding
 
         self.entity_embedding = initialize_entity_embedding(
-            entity_initializer, self.sharding, embedding_size
+            self.sharding, entity_initializer, [embedding_size]
         )
         self.relation_embedding = initialize_relation_embedding(
-            relation_initializer, n_relation_type, embedding_size
+            n_relation_type, relation_initializer, [embedding_size]
         )
         assert (
-            self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
-        ), "DistMult requires the same embedding size for entities and relations"
+            self.entity_embedding.shape[-1]
+            == self.relation_embedding.shape[-1]
+            == embedding_size
+        ), (
+            "DistMult requires `embedding_size` embedding parameters"
+            " for each entity and relation"
+        )
+        self.embedding_size = embedding_size
 
     # docstr-coverage: inherited
     def score_triple(
@@ -498,7 +796,7 @@ class DistMult(MatrixDecompositionScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return self.broadcasted_score(relation_emb * tail_emb, head_emb)
+        return self.broadcasted_dot_product(relation_emb * tail_emb, head_emb)
 
     # docstr-coverage: inherited
     def score_tails(
@@ -510,7 +808,7 @@ class DistMult(MatrixDecompositionScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return self.broadcasted_score(head_emb * relation_emb, tail_emb)
+        return self.broadcasted_dot_product(head_emb * relation_emb, tail_emb)
 
 
 class ComplEx(MatrixDecompositionScoreFunction):
@@ -523,44 +821,53 @@ class ComplEx(MatrixDecompositionScoreFunction):
         negative_sample_sharing: bool,
         sharding: Sharding,
         n_relation_type: int,
-        embedding_size: Optional[int],
-        entity_initializer: Union[torch.Tensor, EmbeddingInitializer],
-        relation_initializer: Union[torch.Tensor, EmbeddingInitializer],
+        embedding_size: int,
+        entity_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_normal
+        ],
+        relation_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_normal
+        ],
     ) -> None:
         """
         Initialize ComplEx model.
 
         :param negative_sample_sharing:
             see :meth:`DistanceBasedScoreFunction.__init__`
-        :type sharding:
+        :param sharding:
             Entity sharding.
         :param n_relation_type:
             Number of relation types in the knowledge graph.
         :param embedding_size:
-            Size of entity and relation embeddings. Can be omitted
-            if passing tensors for initialization of entity and relation
-            embeddings.
+            Complex size of entity and relation embeddings.
         :param entity_initializer:
-            Initialization scheme or table for entity embeddings.
+            Initialization function or table for entity embeddings.
         :param relation_initializer:
-            Initialization scheme or table for relation embeddings.
+            Initialization function or table for relation embeddings.
         """
         super(ComplEx, self).__init__(negative_sample_sharing=negative_sample_sharing)
 
         self.sharding = sharding
 
+        # self.entity_embedding[..., :embedding_size] : real part
+        # self.entity_embedding[..., embedding_size:] : imaginary part
         self.entity_embedding = initialize_entity_embedding(
-            entity_initializer, self.sharding, embedding_size
+            self.sharding, entity_initializer, [2 * embedding_size]
         )
+        # self.relation_embedding[..., :embedding_size] : real part
+        # self.relation_embedding[..., embedding_size:] : imaginary part
         self.relation_embedding = initialize_relation_embedding(
-            relation_initializer, n_relation_type, embedding_size
+            n_relation_type, relation_initializer, [2 * embedding_size]
         )
         assert (
-            self.entity_embedding.shape[-1] == self.relation_embedding.shape[-1]
-        ), "ComplEx requires the same embedding size for entities and relations"
-        assert (
-            self.entity_embedding.shape[-1] % 2 == 0
-        ), "ComplEx requires an even real embedding size for entities and relations"
+            self.entity_embedding.shape[-1]
+            == self.relation_embedding.shape[-1]
+            == 2 * embedding_size
+        ), (
+            "ComplEx requires `2*embedding_size` embedding parameters"
+            " for each entity and relation"
+        )
+        self.embedding_size = embedding_size
 
     # docstr-coverage: inherited
     def score_triple(
@@ -588,7 +895,7 @@ class ComplEx(MatrixDecompositionScoreFunction):
         )
         cutpoint = relation_emb.shape[-1] // 2
         relation_emb[:, cutpoint:] = -relation_emb[:, cutpoint:]  # conjugate relations
-        return self.broadcasted_score(
+        return self.broadcasted_dot_product(
             complex_multiplication(relation_emb, tail_emb), head_emb
         )
 
@@ -602,6 +909,269 @@ class ComplEx(MatrixDecompositionScoreFunction):
         relation_emb = torch.index_select(
             self.relation_embedding, index=relation_id, dim=0
         )
-        return self.broadcasted_score(
+        return self.broadcasted_dot_product(
             complex_multiplication(head_emb, relation_emb), tail_emb
+        )
+
+
+class BoxE(DistanceBasedScoreFunction):
+    """
+    BoxE scoring function :cite:p:`BoxE`.
+    """
+
+    def __init__(
+        self,
+        negative_sample_sharing: bool,
+        scoring_norm: int,
+        sharding: Sharding,
+        n_relation_type: int,
+        embedding_size: int,
+        entity_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            torch.nn.init.uniform_,
+        ],
+        relation_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            torch.nn.init.uniform_,
+            init_uniform_norm,
+        ],
+        apply_tanh: bool = True,
+        dist_func_per_dim: bool = True,
+        eps: float = 1e-6,
+    ) -> None:
+        """
+        Initialize BoxE model.
+
+        :param negative_sample_sharing:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :param scoring_norm:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :param sharding:
+            Entity sharding.
+        :param n_relation_type:
+            Number of relation types in the knowledge graph.
+        :param embedding_size:
+            Size of final entity embeddings.
+        :param entity_initializer:
+            Initialization function or table for entity embeddings.
+        :param relation_initializer:
+            Initialization functions or table for relation embeddings.
+            If not passing a table, two functions are needed: the initializer
+            for head/tail box centers and the initializer for
+            (scalar) head/tail box sizes.
+        :param apply_tanh:
+            If True, bound relation box sizes and bumped entity
+            representations with tanh. Default: True.
+        :param dist_func_per_dim:
+            If True, instead of selecting between the two BoxE distance
+            functions based on whether the bumped representation is inside
+            or outside the relation box, make the choice separately for
+            each dimension of the embedding space. Default: True.
+        :param eps:
+            Softening parameter for geometric normalization of box widths.
+            Default: 1e-6.
+        """
+        super(BoxE, self).__init__(
+            negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
+        )
+        self.apply_tanh = apply_tanh
+        self.dist_func_per_dim = dist_func_per_dim
+        self.eps = eps
+        self.sharding = sharding
+
+        if isinstance(entity_initializer, list):
+            entity_initializer = 2 * entity_initializer
+        if isinstance(relation_initializer, list):
+            relation_initializer = 4 * [relation_initializer[0]] + 2 * [
+                relation_initializer[1]
+            ]
+        # self.entity_embedding[..., :embedding_size] base positions
+        # self.entity_embedding[..., embedding_size:] translational bumps
+        self.entity_embedding = initialize_entity_embedding(
+            self.sharding,
+            entity_initializer,
+            [embedding_size, embedding_size],
+        )
+        # self.relation_embedding[..., :embedding_size] head box centers
+        # self.relation_embedding[..., embedding_size:2*embedding_size] tail box centers
+        # self.relation_embedding[..., 2*embedding_size:3*embedding_size] head box widths
+        # self.relation_embedding[..., 3*embedding_size:4*embedding_size] tail box widths
+        # self.relation_embedding[..., -2] head box size
+        # self.relation_embedding[..., -1] tail box size
+        self.relation_embedding = initialize_relation_embedding(
+            n_relation_type,
+            relation_initializer,
+            [embedding_size, embedding_size, embedding_size, embedding_size, 1, 1],
+        )
+        assert (
+            2 * self.entity_embedding.shape[-1]
+            == self.relation_embedding.shape[-1] - 2
+            == 4 * embedding_size
+        ), (
+            "BoxE requires `2*embedding_size` embedding parameters for each entity"
+            " and `4*embedding_size + 2` embedding parameters for each relation"
+        )
+        self.embedding_size = embedding_size
+
+    def boxe_score(
+        self,
+        bumped_ht: torch.Tensor,
+        center_ht: torch.Tensor,
+        width_ht: torch.Tensor,
+        box_size: torch.Tensor,
+    ) -> torch.Tensor:
+        """
+        BoxE score with relation broadcasting, for optimized batched negative scoring.
+
+        :param bumped_ht: shape: (batch_size, 2, emb_size)
+            or (batch_size, n_negative, 2, emb_size)
+            Bumped h/t entity embeddings (heads: `bumped_ht[...,0,:]`,
+            tails: `bumped_ht[...,1,:]`).
+        :param center_ht: shape: (batch_size, 2, emb_size)
+            or (batch_size, 1, 2, emb_size)
+            Centers of h/t relation boxes
+            (heads: `center_ht[...,0,:]`, tails: `center_ht[...,1,:]`).
+        :param width_ht: shape: (batch_size, 2, emb_size) or (batch_size, 1, 2, emb_size)
+            Widths of h/t relation boxes, before normalization
+            (heads: `width_ht[...,0,:]`, tails: `width_ht[...,1,:]`).
+        :param box_size: shape: (batch_size, 2) or (batch_size, 1, 2)
+            Parameter controlling the size of the (normalized)
+            h/t relation boxes
+            (heads: `box_size[...,0]`, tails: `box_size[...,1]`).
+
+        :return: shape: shape: (batch_size,) or (batch_size, n_negative)
+            Negative sum of head and tail scores, as defined in :cite:p:`BoxE`.
+        """
+        width_ht = torch.abs(width_ht)
+        # Normalize width_ht by geometric mean
+        width_ht = width_ht / torch.clamp(
+            torch.exp(
+                torch.mean(
+                    torch.log(torch.clamp(width_ht, min=self.eps)),
+                    dim=-1,
+                    keepdim=True,
+                )
+            ),
+            min=self.eps,
+        )
+        # Rescale by box_size
+        width_ht = width_ht * (
+            torch.tensor(1.0, dtype=width_ht.dtype, device=width_ht.device)
+            + torch.nn.functional.elu(box_size.unsqueeze(-1))
+        )
+
+        if self.apply_tanh:
+            box_low = torch.tanh(
+                center_ht
+                - torch.tensor(0.5, dtype=width_ht.dtype, device=width_ht.device)
+                * width_ht
+            )
+            box_up = torch.tanh(box_low + width_ht)
+            center_ht = torch.tensor(
+                0.5, dtype=width_ht.dtype, device=width_ht.device
+            ) * (box_low + box_up)
+            width_ht = box_up - box_low
+            center_dist_ht = torch.abs(torch.tanh(bumped_ht) - center_ht)
+        else:
+            center_dist_ht = torch.abs(bumped_ht - center_ht)
+
+        width_plus1_ht = (
+            torch.tensor(1.0, dtype=width_ht.dtype, device=width_ht.device) + width_ht
+        )
+        k_ht = (
+            torch.tensor(0.5, dtype=width_ht.dtype, device=width_ht.device)
+            * width_ht
+            * (width_plus1_ht - torch.reciprocal(width_plus1_ht))
+        )
+
+        in_or_out = torch.le(
+            center_dist_ht,
+            torch.tensor(0.5, dtype=width_ht.dtype, device=width_ht.device) * width_ht,
+        )
+        if not self.dist_func_per_dim:
+            in_or_out = torch.all(
+                in_or_out,
+                dim=-1,
+                keepdim=True,
+            )
+
+        final_dist_ht = torch.where(
+            in_or_out,
+            center_dist_ht / width_plus1_ht,
+            center_dist_ht * width_plus1_ht - k_ht,
+        )
+        return -self.reduce_embedding(final_dist_ht).sum(-1)
+
+    # docstr-coverage: inherited
+    def score_triple(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        center_ht, width_ht, box_size = torch.split(
+            relation_emb, 2 * self.embedding_size, dim=-1
+        )
+        bumped_ht = (
+            head_emb.view(-1, 2, self.embedding_size)
+            + tail_emb.view(-1, 2, self.embedding_size)[:, [1, 0]]
+        )
+        return self.boxe_score(
+            bumped_ht,  # shape (batch_size, 2, emb_size)
+            center_ht.view(-1, 2, self.embedding_size),
+            width_ht.view(-1, 2, self.embedding_size),
+            box_size.view(-1, 2),
+        )
+
+    # docstr-coverage: inherited
+    def score_heads(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        center_ht, width_ht, box_size = torch.split(
+            relation_emb, 2 * self.embedding_size, dim=-1
+        )
+        if self.negative_sample_sharing:
+            head_emb = head_emb.view(1, -1, 2 * self.embedding_size)
+        bumped_ht = (
+            head_emb.view(head_emb.shape[0], -1, 2, self.embedding_size)
+            + tail_emb.view(-1, 1, 2, self.embedding_size)[:, :, [1, 0]]
+        )
+        return self.boxe_score(
+            bumped_ht,  # shape (batch_size, B*n_heads, 2, emb_size)
+            center_ht.view(-1, 1, 2, self.embedding_size),
+            width_ht.view(-1, 1, 2, self.embedding_size),
+            box_size.view(-1, 1, 2),
+        )
+
+    # docstr-coverage: inherited
+    def score_tails(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        center_ht, width_ht, box_size = torch.split(
+            relation_emb, 2 * self.embedding_size, dim=-1
+        )
+        if self.negative_sample_sharing:
+            tail_emb = tail_emb.view(1, -1, 2 * self.embedding_size)
+        bumped_ht = (
+            head_emb.view(-1, 1, 2, self.embedding_size)
+            + tail_emb.view(tail_emb.shape[0], -1, 2, self.embedding_size)[:, :, [1, 0]]
+        )
+        return self.boxe_score(
+            bumped_ht,  # shape (batch_size, B*n_tails, 2, emb_size)
+            center_ht.view(-1, 1, 2, self.embedding_size),
+            width_ht.view(-1, 1, 2, self.embedding_size),
+            box_size.view(-1, 1, 2),
         )

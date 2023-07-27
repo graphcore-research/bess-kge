@@ -22,7 +22,7 @@ from besskge.negative_sampler import (
     PlaceholderNegativeSampler,
     TripleBasedShardedNegativeSampler,
 )
-from besskge.scoring import ComplEx, TransE
+from besskge.scoring import DistMult, TransE
 from besskge.sharding import PartitionedTripleSet, Sharding
 
 seed = 1234
@@ -315,7 +315,7 @@ def test_bess_topk_prediction(
         ds, "test", sharding, partition_mode=partition_mode
     )
 
-    score_fn = ComplEx(
+    score_fn = DistMult(
         negative_sample_sharing=flat_negative_format,
         sharding=sharding,
         n_relation_type=ds.n_relation_type,
