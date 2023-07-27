@@ -13,7 +13,7 @@ concurrency:
 jobs:
   ci:
     runs-on: ubuntu-latest
-    container: graphcore/pytorch:3.3.0-ubuntu-20.04
+    container: graphcore/pytorch:3.3.0-ubuntu-20.04-20230703
     timeout-minutes: 15
     steps:
     - uses: actions/checkout@v3
@@ -21,12 +21,10 @@ jobs:
       run: |
         apt-get update
         apt-get install -y git
-        source /opt/setup-bash-env.sh
         pip install -r requirements-dev.txt --no-cache-dir
       shell: bash
     - name: Run CI
       run: |
-        source /opt/setup-bash-env.sh
         ./dev ci
       shell: bash
     - name: Publish docs
