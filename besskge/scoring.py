@@ -1175,3 +1175,150 @@ class BoxE(DistanceBasedScoreFunction):
             width_ht.view(-1, 1, 2, self.embedding_size),
             box_size.view(-1, 1, 2),
         )
+
+
+class InterHT(DistanceBasedScoreFunction):
+    """
+    InterHT scoring function :cite:p:`InterHT`.
+    """
+
+    def __init__(
+        self,
+        negative_sample_sharing: bool,
+        scoring_norm: int,
+        sharding: Sharding,
+        n_relation_type: int,
+        embedding_size: int,
+        entity_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_uniform
+        ],
+        relation_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
+            init_KGE_uniform
+        ],
+        normalize_entities: bool = True,
+        offset: float = 1.0,
+    ) -> None:
+        """
+        Initialize InterHT model.
+
+        :param negative_sample_sharing:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :param scoring_norm:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :param sharding:
+            Entity sharding.
+        :param n_relation_type:
+            Number of relation types in the knowledge graph.
+        :param embedding_size:
+            Size of entity and relation embeddings.
+        :param entity_initializer:
+            Initialization function or table for entity embeddings.
+        :param relation_initializer:
+            Initialization function or table for relation embeddings.
+        :param normalize_entities:
+            If True, L2-normalize head and tail entity embeddings before projecting.
+            Default: True.
+        :param offset:
+            Factor applied to offset for auxiliary entity embeddings. Default: 1.0.
+        """
+        super(InterHT, self).__init__(
+            negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
+        )
+
+        self.sharding = sharding
+        self.normalize = normalize_entities
+
+        # self.entity_embedding[..., :embedding_size] : entity embedding
+        # self.entity_embedding[..., embedding_size:] : auxiliary entity embedding
+        self.entity_embedding = initialize_entity_embedding(
+            self.sharding, entity_initializer, [2 * embedding_size]
+        )
+        self.relation_embedding = initialize_relation_embedding(
+            n_relation_type, relation_initializer, [embedding_size]
+        )
+        assert (
+            self.entity_embedding.shape[-1]
+            == 2 * self.relation_embedding.shape[-1]
+            == 2 * embedding_size
+        ), (
+            "InterHT requires `2*embedding_size` embedding parameters"
+            " for each entity and relation"
+        )
+        self.embedding_size = embedding_size
+        self.register_buffer(
+            "offset", torch.tensor([offset], dtype=self.entity_embedding.dtype)
+        )
+
+    # docstr-coverage: inherited
+    def score_triple(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        h, h_aux = torch.split(head_emb, self.embedding_size, dim=-1)
+        t, t_aux = torch.split(tail_emb, self.embedding_size, dim=-1)
+        if self.normalize:
+            h = torch.nn.functional.normalize(h, p=2, dim=-1)
+            t = torch.nn.functional.normalize(t, p=2, dim=-1)
+            h_aux = torch.nn.functional.normalize(h_aux, p=2, dim=-1)
+            t_aux = torch.nn.functional.normalize(t_aux, p=2, dim=-1)
+
+        return -self.reduce_embedding(
+            h * (t_aux + self.offset) + relation_emb - t * (h_aux + self.offset)
+        )
+
+    # docstr-coverage: inherited
+    def score_heads(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        h, h_aux = torch.split(head_emb, self.embedding_size, dim=-1)
+        t, t_aux = torch.split(tail_emb, self.embedding_size, dim=-1)
+        if self.normalize:
+            h = torch.nn.functional.normalize(h, p=2, dim=-1)
+            t = torch.nn.functional.normalize(t, p=2, dim=-1)
+            h_aux = torch.nn.functional.normalize(h_aux, p=2, dim=-1)
+            t_aux = torch.nn.functional.normalize(t_aux, p=2, dim=-1)
+        if self.negative_sample_sharing:
+            h = h.view(1, -1, self.embedding_size)
+            h_aux = h_aux.view(1, -1, self.embedding_size)
+        return -self.reduce_embedding(
+            h * (t_aux + self.offset).unsqueeze(1)
+            + relation_emb.unsqueeze(1)
+            - t.unsqueeze(1) * (h_aux + self.offset)
+        )
+
+    # docstr-coverage: inherited
+    def score_tails(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        h, h_aux = torch.split(head_emb, self.embedding_size, dim=-1)
+        t, t_aux = torch.split(tail_emb, self.embedding_size, dim=-1)
+        if self.normalize:
+            h = torch.nn.functional.normalize(h, p=2, dim=-1)
+            t = torch.nn.functional.normalize(t, p=2, dim=-1)
+            h_aux = torch.nn.functional.normalize(h_aux, p=2, dim=-1)
+            t_aux = torch.nn.functional.normalize(t_aux, p=2, dim=-1)
+        if self.negative_sample_sharing:
+            t = t.view(1, -1, self.embedding_size)
+            t_aux = t_aux.view(1, -1, self.embedding_size)
+        return -self.reduce_embedding(
+            h.unsqueeze(1) * (t_aux + self.offset)
+            + relation_emb.unsqueeze(1)
+            - t * (h_aux + self.offset).unsqueeze(1)
+        )
