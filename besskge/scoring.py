@@ -266,6 +266,7 @@ class TransE(DistanceBasedScoreFunction):
         relation_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
             init_KGE_uniform
         ],
+        inverse_relations: bool = False,
     ) -> None:
         """
         Initialize TransE model.
@@ -284,6 +285,8 @@ class TransE(DistanceBasedScoreFunction):
             Initialization function or table for entity embeddings.
         :param relation_initializer:
             Initialization function or table for relation embeddings.
+        :param inverse_relations:
+            If True, learn embeddings for inverse relations. Default: False
         """
         super(TransE, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
@@ -295,7 +298,7 @@ class TransE(DistanceBasedScoreFunction):
             self.sharding, entity_initializer, [embedding_size]
         )
         self.relation_embedding = initialize_relation_embedding(
-            n_relation_type, relation_initializer, [embedding_size]
+            n_relation_type, inverse_relations, relation_initializer, [embedding_size]
         )
         assert (
             self.entity_embedding.shape[-1]
@@ -362,6 +365,7 @@ class RotatE(DistanceBasedScoreFunction):
         relation_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
             init_KGE_uniform
         ],
+        inverse_relations: bool = False,
     ) -> None:
         """
         Initialize RotatE model.
@@ -381,6 +385,8 @@ class RotatE(DistanceBasedScoreFunction):
             Initialization function or table for entity embeddings.
         :param relation_initializer:
             Initialization function or table for relation embeddings.
+        :param inverse_relations:
+            If True, learn embeddings for inverse relations. Default: False
         """
         super(RotatE, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
@@ -394,7 +400,7 @@ class RotatE(DistanceBasedScoreFunction):
             self.sharding, entity_initializer, [2 * embedding_size]
         )
         self.relation_embedding = initialize_relation_embedding(
-            n_relation_type, relation_initializer, [embedding_size]
+            n_relation_type, inverse_relations, relation_initializer, [embedding_size]
         )
         assert (
             self.entity_embedding.shape[-1]
@@ -468,6 +474,7 @@ class PairRE(DistanceBasedScoreFunction):
             init_KGE_uniform
         ],
         normalize_entities: bool = True,
+        inverse_relations: bool = False,
     ) -> None:
         """
         Initialize PairRE model.
@@ -489,6 +496,8 @@ class PairRE(DistanceBasedScoreFunction):
         :param normalize_entities:
             If True, L2-normalize head and tail entity embeddings before projecting,
             as in :cite:p:`PairRE`. Default: True.
+        :param inverse_relations:
+            If True, learn embeddings for inverse relations. Default: False
         """
         super(PairRE, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
@@ -505,7 +514,10 @@ class PairRE(DistanceBasedScoreFunction):
         # self.relation_embedding[..., :embedding_size] : relation projection for heads
         # self.relation_embedding[..., embedding_size:] : relation projection for tails
         self.relation_embedding = initialize_relation_embedding(
-            n_relation_type, relation_initializer, [embedding_size, embedding_size]
+            n_relation_type,
+            inverse_relations,
+            relation_initializer,
+            [embedding_size, embedding_size],
         )
         assert (
             2 * self.entity_embedding.shape[-1]
@@ -594,6 +606,7 @@ class TripleRE(DistanceBasedScoreFunction):
         ],
         normalize_entities: bool = True,
         u: float = 0.0,
+        inverse_relations: bool = False,
     ) -> None:
         """
         Initialize TripleRE model.
@@ -618,6 +631,8 @@ class TripleRE(DistanceBasedScoreFunction):
         :param u:
             Offset factor for head/tail relation projections, as in TripleREv2.
             Default: 0.0 (no offset).
+        :param inverse_relations:
+            If True, learn embeddings for inverse relations. Default: False
         """
         super(TripleRE, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
@@ -636,6 +651,7 @@ class TripleRE(DistanceBasedScoreFunction):
         # self.relation_embedding[..., 2*embedding_size:] : relation projection for tails
         self.relation_embedding = initialize_relation_embedding(
             n_relation_type,
+            inverse_relations,
             relation_initializer,
             [embedding_size, embedding_size, embedding_size],
         )
@@ -737,6 +753,7 @@ class DistMult(MatrixDecompositionScoreFunction):
         relation_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
             init_KGE_uniform
         ],
+        inverse_relations: bool = False,
     ) -> None:
         """
         Initialize DistMult model.
@@ -753,6 +770,8 @@ class DistMult(MatrixDecompositionScoreFunction):
             Initialization function or table for entity embeddings.
         :param relation_initializer:
             Initialization function or table for relation embeddings.
+        :param inverse_relations:
+            If True, learn embeddings for inverse relations. Default: False
         """
         super(DistMult, self).__init__(negative_sample_sharing=negative_sample_sharing)
 
@@ -762,7 +781,7 @@ class DistMult(MatrixDecompositionScoreFunction):
             self.sharding, entity_initializer, [embedding_size]
         )
         self.relation_embedding = initialize_relation_embedding(
-            n_relation_type, relation_initializer, [embedding_size]
+            n_relation_type, inverse_relations, relation_initializer, [embedding_size]
         )
         assert (
             self.entity_embedding.shape[-1]
@@ -828,6 +847,7 @@ class ComplEx(MatrixDecompositionScoreFunction):
         relation_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
             init_KGE_normal
         ],
+        inverse_relations: bool = False,
     ) -> None:
         """
         Initialize ComplEx model.
@@ -844,6 +864,8 @@ class ComplEx(MatrixDecompositionScoreFunction):
             Initialization function or table for entity embeddings.
         :param relation_initializer:
             Initialization function or table for relation embeddings.
+        :param inverse_relations:
+            If True, learn embeddings for inverse relations. Default: False
         """
         super(ComplEx, self).__init__(negative_sample_sharing=negative_sample_sharing)
 
@@ -857,7 +879,10 @@ class ComplEx(MatrixDecompositionScoreFunction):
         # self.relation_embedding[..., :embedding_size] : real part
         # self.relation_embedding[..., embedding_size:] : imaginary part
         self.relation_embedding = initialize_relation_embedding(
-            n_relation_type, relation_initializer, [2 * embedding_size]
+            n_relation_type,
+            inverse_relations,
+            relation_initializer,
+            [2 * embedding_size],
         )
         assert (
             self.entity_embedding.shape[-1]
@@ -936,6 +961,7 @@ class BoxE(DistanceBasedScoreFunction):
         apply_tanh: bool = True,
         dist_func_per_dim: bool = True,
         eps: float = 1e-6,
+        inverse_relations: bool = False,
     ) -> None:
         """
         Initialize BoxE model.
@@ -968,6 +994,8 @@ class BoxE(DistanceBasedScoreFunction):
         :param eps:
             Softening parameter for geometric normalization of box widths.
             Default: 1e-6.
+        :param inverse_relations:
+            If True, learn embeddings for inverse relations. Default: False
         """
         super(BoxE, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
@@ -998,6 +1026,7 @@ class BoxE(DistanceBasedScoreFunction):
         # self.relation_embedding[..., -1] tail box size
         self.relation_embedding = initialize_relation_embedding(
             n_relation_type,
+            inverse_relations,
             relation_initializer,
             [embedding_size, embedding_size, embedding_size, embedding_size, 1, 1],
         )
@@ -1197,6 +1226,7 @@ class InterHT(DistanceBasedScoreFunction):
         ],
         normalize_entities: bool = True,
         offset: float = 1.0,
+        inverse_relations: bool = False,
     ) -> None:
         """
         Initialize InterHT model.
@@ -1220,6 +1250,8 @@ class InterHT(DistanceBasedScoreFunction):
             auxiliary head and tail entities before multiplying. Default: True.
         :param offset:
             Offset applied to auxiliary entity embeddings. Default: 1.0.
+        :param inverse_relations:
+            If True, learn embeddings for inverse relations. Default: False
         """
         super(InterHT, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
@@ -1236,7 +1268,10 @@ class InterHT(DistanceBasedScoreFunction):
             self.sharding, entity_initializer, [embedding_size, embedding_size]
         )
         self.relation_embedding = initialize_relation_embedding(
-            n_relation_type, relation_initializer, [embedding_size]
+            n_relation_type,
+            inverse_relations,
+            relation_initializer,
+            [embedding_size],
         )
         assert (
             self.entity_embedding.shape[-1]

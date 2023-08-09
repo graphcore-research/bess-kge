@@ -158,6 +158,7 @@ def initialize_entity_embedding(
 
 def initialize_relation_embedding(
     n_relation_type: int,
+    inverse_relations: bool,
     initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]],
     row_size: Optional[List[int]] = None,
 ) -> torch.nn.Parameter:
@@ -166,6 +167,11 @@ def initialize_relation_embedding(
 
     :param n_relation_type:
         Number of relation types.
+    :param inverse_relations:
+        If True, learn embeddings for inverse relations, in addition to direct ones.
+        Needs to be set to `True` when inverse triples are added to the dataset.
+        Given a relation with ID `i`, its inverse is the one with
+        ID `i+n_relation_type`.
     :param initializer:
          Embedding table or list of initializing functions.
          If providing list of initializers, this needs to be of same length
@@ -199,15 +205,16 @@ def initialize_relation_embedding(
             raise ValueError(
                 "Different number of embedding splits and initializers provided"
             )
+        n_rows = 2 * n_relation_type if inverse_relations else n_relation_type
         relation_embedding = torch.empty(
-            (n_relation_type, 0),
+            (n_rows, 0),
             dtype=torch.float32,
         )
         for slice_size, init in zip(row_size, initializer):
             table_slice = init(
                 torch.empty(
                     size=(
-                        n_relation_type,
+                        n_rows,
                         slice_size,
                     ),
                     dtype=torch.float32,
