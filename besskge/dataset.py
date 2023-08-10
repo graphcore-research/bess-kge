@@ -10,7 +10,7 @@ import pickle
 import tarfile
 from io import BytesIO
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import ogb.linkproppred
@@ -300,9 +300,12 @@ class KGDataset:
         type_offsets: Optional[Dict[str, int]] = None,
     ) -> "KGDataset":
         """
-        Build a dataset from an array of triples. Note that if a pre-defined
-        train/validation/test split is wanted the KGDataset class should be instantiated
-        manually.
+        Build a dataset from an array of triples, where IDs for entities
+        and relations have already been assigned. Note that, if entities have
+        types, entities of the same type need to have contiguous IDs.
+        Triples are randomly split in train/validation/test set.
+        If a pre-defined train/validation/test split is wanted, the KGDataset
+        class should be instantiated manually.
 
         :param data:
             Numpy array of triples [head_id, relation_id, tail_id]. Shape
@@ -340,6 +343,97 @@ class KGDataset:
             type_offsets=type_offsets,
             triples=triples,
         )
+
+    @classmethod
+    def from_dataframe(
+        cls,
+        df: Union[pd.DataFrame, Dict[str, pd.DataFrame]],
+        head_column: Union[int, str],
+        relation_column: Union[int, str],
+        tail_column: Union[int, str],
+        entity_types: Optional[Union[pd.Series[str], Dict[str, str]]] = None,
+        split: Tuple[float, float, float] = (0.7, 0.15, 0.15),
+        seed: int = 1234,
+    ) -> "KGDataset":
+        """
+        Build a KGDataset from a pandas DataFrame of labeled (h,r,t) triples.
+        IDs for entities and relations are automatically assigned based on labels
+        in such a way that entities of the same type have contiguous IDs.
+
+        :param df:
+            Pandas DataFrame of all triples in the knowledge graph dataset,
+            or dictionary of DataFrames of triples for each part of the dataset split
+        :param head_column:
+            Name of the DataFrame column storing head entities
+        :param relation_column:
+            Name of the DataFrame column storing relations
+        :param tail_column:
+            Name of the DataFrame column storing tail entities
+        :param entity_types:
+            If entities have types, dictionary or pandas Series of mappings
+            entity label -> entity type.
+        :param split:
+            Tuple to set the train/validation/test split.
+            Only used if no pre-defined dataset split is specified,
+            i.e. if `df` is not a dictionary.
+        :param seed:
+            Random seed for the train/validation/test split.
+            Only used if no pre-defined dataset split is specified,
+            i.e. if `df` is not a dictionary.
+
+        :return: Instance of the KGDataset class.
+        """
+
+        df_dict = {"all": df} if isinstance(df, pd.DataFrame) else df
+        unique_ent = pd.concat(
+            [
+                pd.concat([dfp[head_column], dfp[tail_column]])
+                for dfp in df_dict.values()
+            ]
+        ).unique()
+        ent2id = pd.Series(np.arange(len(unique_ent)), index=unique_ent, name="ent_id")
+        unique_rel = pd.concat(
+            [dfp[relation_column] for dfp in df_dict.values()]
+        ).unique()
+        rel2id = pd.Series(np.arange(len(unique_rel)), index=unique_rel, name="rel_id")
+
+        if entity_types is not None:
+            ent2type = pd.Series(entity_types, name="ent_type")
+            ent2id_type = pd.merge(
+                ent2id, ent2type, how="left", left_index=True, right_index=True
+            ).sort_values("ent_type")
+            ent2id.index = ent2id_type.index
+            type_off = (
+                ent2id_type.groupby("ent_type")["ent_type"].count().cumsum().shift(1)
+            )
+            type_off.iloc[0] = 0
+            type_offsets = type_off.astype("int64").to_dict()
+        else:
+            type_offsets = None
+
+        entity_dict = ent2id.index.tolist()
+        relation_dict = rel2id.index.tolist()
+
+        triples = {}
+        for part, dfp in df_dict.items():
+            heads = dfp[head_column].map(ent2id).values.astype(np.int32)
+            tails = dfp[tail_column].map(ent2id).values.astype(np.int32)
+            rels = dfp[relation_column].map(rel2id).values.astype(np.int32)
+            triples[part] = np.stack([heads, rels, tails], axis=1)
+
+        if isinstance(df, pd.DataFrame):
+            return KGDataset.from_triples(
+                triples["all"], split, seed, entity_dict, relation_dict, type_offsets
+            )
+        else:
+            return cls(
+                n_entity=len(entity_dict),
+                n_relation_type=len(relation_dict),
+                entity_dict=entity_dict,
+                relation_dict=relation_dict,
+                type_offsets=type_offsets,
+                triples=triples,
+            )
 
     def save(self, out_file: Path) -> None:
         """
