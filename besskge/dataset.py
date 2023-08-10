@@ -303,7 +303,7 @@ class KGDataset:
         Build a dataset from an array of triples, where IDs for entities
         and relations have already been assigned. Note that, if entities have
         types, entities of the same type need to have contiguous IDs.
-        Triples are randomly split in train/validation/test set.
+        Triples are randomly split in train/validation/test sets.
         If a pre-defined train/validation/test split is wanted, the KGDataset
         class should be instantiated manually.
 
@@ -351,7 +351,7 @@ class KGDataset:
         head_column: Union[int, str],
         relation_column: Union[int, str],
         tail_column: Union[int, str],
-        entity_types: Optional[Union[pd.Series[str], Dict[str, str]]] = None,
+        entity_types: Optional[Union["pd.Series[str]", Dict[str, str]]] = None,
         split: Tuple[float, float, float] = (0.7, 0.15, 0.15),
         seed: int = 1234,
     ) -> "KGDataset":
