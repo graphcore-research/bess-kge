@@ -349,6 +349,7 @@
         <span class="n">relation_initializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">init_KGE_uniform</span>
         <span class="p">],</span>
+        <span class="n">inverse_relations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize TransE model.</span>
@@ -367,6 +368,8 @@
 <span class="sd">            Initialization function or table for entity embeddings.</span>
 <span class="sd">        :param relation_initializer:</span>
 <span class="sd">            Initialization function or table for relation embeddings.</span>
+<span class="sd">        :param inverse_relations:</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">TransE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -378,7 +381,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="p">,</span> <span class="n">entity_initializer</span><span class="p">,</span> <span class="p">[</span><span class="n">embedding_size</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
-            <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">relation_initializer</span><span class="p">,</span> <span class="p">[</span><span class="n">embedding_size</span><span class="p">]</span>
+            <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">inverse_relations</span><span class="p">,</span> <span class="n">relation_initializer</span><span class="p">,</span> <span class="p">[</span><span class="n">embedding_size</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -445,6 +448,7 @@
         <span class="n">relation_initializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">init_KGE_uniform</span>
         <span class="p">],</span>
+        <span class="n">inverse_relations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize RotatE model.</span>
@@ -464,6 +468,8 @@
 <span class="sd">            Initialization function or table for entity embeddings.</span>
 <span class="sd">        :param relation_initializer:</span>
 <span class="sd">            Initialization function or table for relation embeddings.</span>
+<span class="sd">        :param inverse_relations:</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">RotatE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -477,7 +483,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="p">,</span> <span class="n">entity_initializer</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">embedding_size</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
-            <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">relation_initializer</span><span class="p">,</span> <span class="p">[</span><span class="n">embedding_size</span><span class="p">]</span>
+            <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">inverse_relations</span><span class="p">,</span> <span class="n">relation_initializer</span><span class="p">,</span> <span class="p">[</span><span class="n">embedding_size</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -551,6 +557,7 @@
             <span class="n">init_KGE_uniform</span>
         <span class="p">],</span>
         <span class="n">normalize_entities</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">inverse_relations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize PairRE model.</span>
@@ -572,6 +579,8 @@
 <span class="sd">        :param normalize_entities:</span>
 <span class="sd">            If True, L2-normalize head and tail entity embeddings before projecting,</span>
 <span class="sd">            as in :cite:p:`PairRE`. Default: True.</span>
+<span class="sd">        :param inverse_relations:</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">PairRE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -588,7 +597,10 @@
         <span class="c1"># self.relation_embedding[..., :embedding_size] : relation projection for heads</span>
         <span class="c1"># self.relation_embedding[..., embedding_size:] : relation projection for tails</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
-            <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">relation_initializer</span><span class="p">,</span> <span class="p">[</span><span class="n">embedding_size</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">]</span>
+            <span class="n">n_relation_type</span><span class="p">,</span>
+            <span class="n">inverse_relations</span><span class="p">,</span>
+            <span class="n">relation_initializer</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">embedding_size</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -677,6 +689,7 @@
         <span class="p">],</span>
         <span class="n">normalize_entities</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">u</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">inverse_relations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize TripleRE model.</span>
@@ -701,6 +714,8 @@
 <span class="sd">        :param u:</span>
 <span class="sd">            Offset factor for head/tail relation projections, as in TripleREv2.</span>
 <span class="sd">            Default: 0.0 (no offset).</span>
+<span class="sd">        :param inverse_relations:</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">TripleRE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -719,6 +734,7 @@
         <span class="c1"># self.relation_embedding[..., 2*embedding_size:] : relation projection for tails</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
             <span class="n">n_relation_type</span><span class="p">,</span>
+            <span class="n">inverse_relations</span><span class="p">,</span>
             <span class="n">relation_initializer</span><span class="p">,</span>
             <span class="p">[</span><span class="n">embedding_size</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">],</span>
         <span class="p">)</span>
@@ -820,6 +836,7 @@
         <span class="n">relation_initializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">init_KGE_uniform</span>
         <span class="p">],</span>
+        <span class="n">inverse_relations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize DistMult model.</span>
@@ -836,6 +853,8 @@
 <span class="sd">            Initialization function or table for entity embeddings.</span>
 <span class="sd">        :param relation_initializer:</span>
 <span class="sd">            Initialization function or table for relation embeddings.</span>
+<span class="sd">        :param inverse_relations:</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DistMult</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">)</span>
 
@@ -845,7 +864,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="p">,</span> <span class="n">entity_initializer</span><span class="p">,</span> <span class="p">[</span><span class="n">embedding_size</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
-            <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">relation_initializer</span><span class="p">,</span> <span class="p">[</span><span class="n">embedding_size</span><span class="p">]</span>
+            <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">inverse_relations</span><span class="p">,</span> <span class="n">relation_initializer</span><span class="p">,</span> <span class="p">[</span><span class="n">embedding_size</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -911,6 +930,7 @@
         <span class="n">relation_initializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">init_KGE_normal</span>
         <span class="p">],</span>
+        <span class="n">inverse_relations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize ComplEx model.</span>
@@ -927,6 +947,8 @@
 <span class="sd">            Initialization function or table for entity embeddings.</span>
 <span class="sd">        :param relation_initializer:</span>
 <span class="sd">            Initialization function or table for relation embeddings.</span>
+<span class="sd">        :param inverse_relations:</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ComplEx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">)</span>
 
@@ -940,7 +962,10 @@
         <span class="c1"># self.relation_embedding[..., :embedding_size] : real part</span>
         <span class="c1"># self.relation_embedding[..., embedding_size:] : imaginary part</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
-            <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">relation_initializer</span><span class="p">,</span> <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">embedding_size</span><span class="p">]</span>
+            <span class="n">n_relation_type</span><span class="p">,</span>
+            <span class="n">inverse_relations</span><span class="p">,</span>
+            <span class="n">relation_initializer</span><span class="p">,</span>
+            <span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">embedding_size</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -1019,6 +1044,7 @@
         <span class="n">apply_tanh</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">dist_func_per_dim</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span>
+        <span class="n">inverse_relations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize BoxE model.</span>
@@ -1051,6 +1077,8 @@
 <span class="sd">        :param eps:</span>
 <span class="sd">            Softening parameter for geometric normalization of box widths.</span>
 <span class="sd">            Default: 1e-6.</span>
+<span class="sd">        :param inverse_relations:</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">BoxE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -1081,6 +1109,7 @@
         <span class="c1"># self.relation_embedding[..., -1] tail box size</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
             <span class="n">n_relation_type</span><span class="p">,</span>
+            <span class="n">inverse_relations</span><span class="p">,</span>
             <span class="n">relation_initializer</span><span class="p">,</span>
             <span class="p">[</span><span class="n">embedding_size</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
         <span class="p">)</span>
@@ -1280,6 +1309,7 @@
         <span class="p">],</span>
         <span class="n">normalize_entities</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">offset</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">inverse_relations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize InterHT model.</span>
@@ -1303,6 +1333,8 @@
 <span class="sd">            auxiliary head and tail entities before multiplying. Default: True.</span>
 <span class="sd">        :param offset:</span>
 <span class="sd">            Offset applied to auxiliary entity embeddings. Default: 1.0.</span>
+<span class="sd">        :param inverse_relations:</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">InterHT</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -1319,7 +1351,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="p">,</span> <span class="n">entity_initializer</span><span class="p">,</span> <span class="p">[</span><span class="n">embedding_size</span><span class="p">,</span> <span class="n">embedding_size</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
-            <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">relation_initializer</span><span class="p">,</span> <span class="p">[</span><span class="n">embedding_size</span><span class="p">]</span>
+            <span class="n">n_relation_type</span><span class="p">,</span>
+            <span class="n">inverse_relations</span><span class="p">,</span>
+            <span class="n">relation_initializer</span><span class="p">,</span>
+            <span class="p">[</span><span class="n">embedding_size</span><span class="p">],</span>
         <span class="p">)</span>
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
