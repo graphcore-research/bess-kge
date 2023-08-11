@@ -175,6 +175,10 @@ class PartitionedTripleSet:
     #: Sharding of entities
     sharding: Sharding
 
+    #: Whether the collection contains inverse triples (t,r_inv,h)
+    #: for each regular triple (h,r,t)
+    inverse_triples: bool
+
     #: Partitioning criterion for triples;
     #: "h_shard", "t_shard", "ht_shardpair"
     partition_mode: str
@@ -217,7 +221,10 @@ class PartitionedTripleSet:
 
     @classmethod
     def partition_triples(
-        cls, triples: NDArray[np.int32], sharding: Sharding, partition_mode: str
+        cls,
+        triples: NDArray[np.int32],
+        sharding: Sharding,
+        partition_mode: str,
     ) -> Tuple[
         NDArray[np.int32], NDArray[np.int64], NDArray[np.int64], NDArray[np.int64]
     ]:
@@ -260,6 +267,7 @@ class PartitionedTripleSet:
         part: str,
         sharding: Sharding,
         partition_mode: str = "ht_shardpair",
+        add_inverse_triples: bool = False,
     ) -> "PartitionedTripleSet":
         """
         Create a partitioned triple set from a :class:`KGDataset` part.
@@ -279,6 +287,11 @@ class PartitionedTripleSet:
         """
 
         triples = dataset.triples[part]
+        n_triples = triples.shape[0]
+        if add_inverse_triples:
+            inverse_triples = np.copy(triples[:, ::-1])
+            inverse_triples[:, 1] += dataset.n_relation_type
+            triples = np.concatenate([triples, inverse_triples], axis=0)
 
         (
             sorted_triples,
@@ -289,21 +302,56 @@ class PartitionedTripleSet:
 
         ht_types = dataset.ht_types
         if ht_types and part in ht_types.keys():
-            types = ht_types[part][sort_idx]
+            types = ht_types[part]
+            if add_inverse_triples:
+                types = np.concatenate([types, types[:, ::-1]], axis=0)
+            types = types[sort_idx]
         else:
             types = None
 
+        if add_inverse_triples:
+            if (dataset.neg_heads and part in dataset.neg_heads.keys()) and (
+                dataset.neg_tails and part in dataset.neg_tails.keys()
+            ):
+                n_negatives = dataset.neg_heads[part].shape[-1]
+                neg_heads_broad = np.broadcast_to(
+                    dataset.neg_heads[part], (n_triples, n_negatives)
+                )
+                neg_tails_broad = np.broadcast_to(
+                    dataset.neg_tails[part], (n_triples, n_negatives)
+                )
+                neg_heads_extended = np.concatenate(
+                    [neg_heads_broad, neg_tails_broad], axis=0
+                )
+                neg_tails_extended = np.concatenate(
+                    [neg_tails_broad, neg_heads_broad], axis=0
+                )
+            elif (dataset.neg_heads and part in dataset.neg_heads.keys()) != (
+                dataset.neg_tails and part in dataset.neg_tails.keys()
+            ):
+                raise ValueError(
+                    "To use inverse triples, either both or"
+                    " neither of negative heads and tails need to"
+                    f" be defined for the {part} part of the dataset"
+                )
+
         if dataset.neg_heads and part in dataset.neg_heads.keys():
-            neg_heads = dataset.neg_heads[part]
-            neg_heads = neg_heads.reshape(-1, neg_heads.shape[-1])
+            if add_inverse_triples:
+                neg_heads = neg_heads_extended
+            else:
+                neg_heads = dataset.neg_heads[part]
+                neg_heads = neg_heads.reshape(-1, neg_heads.shape[-1])
             if neg_heads.shape[0] != 1:
                 neg_heads = neg_heads[sort_idx]
         else:
             neg_heads = None
 
         if dataset.neg_tails and part in dataset.neg_tails.keys():
-            neg_tails = dataset.neg_tails[part]
-            neg_tails = neg_tails.reshape(-1, neg_tails.shape[-1])
+            if add_inverse_triples:
+                neg_tails = neg_tails_extended
+            else:
+                neg_tails = dataset.neg_tails[part]
+                neg_tails = neg_tails.reshape(-1, neg_tails.shape[-1])
             if neg_tails.shape[0] != 1:
                 neg_tails = neg_tails[sort_idx]
         else:
@@ -311,6 +359,7 @@ class PartitionedTripleSet:
 
         return cls(
             sharding=sharding,
+            inverse_triples=add_inverse_triples,
             partition_mode=partition_mode,
             dummy="none",
             triples=sorted_triples,
@@ -445,6 +494,7 @@ class PartitionedTripleSet:
 
         return cls(
             sharding=sharding,
+            inverse_triples=False,
             partition_mode=partition_mode,
             dummy=dummy,
             triples=sorted_triples,
