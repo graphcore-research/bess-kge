@@ -12,18 +12,18 @@ Start the machine and open up a terminal from the left pane.
 
 <div align="center">
 <figure>
-  <img src="docs/source/images/Terminal1.png" height=250>
+  <img src="docs/source/images/Terminal1.png" height=300>
 </figure>
 </div>
 
-From the terminal, run the command
+In the terminal, run the command
 ```shell
 bash .gradient/launch_vscode_server.sh {tunnel-name}
 ```
 
 where `tunnel-name` is an optional argument that you can use to define the name of the remote tunnel (if not set, it will default to `ipu-paperspace`).
 
-The script will install all dependencies and start the tunnel. You will then be asked to authorize the tunnel through GitHub, before being provided with the tunnel link. Please refer to [this notebook](https://ipu.dev/fmo4AZ) for additional details on these steps and to connect the VS Code desktop app to the remote tunnel. 
+The script will download and install all dependencies and start the tunnel. You will be asked to authorize the tunnel through GitHub, before being provided with the tunnel link. Please refer to [this notebook](https://ipu.dev/fmo4AZ) for additional details on these steps and to connect the VS Code desktop app to the remote tunnel. 
 
 Once VS Code is connected to the Paperspace machine, run `./dev build` to build all custom ops. You are now ready to create a new git branch and start developing!
 
