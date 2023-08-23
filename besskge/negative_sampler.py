@@ -1,5 +1,10 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
+"""
+Classes for sampling entities to use as corrupted heads/tails
+when constructing negative samples.
+"""
+
 from abc import ABC, abstractmethod
 from typing import Dict, Optional, Tuple, Union, cast
 

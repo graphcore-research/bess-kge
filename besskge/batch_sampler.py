@@ -1,5 +1,10 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
+"""
+Classes for sampling batches of positive and negative triples for each processing device,
+according to the BESS distribution scheme.
+"""
+
 import warnings
 from abc import ABC, abstractmethod
 from typing import Dict, List, Union, cast

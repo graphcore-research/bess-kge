@@ -1,5 +1,9 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
+"""
+Sharding of embedding tables and triple sets for distributed execution.
+"""
+
 import dataclasses
 import warnings
 from pathlib import Path

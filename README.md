@@ -75,20 +75,7 @@ Additional variations of the distribution scheme are detailed in the [BESS-KGE u
 
 ### Modules
 
-All APIs are documented in the [BESS-KGE user guide and API documentation](https://graphcore-research.github.io/bess-kge/).
-
-| API | Functions
-| --- | --- |
-| [`besskge.dataset`](besskge/dataset.py) | Build, save and load knowledge graph datasets as collections of (h,r,t) triples.|
-| [`besskge.sharding`](besskge/sharding.py) | Shard embedding tables and triple sets for distributed execution.|
-| [`besskge.embedding`](besskge/embedding.py) | Utilities to initialize entity and relation embedding tables.|
-| [`besskge.negative_sampler`](besskge/negative_sampler.py) | Sample entities to use as corrupted heads/tails when constructing negative samples. Negative entities can be sampled randomly, based on entity type or based on the triple to corrupt.|
-| [`besskge.batch_sampler`](besskge/batch_sampler.py) | Sample batches of positive and negative triples for each processing device, according to the BESS distribution scheme.|
-| [`besskge.scoring`](besskge/scoring.py) | Functions used to score positive and negative triples for different KGE models, for example TransE, ComplEx, RotatE, DistMult.|
-| [`besskge.loss`](besskge/loss.py) | Functions used to compute the batch loss based on positive and negative scores, for example log-sigmoid loss, margin ranking loss.|
-| [`besskge.metric`](besskge/metric.py) | Functions used to compute metrics for the predictions of KGE models, for example MRR, Hits@K.|
-| [`besskge.bess`](besskge/bess.py) | PyTorch modules implementing the BESS distribution scheme for KGE training and inference on multiple IPUs. |
-| [`besskge.utils`](besskge/utils.py) | General purpose utilities.|
+All APIs are documented in the [BESS-KGE API documentation](https://graphcore-research.github.io/bess-kge/API_reference.html).
 
 ### Known limitations
 

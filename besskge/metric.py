@@ -1,5 +1,9 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
+"""
+Utilities for computing metrics to evaluate the predictions of KGE models.
+"""
+
 import re
 from abc import ABC, abstractmethod
 from typing import Callable, Dict, List, Optional, cast

@@ -21,31 +21,9 @@ BESS-KGE User Guide and API Reference
    For an overview of the different distribution schemes used by BESS-KGE, see :ref:`BESS modules`.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: API reference
-   :name: API_ref
+   :maxdepth: 3
+   :caption: Contents
 
-   API_ref/dataset
-   API_ref/sharding
-   API_ref/batch_sampler
-   API_ref/negative_sampler
-   API_ref/bess
-   API_ref/scoring
-   API_ref/loss
-   API_ref/metric
-   API_ref/embedding
-   API_ref/utils
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Bibliography
-   :name: Bibliography
-
-   bibliography
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   Developer guide <dev_guide>
+   API reference <API_reference>
+   Bibliography <bibliography>
