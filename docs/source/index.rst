@@ -18,12 +18,14 @@ BESS-KGE User Guide and API Reference
 
    This allows BESS-KGE to achieve high throughput for both training and inference.
 
-   For an overview of the different distribution schemes used by BESS-KGE, see :ref:`BESS modules`.
+   For an introduction to the different distribution schemes used by BESS-KGE, see :ref:`BESS overview`.
 
 .. toctree::
    :maxdepth: 3
    :caption: Contents
 
-   Developer guide <dev_guide>
+   User guide <user_guide>
+   BESS overview <bess>
    API reference <API_reference>
+   Developers guide <dev_guide>
    Bibliography <bibliography>

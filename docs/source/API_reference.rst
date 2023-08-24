@@ -3,6 +3,7 @@ BESS-KGE API Reference
 
 .. autosummary::
    :toctree: generated
+   :template: module.rst
    :recursive:
 
    besskge.dataset

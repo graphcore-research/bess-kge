@@ -44,9 +44,10 @@ autoclass_content = "both"
 autodoc_typehints = "both"
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
-bibtex_default_style = "alpha"
 
+bibtex_default_style = "alpha"
 bibtex_bibfiles = ["KGbib.bib"]
+
 templates_path = ["_templates"]
 exclude_patterns = []
 

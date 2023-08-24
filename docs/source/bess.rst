@@ -1,4 +1,4 @@
-BESS modules
+BESS overview
 ================
 
 When distributing the workload over :math:`n` workers (=IPUs), BESS
@@ -7,7 +7,7 @@ size, each of which is stored in a worker's memory. The
 embedding table for relation types, on the other hand, is replicated
 across workers, as it is usually much smaller.
 
-.. figure:: ../images/embedding_sharding.jpg
+.. figure:: images/embedding_sharding.jpg
    :height: 250px
    :align: center
 
@@ -23,7 +23,7 @@ a variety that is beneficial to the final embedding quality.
 
 .. _figure2:
 
-.. figure:: ../images/batch_together.jpg
+.. figure:: images/batch_together.jpg
    :width: 700px
    :align: center
 
@@ -43,7 +43,7 @@ same number of embeddings from its on-chip memory, both for positive and
 negative samples. These include the embeddings needed by the worker
 itself, and the embeddings needed by its peers.
 
-.. figure:: ../images/gather.jpg
+.. figure:: images/gather.jpg
    :width: 650px
    :align: center
 
@@ -61,7 +61,7 @@ between workers through a balanced AllToAll collective operator. Head
 embeddings remain in place, as each triple block is then scored on the
 worker where the head embedding is stored.
 
-.. figure:: ../images/alltoall.jpg
+.. figure:: images/alltoall.jpg
    :width: 650px
    :align: center
 
@@ -85,23 +85,17 @@ sent to the correct worker via a new, balanced AllToAll.
 This allows us to communicate negative **scores** instead of negative embeddings, which is cheaper, although it
 requires additional collective communications between devices.
 
-.. figure:: ../images/allgather.jpg
+.. figure:: images/allgather.jpg
    :width: 700px
    :align: center
 
    **Figure 5**. Through an AllGather collective, the head embeddings of the :math:`n^2` blocks are
    replicated on all workers. These are then scored against the corresponding negative tails stored on the worker.
 
-.. figure:: ../images/score_moving_alltoall.jpg
+.. figure:: images/score_moving_alltoall.jpg
    :width: 700px
    :align: center
 
    **Figure 6**. Using a final AllToAll (red arrows) the partial negative **scores** are put back on the worker
    where the head embeddings came from. After this, each worker has the complete set of negative scores for each
    of the :math:`n` triple blocks it is responsible for.
-
-
-.. automodule:: besskge.bess
-   :members:
-   :undoc-members:
-   :show-inheritance:
