@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-BESS-KGE User Guide and API Reference
+BESS-KGE
 ======================================
 
 .. automodule:: besskge
@@ -19,6 +19,10 @@ BESS-KGE User Guide and API Reference
    This allows BESS-KGE to achieve high throughput for both training and inference.
 
    For an introduction to the different distribution schemes used by BESS-KGE, see :ref:`BESS overview`.
+
+   .. Note:: The library is still in active development: new features can be expected to be added overtime
+      and occasional bugs may occur. Feel free to open issues in the
+      `BESS-KGE github repo <https://github.com/graphcore-research/bess-kge>`_ to report any problem.  
 
 .. toctree::
    :maxdepth: 3
