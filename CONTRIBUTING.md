@@ -6,9 +6,9 @@ You can contribute to the development of the BESS-KGE project, even if you don't
 
 Setting up a VS Code server on [Paperspace](https://www.paperspace.com/graphcore) will allow you to tunnel into a machine with IPUs from the VS Code web editor or the desktop app. This requires minimum effort and is an excellent solution for developing and testing code directly on IPU hardware.
 
-You can launch a 6-hours session on a Paperspace machine with access to 4 IPUs **for free** by clicking on the button [![Run on Gradient](docs/gradient-badge.svg)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-paperspace%3A3.3.0-ubuntu-20.04-20230703&machine=Free-IPU-POD4)
+You can launch a 6-hours session on a Paperspace machine with access to 4 IPUs **for free** by clicking on this button: <a href="https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-paperspace%3A3.3.0-ubuntu-20.04-20230703&amp;machine=Free-IPU-POD4"><img src="https://assets.paperspace.io/img/gradient-badge.svg" alt="Run on Gradient"></a>
 
-Start the machine and open up a terminal from the left pane.
+Start the machine (this will also clone the repo for you) and open up a terminal from the left pane.
 
 ![terminal_pane](docs/source/images/Terminal1.png "height=200")
 
