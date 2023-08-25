@@ -1,0 +1,6 @@
+besskge.utils.gather\_indices
+=============================
+
+.. currentmodule:: besskge.utils
+
+.. autofunction:: gather_indices

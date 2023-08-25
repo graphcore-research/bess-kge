@@ -1,0 +1,6 @@
+besskge.embedding.refactor\_embedding\_sharding
+===============================================
+
+.. currentmodule:: besskge.embedding
+
+.. autofunction:: refactor_embedding_sharding

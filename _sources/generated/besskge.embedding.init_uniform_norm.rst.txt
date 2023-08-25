@@ -1,0 +1,6 @@
+besskge.embedding.init\_uniform\_norm
+=====================================
+
+.. currentmodule:: besskge.embedding
+
+.. autofunction:: init_uniform_norm

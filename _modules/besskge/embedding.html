@@ -38,21 +38,12 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">Knowledge graph datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/bess.html">BESS modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/scoring.html">Scoring functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/loss.html">Loss functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
-<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bess.html">BESS overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_reference.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_guide.html">Developers guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
@@ -83,6 +74,10 @@
   <h1>Source code for besskge.embedding</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) 2023 Graphcore Ltd. All rights reserved.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities for initializing and managing entity/relation embedding tables.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -90,12 +85,8 @@
 
 <span class="kn">from</span> <span class="nn">besskge.sharding</span> <span class="kn">import</span> <span class="n">Sharding</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Utilities for entity/relation embeddings.</span>
-<span class="sd">&quot;&quot;&quot;</span>
 
-
-<div class="viewcode-block" id="init_uniform_norm"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.init_uniform_norm">[docs]</a><span class="k">def</span> <span class="nf">init_uniform_norm</span><span class="p">(</span><span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="init_uniform_norm"><a class="viewcode-back" href="../../generated/besskge.embedding.init_uniform_norm.html#besskge.embedding.init_uniform_norm">[docs]</a><span class="k">def</span> <span class="nf">init_uniform_norm</span><span class="p">(</span><span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Initialize embeddings according to uniform distribution</span>
 <span class="sd">    and normalize so that each row has norm 1.</span>
@@ -109,7 +100,7 @@
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">embedding_table</span><span class="p">),</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="init_KGE_uniform"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.init_KGE_uniform">[docs]</a><span class="k">def</span> <span class="nf">init_KGE_uniform</span><span class="p">(</span>
+<div class="viewcode-block" id="init_KGE_uniform"><a class="viewcode-back" href="../../generated/besskge.embedding.init_KGE_uniform.html#besskge.embedding.init_KGE_uniform">[docs]</a><span class="k">def</span> <span class="nf">init_KGE_uniform</span><span class="p">(</span>
     <span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">divide_by_embedding_size</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -130,7 +121,7 @@
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform_</span><span class="p">(</span><span class="n">embedding_table</span><span class="p">,</span> <span class="o">-</span><span class="n">b</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="init_KGE_normal"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.init_KGE_normal">[docs]</a><span class="k">def</span> <span class="nf">init_KGE_normal</span><span class="p">(</span>
+<div class="viewcode-block" id="init_KGE_normal"><a class="viewcode-back" href="../../generated/besskge.embedding.init_KGE_normal.html#besskge.embedding.init_KGE_normal">[docs]</a><span class="k">def</span> <span class="nf">init_KGE_normal</span><span class="p">(</span>
     <span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
     <span class="n">std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
     <span class="n">divide_by_embedding_size</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -153,7 +144,7 @@
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="n">embedding_table</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">std</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="initialize_entity_embedding"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.initialize_entity_embedding">[docs]</a><span class="k">def</span> <span class="nf">initialize_entity_embedding</span><span class="p">(</span>
+<div class="viewcode-block" id="initialize_entity_embedding"><a class="viewcode-back" href="../../generated/besskge.embedding.initialize_entity_embedding.html#besskge.embedding.initialize_entity_embedding">[docs]</a><span class="k">def</span> <span class="nf">initialize_entity_embedding</span><span class="p">(</span>
     <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
     <span class="n">initializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]],</span>
     <span class="n">row_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -239,7 +230,7 @@
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">entity_embedding</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="initialize_relation_embedding"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.initialize_relation_embedding">[docs]</a><span class="k">def</span> <span class="nf">initialize_relation_embedding</span><span class="p">(</span>
+<div class="viewcode-block" id="initialize_relation_embedding"><a class="viewcode-back" href="../../generated/besskge.embedding.initialize_relation_embedding.html#besskge.embedding.initialize_relation_embedding">[docs]</a><span class="k">def</span> <span class="nf">initialize_relation_embedding</span><span class="p">(</span>
     <span class="n">n_relation_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="n">inverse_relations</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
     <span class="n">initializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]],</span>
@@ -308,7 +299,7 @@
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">(</span><span class="n">relation_embedding</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="refactor_embedding_sharding"><a class="viewcode-back" href="../../API_ref/embedding.html#besskge.embedding.refactor_embedding_sharding">[docs]</a><span class="k">def</span> <span class="nf">refactor_embedding_sharding</span><span class="p">(</span>
+<div class="viewcode-block" id="refactor_embedding_sharding"><a class="viewcode-back" href="../../generated/besskge.embedding.refactor_embedding_sharding.html#besskge.embedding.refactor_embedding_sharding">[docs]</a><span class="k">def</span> <span class="nf">refactor_embedding_sharding</span><span class="p">(</span>
     <span class="n">entity_embedding</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Parameter</span><span class="p">,</span>
     <span class="n">old_sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
     <span class="n">new_sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>

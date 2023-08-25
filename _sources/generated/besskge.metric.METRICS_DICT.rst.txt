@@ -1,0 +1,6 @@
+besskge.metric.METRICS\_DICT
+============================
+
+.. currentmodule:: besskge.metric
+
+.. autodata:: METRICS_DICT

@@ -38,21 +38,12 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">Knowledge graph datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/bess.html">BESS modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/scoring.html">Scoring functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/loss.html">Loss functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
-<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bess.html">BESS overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_reference.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_guide.html">Developers guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
@@ -83,6 +74,11 @@
   <h1>Source code for besskge.dataset</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) 2023 Graphcore Ltd. All rights reserved.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities for building and storing knowledge graph datasets</span>
+<span class="sd">as collections of (h,r,t) triples.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">dataclasses</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">import</span> <span class="nn">tarfile</span>
@@ -97,7 +93,7 @@
 <span class="kn">from</span> <span class="nn">numpy.typing</span> <span class="kn">import</span> <span class="n">NDArray</span>
 
 
-<div class="viewcode-block" id="KGDataset"><a class="viewcode-back" href="../../API_ref/dataset.html#besskge.dataset.KGDataset">[docs]</a><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
+<div class="viewcode-block" id="KGDataset"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset">[docs]</a><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
 <span class="k">class</span> <span class="nc">KGDataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Represents a complete knowledge graph dataset of (head, relation, tail) triples.</span>
@@ -152,7 +148,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="KGDataset.build_biokg"><a class="viewcode-back" href="../../API_ref/dataset.html#besskge.dataset.KGDataset.build_biokg">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="KGDataset.build_biokg"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_biokg">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_biokg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build the ogbl-biokg dataset :cite:p:`OGB`</span>
@@ -215,7 +211,7 @@
             <span class="n">neg_tails</span><span class="o">=</span><span class="n">neg_tails</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="KGDataset.build_wikikg2"><a class="viewcode-back" href="../../API_ref/dataset.html#besskge.dataset.KGDataset.build_wikikg2">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="KGDataset.build_wikikg2"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_wikikg2">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_wikikg2</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build the ogbl-wikikg2 dataset :cite:p:`OGB`</span>
@@ -264,7 +260,7 @@
             <span class="n">neg_tails</span><span class="o">=</span><span class="n">neg_tails</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="KGDataset.build_yago310"><a class="viewcode-back" href="../../API_ref/dataset.html#besskge.dataset.KGDataset.build_yago310">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="KGDataset.build_yago310"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_yago310">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">build_yago310</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build the YAGO3-10 dataset.</span>
@@ -367,7 +363,7 @@
             <span class="n">neg_tails</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="KGDataset.from_triples"><a class="viewcode-back" href="../../API_ref/dataset.html#besskge.dataset.KGDataset.from_triples">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="KGDataset.from_triples"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.from_triples">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">from_triples</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">],</span>
@@ -419,7 +415,7 @@
             <span class="n">triples</span><span class="o">=</span><span class="n">triples</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="KGDataset.save"><a class="viewcode-back" href="../../API_ref/dataset.html#besskge.dataset.KGDataset.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<div class="viewcode-block" id="KGDataset.save"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save dataset to .pkl.</span>
 
@@ -429,7 +425,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="KGDataset.load"><a class="viewcode-back" href="../../API_ref/dataset.html#besskge.dataset.KGDataset.load">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="KGDataset.load"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.load">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load a :class:`KGDataset` object saved with :func:`KGDataset.save`.</span>

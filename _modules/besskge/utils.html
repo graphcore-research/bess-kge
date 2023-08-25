@@ -38,21 +38,12 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">Knowledge graph datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/bess.html">BESS modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/scoring.html">Scoring functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/loss.html">Loss functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
-<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bess.html">BESS overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_reference.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_guide.html">Developers guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
@@ -83,10 +74,14 @@
   <h1>Source code for besskge.utils</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) 2023 Graphcore Ltd. All rights reserved.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">General purpose utilities.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">torch</span>
 
 
-<div class="viewcode-block" id="gather_indices"><a class="viewcode-back" href="../../API_ref/utils.html#besskge.utils.gather_indices">[docs]</a><span class="k">def</span> <span class="nf">gather_indices</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="gather_indices"><a class="viewcode-back" href="../../generated/besskge.utils.gather_indices.html#besskge.utils.gather_indices">[docs]</a><span class="k">def</span> <span class="nf">gather_indices</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    IPU-friendly gather function like :func:`torch.take_along_dim`</span>
 <span class="sd">    for 2-dimensional tensors (indices along dim=1).</span>
@@ -112,7 +107,7 @@
     <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mask_size</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="complex_multiplication"><a class="viewcode-back" href="../../API_ref/utils.html#besskge.utils.complex_multiplication">[docs]</a><span class="k">def</span> <span class="nf">complex_multiplication</span><span class="p">(</span><span class="n">v1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="complex_multiplication"><a class="viewcode-back" href="../../generated/besskge.utils.complex_multiplication.html#besskge.utils.complex_multiplication">[docs]</a><span class="k">def</span> <span class="nf">complex_multiplication</span><span class="p">(</span><span class="n">v1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Batched complex multiplication.</span>
 
@@ -132,7 +127,7 @@
     <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="complex_rotation"><a class="viewcode-back" href="../../API_ref/utils.html#besskge.utils.complex_rotation">[docs]</a><span class="k">def</span> <span class="nf">complex_rotation</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<div class="viewcode-block" id="complex_rotation"><a class="viewcode-back" href="../../generated/besskge.utils.complex_rotation.html#besskge.utils.complex_rotation">[docs]</a><span class="k">def</span> <span class="nf">complex_rotation</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">r</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Batched rotation by unitary tensors.</span>
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BESS-KGE User Guide and API Reference &mdash; BESS-KGE  documentation</title>
+  <title>BESS-KGE &mdash; BESS-KGE  documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
@@ -18,7 +18,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Knowledge graph datasets" href="API_ref/dataset.html" /> 
+    <link rel="next" title="User guide" href="user_guide.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,21 +40,12 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/dataset.html">Knowledge graph datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/sharding.html">Sharding utilities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/batch_sampler.html">Batch samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/negative_sampler.html">Negative samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/bess.html">BESS modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/scoring.html">Scoring functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/loss.html">Loss functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/metric.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/embedding.html">Embedding utilities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/utils.html">General-purpose utility functions</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
-<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bess.html">BESS overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_reference.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev_guide.html">Developers guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
 </ul>
 
@@ -72,7 +63,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">BESS-KGE User Guide and API Reference</li>
+      <li class="breadcrumb-item active">BESS-KGE</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -83,7 +74,7 @@
            <div itemprop="articleBody">
              
   <section id="module-besskge">
-<span id="bess-kge-user-guide-and-api-reference"></span><h1>BESS-KGE User Guide and API Reference<a class="headerlink" href="#module-besskge" title="Permalink to this heading"></a></h1>
+<span id="bess-kge"></span><h1>BESS-KGE<a class="headerlink" href="#module-besskge" title="Permalink to this heading"></a></h1>
 <p>BESS-KGE is a Python package for knowledge graph embedding on IPUs using
 <a class="reference external" href="https://github.com/graphcore/poptorch">PopTorch</a> and the distributed framework
 <a class="reference external" href="https://arxiv.org/abs/2211.12281">BESS</a>.</p>
@@ -94,108 +85,117 @@
 <li><p>minimizing communication time for sharing embeddings between workers, leveraging balanced collective operators over high-bandwidth IPU-links.</p></li>
 </ul>
 <p>This allows BESS-KGE to achieve high throughput for both training and inference.</p>
-<p>For an overview of the different distribution schemes used by BESS-KGE, see <a class="reference internal" href="API_ref/bess.html#bess-modules"><span class="std std-ref">BESS modules</span></a>.</p>
-<div class="toctree-wrapper compound" id="api-ref">
-<p class="caption" role="heading"><span class="caption-text">API reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/dataset.html">Knowledge graph datasets</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/dataset.html#besskge.dataset.KGDataset"><code class="docutils literal notranslate"><span class="pre">KGDataset</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/sharding.html">Sharding utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/sharding.html#besskge.sharding.PartitionedTripleSet"><code class="docutils literal notranslate"><span class="pre">PartitionedTripleSet</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/sharding.html#besskge.sharding.Sharding"><code class="docutils literal notranslate"><span class="pre">Sharding</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/batch_sampler.html">Batch samplers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/batch_sampler.html#besskge.batch_sampler.RandomShardedBatchSampler"><code class="docutils literal notranslate"><span class="pre">RandomShardedBatchSampler</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/batch_sampler.html#besskge.batch_sampler.RigidShardedBatchSampler"><code class="docutils literal notranslate"><span class="pre">RigidShardedBatchSampler</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/batch_sampler.html#besskge.batch_sampler.ShardedBatchSampler"><code class="docutils literal notranslate"><span class="pre">ShardedBatchSampler</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/negative_sampler.html">Negative samplers</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/negative_sampler.html#besskge.negative_sampler.PlaceholderNegativeSampler"><code class="docutils literal notranslate"><span class="pre">PlaceholderNegativeSampler</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/negative_sampler.html#besskge.negative_sampler.RandomShardedNegativeSampler"><code class="docutils literal notranslate"><span class="pre">RandomShardedNegativeSampler</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/negative_sampler.html#besskge.negative_sampler.ShardedNegativeSampler"><code class="docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/negative_sampler.html#besskge.negative_sampler.TripleBasedShardedNegativeSampler"><code class="docutils literal notranslate"><span class="pre">TripleBasedShardedNegativeSampler</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/negative_sampler.html#besskge.negative_sampler.TypeBasedShardedNegativeSampler"><code class="docutils literal notranslate"><span class="pre">TypeBasedShardedNegativeSampler</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/bess.html">BESS modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/bess.html#besskge.bess.BessKGE"><code class="docutils literal notranslate"><span class="pre">BessKGE</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/bess.html#besskge.bess.EmbeddingMovingBessKGE"><code class="docutils literal notranslate"><span class="pre">EmbeddingMovingBessKGE</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/bess.html#besskge.bess.ScoreMovingBessKGE"><code class="docutils literal notranslate"><span class="pre">ScoreMovingBessKGE</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/bess.html#besskge.bess.TopKQueryBessKGE"><code class="docutils literal notranslate"><span class="pre">TopKQueryBessKGE</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/scoring.html">Scoring functions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/scoring.html#besskge.scoring.BaseScoreFunction"><code class="docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/scoring.html#besskge.scoring.BoxE"><code class="docutils literal notranslate"><span class="pre">BoxE</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/scoring.html#besskge.scoring.ComplEx"><code class="docutils literal notranslate"><span class="pre">ComplEx</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/scoring.html#besskge.scoring.DistMult"><code class="docutils literal notranslate"><span class="pre">DistMult</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/scoring.html#besskge.scoring.DistanceBasedScoreFunction"><code class="docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/scoring.html#besskge.scoring.InterHT"><code class="docutils literal notranslate"><span class="pre">InterHT</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/scoring.html#besskge.scoring.MatrixDecompositionScoreFunction"><code class="docutils literal notranslate"><span class="pre">MatrixDecompositionScoreFunction</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/scoring.html#besskge.scoring.PairRE"><code class="docutils literal notranslate"><span class="pre">PairRE</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/scoring.html#besskge.scoring.RotatE"><code class="docutils literal notranslate"><span class="pre">RotatE</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/scoring.html#besskge.scoring.TransE"><code class="docutils literal notranslate"><span class="pre">TransE</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/scoring.html#besskge.scoring.TripleRE"><code class="docutils literal notranslate"><span class="pre">TripleRE</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/loss.html">Loss functions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/loss.html#besskge.loss.BaseLossFunction"><code class="docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/loss.html#besskge.loss.LogSigmoidLoss"><code class="docutils literal notranslate"><span class="pre">LogSigmoidLoss</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/loss.html#besskge.loss.MarginBasedLossFunction"><code class="docutils literal notranslate"><span class="pre">MarginBasedLossFunction</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/loss.html#besskge.loss.MarginRankingLoss"><code class="docutils literal notranslate"><span class="pre">MarginRankingLoss</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/loss.html#besskge.loss.SampledSoftmaxCrossEntropyLoss"><code class="docutils literal notranslate"><span class="pre">SampledSoftmaxCrossEntropyLoss</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/metric.html">Metrics</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/metric.html#besskge.metric.BaseMetric"><code class="docutils literal notranslate"><span class="pre">BaseMetric</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/metric.html#besskge.metric.Evaluation"><code class="docutils literal notranslate"><span class="pre">Evaluation</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/metric.html#besskge.metric.HitsAtK"><code class="docutils literal notranslate"><span class="pre">HitsAtK</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/metric.html#besskge.metric.METRICS_DICT"><code class="docutils literal notranslate"><span class="pre">METRICS_DICT</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/metric.html#besskge.metric.ReciprocalRank"><code class="docutils literal notranslate"><span class="pre">ReciprocalRank</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/embedding.html">Embedding utilities</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/embedding.html#besskge.embedding.init_KGE_normal"><code class="docutils literal notranslate"><span class="pre">init_KGE_normal()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/embedding.html#besskge.embedding.init_KGE_uniform"><code class="docutils literal notranslate"><span class="pre">init_KGE_uniform()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/embedding.html#besskge.embedding.init_uniform_norm"><code class="docutils literal notranslate"><span class="pre">init_uniform_norm()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/embedding.html#besskge.embedding.initialize_entity_embedding"><code class="docutils literal notranslate"><span class="pre">initialize_entity_embedding()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/embedding.html#besskge.embedding.initialize_relation_embedding"><code class="docutils literal notranslate"><span class="pre">initialize_relation_embedding()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/embedding.html#besskge.embedding.refactor_embedding_sharding"><code class="docutils literal notranslate"><span class="pre">refactor_embedding_sharding()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="API_ref/utils.html">General-purpose utility functions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/utils.html#besskge.utils.complex_multiplication"><code class="docutils literal notranslate"><span class="pre">complex_multiplication()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/utils.html#besskge.utils.complex_rotation"><code class="docutils literal notranslate"><span class="pre">complex_rotation()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="API_ref/utils.html#besskge.utils.gather_indices"><code class="docutils literal notranslate"><span class="pre">gather_indices()</span></code></a></li>
-</ul>
-</li>
-</ul>
+<p>For an introduction to the different distribution schemes used by BESS-KGE, see <a class="reference internal" href="bess.html#bess-overview"><span class="std std-ref">BESS overview</span></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The library is still in active development: new features can be expected to be added overtime
+and occasional bugs may occur. Feel free to open issues in the
+<a class="reference external" href="https://github.com/graphcore-research/bess-kge">BESS-KGE github repo</a> to report any problem.</p>
 </div>
-<div class="toctree-wrapper compound" id="bibliography">
-<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#installation-and-usage">Installation and usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#getting-started">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide.html#limitations">Limitations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bess.html">BESS overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_reference.html">API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.dataset.html">besskge.dataset</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.dataset.KGDataset.html">besskge.dataset.KGDataset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.sharding.html">besskge.sharding</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.sharding.PartitionedTripleSet.html">besskge.sharding.PartitionedTripleSet</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.sharding.Sharding.html">besskge.sharding.Sharding</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.batch_sampler.html">besskge.batch_sampler</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.batch_sampler.RandomShardedBatchSampler.html">besskge.batch_sampler.RandomShardedBatchSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.batch_sampler.RigidShardedBatchSampler.html">besskge.batch_sampler.RigidShardedBatchSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.batch_sampler.ShardedBatchSampler.html">besskge.batch_sampler.ShardedBatchSampler</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.negative_sampler.html">besskge.negative_sampler</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.negative_sampler.PlaceholderNegativeSampler.html">besskge.negative_sampler.PlaceholderNegativeSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.negative_sampler.RandomShardedNegativeSampler.html">besskge.negative_sampler.RandomShardedNegativeSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.negative_sampler.ShardedNegativeSampler.html">besskge.negative_sampler.ShardedNegativeSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.negative_sampler.TripleBasedShardedNegativeSampler.html">besskge.negative_sampler.TripleBasedShardedNegativeSampler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.negative_sampler.TypeBasedShardedNegativeSampler.html">besskge.negative_sampler.TypeBasedShardedNegativeSampler</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.bess.html">besskge.bess</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.bess.BessKGE.html">besskge.bess.BessKGE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.bess.EmbeddingMovingBessKGE.html">besskge.bess.EmbeddingMovingBessKGE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.bess.ScoreMovingBessKGE.html">besskge.bess.ScoreMovingBessKGE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.bess.TopKQueryBessKGE.html">besskge.bess.TopKQueryBessKGE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.scoring.html">besskge.scoring</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.scoring.BaseScoreFunction.html">besskge.scoring.BaseScoreFunction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.scoring.BoxE.html">besskge.scoring.BoxE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.scoring.ComplEx.html">besskge.scoring.ComplEx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.scoring.DistMult.html">besskge.scoring.DistMult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.scoring.DistanceBasedScoreFunction.html">besskge.scoring.DistanceBasedScoreFunction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.scoring.InterHT.html">besskge.scoring.InterHT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.scoring.MatrixDecompositionScoreFunction.html">besskge.scoring.MatrixDecompositionScoreFunction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.scoring.PairRE.html">besskge.scoring.PairRE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.scoring.RotatE.html">besskge.scoring.RotatE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.scoring.TransE.html">besskge.scoring.TransE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.scoring.TripleRE.html">besskge.scoring.TripleRE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.loss.html">besskge.loss</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.loss.BaseLossFunction.html">besskge.loss.BaseLossFunction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.loss.LogSigmoidLoss.html">besskge.loss.LogSigmoidLoss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.loss.MarginBasedLossFunction.html">besskge.loss.MarginBasedLossFunction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.loss.MarginRankingLoss.html">besskge.loss.MarginRankingLoss</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.loss.SampledSoftmaxCrossEntropyLoss.html">besskge.loss.SampledSoftmaxCrossEntropyLoss</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.metric.html">besskge.metric</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.metric.METRICS_DICT.html">besskge.metric.METRICS_DICT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.metric.BaseMetric.html">besskge.metric.BaseMetric</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.metric.Evaluation.html">besskge.metric.Evaluation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.metric.HitsAtK.html">besskge.metric.HitsAtK</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.metric.ReciprocalRank.html">besskge.metric.ReciprocalRank</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.embedding.html">besskge.embedding</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.embedding.init_KGE_normal.html">besskge.embedding.init_KGE_normal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.embedding.init_KGE_uniform.html">besskge.embedding.init_KGE_uniform</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.embedding.init_uniform_norm.html">besskge.embedding.init_uniform_norm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.embedding.initialize_entity_embedding.html">besskge.embedding.initialize_entity_embedding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.embedding.initialize_relation_embedding.html">besskge.embedding.initialize_relation_embedding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.embedding.refactor_embedding_sharding.html">besskge.embedding.refactor_embedding_sharding</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.utils.html">besskge.utils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.utils.complex_multiplication.html">besskge.utils.complex_multiplication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.utils.complex_rotation.html">besskge.utils.complex_rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/besskge.utils.gather_indices.html">besskge.utils.gather_indices</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dev_guide.html">Developers guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dev_guide.html#vs-code-server-on-paperspace">VS Code server on Paperspace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dev_guide.html#setup-on-local-machine">Setup on local machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dev_guide.html#tips">Tips</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
 </ul>
 </div>
-</section>
-<section id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
-</ul>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="API_ref/dataset.html" class="btn btn-neutral float-right" title="Knowledge graph datasets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="user_guide.html" class="btn btn-neutral float-right" title="User guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

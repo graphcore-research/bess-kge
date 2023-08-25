@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>besskge.bess.ScoreMovingBessKGE &mdash; BESS-KGE  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="besskge.bess.TopKQueryBessKGE" href="besskge.bess.TopKQueryBessKGE.html" />
+    <link rel="prev" title="besskge.bess.EmbeddingMovingBessKGE" href="besskge.bess.EmbeddingMovingBessKGE.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BESS-KGE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bess.html">BESS overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API_reference.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="besskge.dataset.html">besskge.dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.sharding.html">besskge.sharding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.batch_sampler.html">besskge.batch_sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.negative_sampler.html">besskge.negative_sampler</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="besskge.bess.html">besskge.bess</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="besskge.bess.BessKGE.html">besskge.bess.BessKGE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.bess.EmbeddingMovingBessKGE.html">besskge.bess.EmbeddingMovingBessKGE</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">besskge.bess.ScoreMovingBessKGE</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#besskge.bess.ScoreMovingBessKGE"><code class="docutils literal notranslate"><span class="pre">ScoreMovingBessKGE</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.bess.TopKQueryBessKGE.html">besskge.bess.TopKQueryBessKGE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.scoring.html">besskge.scoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.loss.html">besskge.loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.metric.html">besskge.metric</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.embedding.html">besskge.embedding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.utils.html">besskge.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_guide.html">Developers guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BESS-KGE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../API_reference.html">BESS-KGE API Reference</a></li>
+          <li class="breadcrumb-item"><a href="besskge.bess.html">besskge.bess</a></li>
+      <li class="breadcrumb-item active">besskge.bess.ScoreMovingBessKGE</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/besskge.bess.ScoreMovingBessKGE.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="besskge-bess-scoremovingbesskge">
+<h1>besskge.bess.ScoreMovingBessKGE<a class="headerlink" href="#besskge-bess-scoremovingbesskge" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="besskge.bess.ScoreMovingBessKGE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.bess.</span></span><span class="sig-name descname"><span class="pre">ScoreMovingBessKGE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">negative_sampler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score_fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_fn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">evaluation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_scores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">augment_negative</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#ScoreMovingBessKGE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.ScoreMovingBessKGE" title="Permalink to this definition"></a></dt>
+<dd><p>Compute negative scores on the shard where the negative entities are stored.
+This avoids moving embeddings between shards (convenient when the number of
+negative entities is very large, for example when scoring queries against all entities
+in the knowledge graph, or when using a large embedding size).</p>
+<p>AllGather collectives are required to replicate queries on all devices, so that
+they can be scored against the local negative entities. An AllToAll collective
+is then used to send the scores back to the correct device.</p>
+<p>For the number of negative samples scored for each triple, see the corresponding
+value documented in <a class="reference internal" href="besskge.bess.EmbeddingMovingBessKGE.html#besskge.bess.EmbeddingMovingBessKGE" title="besskge.bess.EmbeddingMovingBessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">EmbeddingMovingBessKGE</span></code></a> and, if using negative
+sample sharing, multiply that by <cite>n_shard</cite>.</p>
+<p>Does not support local sampling or negative augmentation.</p>
+<p>Initialize BESS-KGE module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>negative_sampler</strong> (<a class="reference internal" href="besskge.negative_sampler.ShardedNegativeSampler.html#besskge.negative_sampler.ShardedNegativeSampler" title="besskge.negative_sampler.ShardedNegativeSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">ShardedNegativeSampler</span></code></a>) – Sampler of negative entities.</p></li>
+<li><p><strong>score_fn</strong> (<a class="reference internal" href="besskge.scoring.BaseScoreFunction.html#besskge.scoring.BaseScoreFunction" title="besskge.scoring.BaseScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a>) – Scoring function.</p></li>
+<li><p><strong>loss_fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="besskge.loss.BaseLossFunction.html#besskge.loss.BaseLossFunction" title="besskge.loss.BaseLossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseLossFunction</span></code></a>]) – Loss function, required when training. Default: None.</p></li>
+<li><p><strong>evaluation</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference internal" href="besskge.metric.Evaluation.html#besskge.metric.Evaluation" title="besskge.metric.Evaluation"><code class="xref py py-class docutils literal notranslate"><span class="pre">Evaluation</span></code></a>]) – Evaluation module, for computing metrics on device.
+Default: None.</p></li>
+<li><p><strong>return_scores</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, return positive and negative scores of batches to the host.
+Default: False.</p></li>
+<li><p><strong>augment_negative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, augment sampled negative entities with the head/tails
+(according to the corruption scheme) of other positive triples
+in the micro-batch. Default: False.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.bess.ScoreMovingBessKGE.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">triple_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.bess.ScoreMovingBessKGE.forward" title="Permalink to this definition"></a></dt>
+<dd><p>The forward step.</p>
+<p>Comprises of four phases:</p>
+<ol class="arabic simple">
+<li><p>Gather relevant embeddings from local memory;</p></li>
+<li><p>Share embeddings with other devices through collective operators;</p></li>
+<li><p>Score positive and negative triples;</p></li>
+<li><p>Compute loss/metrics.</p></li>
+</ol>
+<p>Each device scores <cite>n_shard * positive_per_partition</cite> positive triples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>head</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (1, n_shard, positive_per_partition)
+Head indices.</p></li>
+<li><p><strong>relation</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (1, n_shard, positive_per_partition)
+Relation indices.</p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (1, n_shard, positive_per_partition)
+Tail indices.</p></li>
+<li><p><strong>triple_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (1, n_shard, positive_per_partition)
+Mask to filter the triples in the micro-batch
+before computing metrics.</p></li>
+<li><p><strong>negative</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (1, n_shard, B, padded_negative)
+Indices of negative entities,
+with <cite>B = 1, 2 or n_shard * positive_per_partition</cite>.</p></li>
+<li><p><strong>triple_weight</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (1, n_shard * positive_per_partition,) or (1,)
+Weights of positive triples.</p></li>
+<li><p><strong>negative_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (1, B, n_shard, padded_negative)
+Mask to identify padding negatives, to discard when computing metrics.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Micro-batch loss, scores and metrics.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="besskge.bess.ScoreMovingBessKGE.n_embedding_parameters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_embedding_parameters</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><span class="pre">int</span></a></em><a class="headerlink" href="#besskge.bess.ScoreMovingBessKGE.n_embedding_parameters" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the number of trainable parameters in the embedding tables</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.bess.ScoreMovingBessKGE.score_batch">
+<span class="sig-name descname"><span class="pre">score_batch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/bess.html#ScoreMovingBessKGE.score_batch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.bess.ScoreMovingBessKGE.score_batch" title="Permalink to this definition"></a></dt>
+<dd><p>Compute positive and negative scores for the micro-batch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>head</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="besskge.bess.BessKGE.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>relation</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="besskge.bess.BessKGE.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>tail</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="besskge.bess.BessKGE.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+<li><p><strong>negative</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – see <a class="reference internal" href="besskge.bess.BessKGE.html#besskge.bess.BessKGE.forward" title="besskge.bess.BessKGE.forward"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BessKGE.forward()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Tuple" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Tuple</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Positive (shape: (n_shard * positive_per_partition,))
+and negative (shape: (n_shard * positive_per_partition, n_negative))
+scores of the micro-batch.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="besskge.bess.EmbeddingMovingBessKGE.html" class="btn btn-neutral float-left" title="besskge.bess.EmbeddingMovingBessKGE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="besskge.bess.TopKQueryBessKGE.html" class="btn btn-neutral float-right" title="besskge.bess.TopKQueryBessKGE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

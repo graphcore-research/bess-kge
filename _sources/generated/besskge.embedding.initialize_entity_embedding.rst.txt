@@ -1,0 +1,6 @@
+besskge.embedding.initialize\_entity\_embedding
+===============================================
+
+.. currentmodule:: besskge.embedding
+
+.. autofunction:: initialize_entity_embedding

@@ -38,21 +38,12 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">Knowledge graph datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/bess.html">BESS modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/scoring.html">Scoring functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/loss.html">Loss functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
-<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bess.html">BESS overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_reference.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_guide.html">Developers guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
@@ -83,6 +74,11 @@
   <h1>Source code for besskge.batch_sampler</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) 2023 Graphcore Ltd. All rights reserved.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Classes for sampling batches of positive and negative triples for each processing device,</span>
+<span class="sd">according to the BESS distribution scheme.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
@@ -97,7 +93,7 @@
 <span class="kn">from</span> <span class="nn">besskge.sharding</span> <span class="kn">import</span> <span class="n">PartitionedTripleSet</span>
 
 
-<div class="viewcode-block" id="ShardedBatchSampler"><a class="viewcode-back" href="../../API_ref/batch_sampler.html#besskge.batch_sampler.ShardedBatchSampler">[docs]</a><span class="k">class</span> <span class="nc">ShardedBatchSampler</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]],</span> <span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="ShardedBatchSampler"><a class="viewcode-back" href="../../generated/besskge.batch_sampler.ShardedBatchSampler.html#besskge.batch_sampler.ShardedBatchSampler">[docs]</a><span class="k">class</span> <span class="nc">ShardedBatchSampler</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]],</span> <span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for sharded batch sampler.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -273,7 +269,7 @@
 
         <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">batch_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
-<div class="viewcode-block" id="ShardedBatchSampler.sample_triples"><a class="viewcode-back" href="../../API_ref/batch_sampler.html#besskge.batch_sampler.ShardedBatchSampler.sample_triples">[docs]</a>    <span class="nd">@abstractmethod</span>
+<div class="viewcode-block" id="ShardedBatchSampler.sample_triples"><a class="viewcode-back" href="../../generated/besskge.batch_sampler.ShardedBatchSampler.html#besskge.batch_sampler.ShardedBatchSampler.sample_triples">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">sample_triples</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">]]]:</span>
@@ -287,7 +283,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="ShardedBatchSampler.get_dataloader_sampler"><a class="viewcode-back" href="../../API_ref/batch_sampler.html#besskge.batch_sampler.ShardedBatchSampler.get_dataloader_sampler">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataloader_sampler</span><span class="p">(</span>
+<div class="viewcode-block" id="ShardedBatchSampler.get_dataloader_sampler"><a class="viewcode-back" href="../../generated/besskge.batch_sampler.ShardedBatchSampler.html#besskge.batch_sampler.ShardedBatchSampler.get_dataloader_sampler">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataloader_sampler</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Sampler</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -311,7 +307,7 @@
             <span class="n">sampler</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">partition_sample_size</span><span class="p">,</span> <span class="n">drop_last</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ShardedBatchSampler.get_dataloader"><a class="viewcode-back" href="../../API_ref/batch_sampler.html#besskge.batch_sampler.ShardedBatchSampler.get_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataloader</span><span class="p">(</span>
+<div class="viewcode-block" id="ShardedBatchSampler.get_dataloader"><a class="viewcode-back" href="../../generated/besskge.batch_sampler.ShardedBatchSampler.html#besskge.batch_sampler.ShardedBatchSampler.get_dataloader">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataloader</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">options</span><span class="p">:</span> <span class="n">poptorch</span><span class="o">.</span><span class="n">Options</span><span class="p">,</span>
         <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -357,7 +353,7 @@
             <span class="p">},</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="ShardedBatchSampler.worker_init_fn"><a class="viewcode-back" href="../../API_ref/batch_sampler.html#besskge.batch_sampler.ShardedBatchSampler.worker_init_fn">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ShardedBatchSampler.worker_init_fn"><a class="viewcode-back" href="../../generated/besskge.batch_sampler.ShardedBatchSampler.html#besskge.batch_sampler.ShardedBatchSampler.worker_init_fn">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">worker_init_fn</span><span class="p">(</span><span class="n">worker_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Worker initialization function to be passed to</span>
@@ -374,7 +370,7 @@
             <span class="n">dataset_unwrapped</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">worker_seed</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="RigidShardedBatchSampler"><a class="viewcode-back" href="../../API_ref/batch_sampler.html#besskge.batch_sampler.RigidShardedBatchSampler">[docs]</a><span class="k">class</span> <span class="nc">RigidShardedBatchSampler</span><span class="p">(</span><span class="n">ShardedBatchSampler</span><span class="p">):</span>
+<div class="viewcode-block" id="RigidShardedBatchSampler"><a class="viewcode-back" href="../../generated/besskge.batch_sampler.RigidShardedBatchSampler.html#besskge.batch_sampler.RigidShardedBatchSampler">[docs]</a><span class="k">class</span> <span class="nc">RigidShardedBatchSampler</span><span class="p">(</span><span class="n">ShardedBatchSampler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    At each call, sample triples with the same specified indices from all</span>
 <span class="sd">    triple partitions,</span>
@@ -424,7 +420,7 @@
         <span class="p">)</span>  <span class="c1"># shape (n_shard, [n_shard,] padded_partition_length)</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
-<div class="viewcode-block" id="RigidShardedBatchSampler.sample_triples"><a class="viewcode-back" href="../../API_ref/batch_sampler.html#besskge.batch_sampler.RigidShardedBatchSampler.sample_triples">[docs]</a>    <span class="k">def</span> <span class="nf">sample_triples</span><span class="p">(</span>
+<div class="viewcode-block" id="RigidShardedBatchSampler.sample_triples"><a class="viewcode-back" href="../../generated/besskge.batch_sampler.RigidShardedBatchSampler.html#besskge.batch_sampler.RigidShardedBatchSampler.sample_triples">[docs]</a>    <span class="k">def</span> <span class="nf">sample_triples</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">]]]:</span>
         <span class="n">sample_idx</span> <span class="o">=</span> <span class="n">einops</span><span class="o">.</span><span class="n">rearrange</span><span class="p">(</span>
@@ -441,14 +437,14 @@
         <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sample_idx</span><span class="o">=</span><span class="n">sample_idx</span><span class="p">,</span> <span class="n">triple_mask</span><span class="o">=</span><span class="n">batch_mask</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="RandomShardedBatchSampler"><a class="viewcode-back" href="../../API_ref/batch_sampler.html#besskge.batch_sampler.RandomShardedBatchSampler">[docs]</a><span class="k">class</span> <span class="nc">RandomShardedBatchSampler</span><span class="p">(</span><span class="n">ShardedBatchSampler</span><span class="p">):</span>
+<div class="viewcode-block" id="RandomShardedBatchSampler"><a class="viewcode-back" href="../../generated/besskge.batch_sampler.RandomShardedBatchSampler.html#besskge.batch_sampler.RandomShardedBatchSampler">[docs]</a><span class="k">class</span> <span class="nc">RandomShardedBatchSampler</span><span class="p">(</span><span class="n">ShardedBatchSampler</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Sample random indices (with replacement) from all triple partitions.</span>
 <span class="sd">    No padding of triple partitions applied.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
-<div class="viewcode-block" id="RandomShardedBatchSampler.sample_triples"><a class="viewcode-back" href="../../API_ref/batch_sampler.html#besskge.batch_sampler.RandomShardedBatchSampler.sample_triples">[docs]</a>    <span class="k">def</span> <span class="nf">sample_triples</span><span class="p">(</span>
+<div class="viewcode-block" id="RandomShardedBatchSampler.sample_triples"><a class="viewcode-back" href="../../generated/besskge.batch_sampler.RandomShardedBatchSampler.html#besskge.batch_sampler.RandomShardedBatchSampler.sample_triples">[docs]</a>    <span class="k">def</span> <span class="nf">sample_triples</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">],</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">bool_</span><span class="p">]]]:</span>
         <span class="n">sample_size</span> <span class="o">=</span> <span class="p">(</span>
@@ -480,7 +476,7 @@
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">triple_counts</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_sample_size</span><span class="p">))</span>
 
     <span class="c1"># docstr-coverage: inherited</span>
-<div class="viewcode-block" id="RandomShardedBatchSampler.get_dataloader_sampler"><a class="viewcode-back" href="../../API_ref/batch_sampler.html#besskge.batch_sampler.RandomShardedBatchSampler.get_dataloader_sampler">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataloader_sampler</span><span class="p">(</span>
+<div class="viewcode-block" id="RandomShardedBatchSampler.get_dataloader_sampler"><a class="viewcode-back" href="../../generated/besskge.batch_sampler.RandomShardedBatchSampler.html#besskge.batch_sampler.RandomShardedBatchSampler.get_dataloader_sampler">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataloader_sampler</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">shuffle</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Sampler</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
         <span class="n">sampler</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">SequentialSampler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>

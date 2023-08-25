@@ -1,0 +1,6 @@
+besskge.utils.complex\_multiplication
+=====================================
+
+.. currentmodule:: besskge.utils
+
+.. autofunction:: complex_multiplication

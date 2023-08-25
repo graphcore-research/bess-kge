@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to contribute to the BESS-KGE project &mdash; BESS-KGE  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bibliography" href="bibliography.html" />
+    <link rel="prev" title="besskge.utils.gather_indices" href="generated/besskge.utils.gather_indices.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BESS-KGE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bess.html">BESS overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_reference.html">API reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Developers guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#vs-code-server-on-paperspace">VS Code server on Paperspace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup-on-local-machine">Setup on local machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tips">Tips</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BESS-KGE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">How to contribute to the BESS-KGE project</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/dev_guide.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="how-to-contribute-to-the-bess-kge-project">
+<h1>How to contribute to the BESS-KGE project<a class="headerlink" href="#how-to-contribute-to-the-bess-kge-project" title="Permalink to this heading"></a></h1>
+<p>You can contribute to the development of the BESS-KGE project, even if you don’t have access to IPUs (you can use the <a class="reference external" href="https://docs.graphcore.ai/projects/poptorch-user-guide/en/3.2.0/reference.html#poptorch.Options.useIpuModel">IPUModel</a> to emulate most functionalities of the physical hardware).</p>
+<section id="vs-code-server-on-paperspace">
+<h2>VS Code server on Paperspace<a class="headerlink" href="#vs-code-server-on-paperspace" title="Permalink to this heading"></a></h2>
+<p>Setting up a VS Code server on <a class="reference external" href="https://www.paperspace.com/graphcore">Paperspace</a> will allow you to tunnel into a machine with IPUs from the VS Code web editor or the desktop app. This requires minimum effort and is an excellent solution for developing and testing code directly on IPU hardware.</p>
+<p>You can launch a 6-hours session on a Paperspace machine with access to 4 IPUs <strong>for free</strong> by clicking on the button <a class="reference external" href="https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-paperspace%3A3.3.0-ubuntu-20.04-20230703&amp;amp;machine=Free-IPU-POD4"><img alt="Run on Gradient" src="_images/gradient-badge.svg" /></a></p>
+<p>Start the machine and open up a terminal from the left pane.</p>
+<p><img alt="terminal_pane" src="_images/Terminal1.png" /></p>
+<p>In the terminal, run the command</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>.gradient/launch_vscode_server.sh<span class="w"> </span><span class="o">{</span>tunnel-name<span class="o">}</span>
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">tunnel-name</span></code> is an optional argument that you can use to define the name of the remote tunnel (if not set, it will default to <code class="docutils literal notranslate"><span class="pre">ipu-paperspace</span></code>).</p>
+<p>The script will download and install all dependencies and start the tunnel. You will be asked to authorize the tunnel through GitHub, before being provided with the tunnel link. Please refer to <a class="reference external" href="https://ipu.dev/fmo4AZ">this notebook</a> for additional details on these steps and to connect the VS Code desktop app to the remote tunnel.</p>
+<p>Once VS Code is connected to the Paperspace machine, run <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">build</span></code> to build all custom ops. You are now ready to create a new git branch and start developing!</p>
+<p>When closing a session and stopping the Paperspace machine, remember to unregister the tunnel in VS Code as explained in the “Common Issues” paragraph of the <a class="reference external" href="https://ipu.dev/fmo4AZ">notebook</a>. To resume your work, just access the clone of the BESS-KGE repo in the “Projects” section of your Paperspace profile, start a new machine and repeat the operations above. All code changes to the local repo, as well as VS Code settings and extensions installed, will persist across sessions.</p>
+</section>
+<section id="setup-on-local-machine">
+<h2>Setup on local machine<a class="headerlink" href="#setup-on-local-machine" title="Permalink to this heading"></a></h2>
+<p>To develop on a local machine, first install the Poplar SDK following the instructions in the <a class="reference external" href="https://docs.graphcore.ai/en/latest/getting-started.html#getting-started">Getting Started guide for your IPU system</a>.</p>
+<p>Then, enable the Poplar SDK, create and activate a Python <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code> and install the PopTorch wheel and all the necessary dependencies:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python3.8<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+<span class="c1"># Add to .venv/bin/activate</span>
+<span class="c1"># source /PATH_TO_POPLAR_SDK/enable</span>
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate
+</pre></div>
+</div>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>wheel
+pip<span class="w"> </span>install<span class="w"> </span><span class="nv">$POPLAR_SDK_ENABLED</span>/../poptorch-*.whl
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements-dev.txt
+</pre></div>
+</div>
+<p>Finally, build all custom ops by running <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">build</span></code></p>
+</section>
+<section id="tips">
+<h2>Tips<a class="headerlink" href="#tips" title="Permalink to this heading"></a></h2>
+<p>Run <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">--help</span></code> for a list of dev options. In particular, use <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">ci</span></code> to run all CI checks locally. Run individual tests with pattern matching filtering <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">tests</span> <span class="pre">-k</span> <span class="pre">FILTER</span></code>.</p>
+<p>Add <code class="docutils literal notranslate"><span class="pre">.cpp</span></code> custom ops to <code class="docutils literal notranslate"><span class="pre">besskge/custom_ops</span></code>. Also, update the <a class="reference internal" href="#Makefile"><span class="xref myst">Makefile</span></a> when adding custom ops.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="generated/besskge.utils.gather_indices.html" class="btn btn-neutral float-left" title="besskge.utils.gather_indices" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bibliography.html" class="btn btn-neutral float-right" title="Bibliography" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

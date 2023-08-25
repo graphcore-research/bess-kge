@@ -38,21 +38,12 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">API reference</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/dataset.html">Knowledge graph datasets</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/sharding.html">Sharding utilities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/batch_sampler.html">Batch samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/negative_sampler.html">Negative samplers</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/bess.html">BESS modules</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/scoring.html">Scoring functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/loss.html">Loss functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/metric.html">Metrics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/embedding.html">Embedding utilities</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../API_ref/utils.html">General-purpose utility functions</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Bibliography</span></p>
-<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bess.html">BESS overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../API_reference.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_guide.html">Developers guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
 </ul>
 
@@ -83,6 +74,10 @@
   <h1>Source code for besskge.metric</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (c) 2023 Graphcore Ltd. All rights reserved.</span>
 
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utilities for computing metrics to evaluate the predictions of KGE models.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">cast</span>
@@ -90,7 +85,7 @@
 <span class="kn">import</span> <span class="nn">torch</span>
 
 
-<div class="viewcode-block" id="BaseMetric"><a class="viewcode-back" href="../../API_ref/metric.html#besskge.metric.BaseMetric">[docs]</a><span class="k">class</span> <span class="nc">BaseMetric</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseMetric"><a class="viewcode-back" href="../../generated/besskge.metric.BaseMetric.html#besskge.metric.BaseMetric">[docs]</a><span class="k">class</span> <span class="nc">BaseMetric</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction_rank</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -105,7 +100,7 @@
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
 
-<div class="viewcode-block" id="ReciprocalRank"><a class="viewcode-back" href="../../API_ref/metric.html#besskge.metric.ReciprocalRank">[docs]</a><span class="k">class</span> <span class="nc">ReciprocalRank</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<div class="viewcode-block" id="ReciprocalRank"><a class="viewcode-back" href="../../generated/besskge.metric.ReciprocalRank.html#besskge.metric.ReciprocalRank">[docs]</a><span class="k">class</span> <span class="nc">ReciprocalRank</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reciprocal rank (for example to compute MRR).</span>
 
@@ -123,7 +118,7 @@
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">prediction_rank</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="HitsAtK"><a class="viewcode-back" href="../../API_ref/metric.html#besskge.metric.HitsAtK">[docs]</a><span class="k">class</span> <span class="nc">HitsAtK</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
+<div class="viewcode-block" id="HitsAtK"><a class="viewcode-back" href="../../generated/besskge.metric.HitsAtK.html#besskge.metric.HitsAtK">[docs]</a><span class="k">class</span> <span class="nc">HitsAtK</span><span class="p">(</span><span class="n">BaseMetric</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Hits@K metric.</span>
 
@@ -150,7 +145,7 @@
 <span class="n">METRICS_DICT</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;mrr&quot;</span><span class="p">:</span> <span class="n">ReciprocalRank</span><span class="p">,</span> <span class="s2">&quot;hits@k&quot;</span><span class="p">:</span> <span class="n">HitsAtK</span><span class="p">}</span>
 
 
-<div class="viewcode-block" id="Evaluation"><a class="viewcode-back" href="../../API_ref/metric.html#besskge.metric.Evaluation">[docs]</a><span class="k">class</span> <span class="nc">Evaluation</span><span class="p">:</span>
+<div class="viewcode-block" id="Evaluation"><a class="viewcode-back" href="../../generated/besskge.metric.Evaluation.html#besskge.metric.Evaluation">[docs]</a><span class="k">class</span> <span class="nc">Evaluation</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A module for computing link prediction metrics.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -205,7 +200,7 @@
             <span class="p">}</span>
         <span class="p">)</span>
 
-<div class="viewcode-block" id="Evaluation.ranks_from_scores"><a class="viewcode-back" href="../../API_ref/metric.html#besskge.metric.Evaluation.ranks_from_scores">[docs]</a>    <span class="k">def</span> <span class="nf">ranks_from_scores</span><span class="p">(</span>
+<div class="viewcode-block" id="Evaluation.ranks_from_scores"><a class="viewcode-back" href="../../generated/besskge.metric.Evaluation.html#besskge.metric.Evaluation.ranks_from_scores">[docs]</a>    <span class="k">def</span> <span class="nf">ranks_from_scores</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">pos_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">candidate_score</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -260,7 +255,7 @@
 
         <span class="k">return</span> <span class="n">batch_rank</span></div>
 
-<div class="viewcode-block" id="Evaluation.ranks_from_indices"><a class="viewcode-back" href="../../API_ref/metric.html#besskge.metric.Evaluation.ranks_from_indices">[docs]</a>    <span class="k">def</span> <span class="nf">ranks_from_indices</span><span class="p">(</span>
+<div class="viewcode-block" id="Evaluation.ranks_from_indices"><a class="viewcode-back" href="../../generated/besskge.metric.Evaluation.html#besskge.metric.Evaluation.ranks_from_indices">[docs]</a>    <span class="k">def</span> <span class="nf">ranks_from_indices</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">ground_truth</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">candidate_indices</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -297,7 +292,7 @@
         <span class="n">batch_rank</span> <span class="o">=</span> <span class="n">ranks</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">batch_rank</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Evaluation.dict_metrics_from_ranks"><a class="viewcode-back" href="../../API_ref/metric.html#besskge.metric.Evaluation.dict_metrics_from_ranks">[docs]</a>    <span class="k">def</span> <span class="nf">dict_metrics_from_ranks</span><span class="p">(</span>
+<div class="viewcode-block" id="Evaluation.dict_metrics_from_ranks"><a class="viewcode-back" href="../../generated/besskge.metric.Evaluation.html#besskge.metric.Evaluation.dict_metrics_from_ranks">[docs]</a>    <span class="k">def</span> <span class="nf">dict_metrics_from_ranks</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">batch_rank</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">triple_mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -328,7 +323,7 @@
 
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="Evaluation.stacked_metrics_from_ranks"><a class="viewcode-back" href="../../API_ref/metric.html#besskge.metric.Evaluation.stacked_metrics_from_ranks">[docs]</a>    <span class="k">def</span> <span class="nf">stacked_metrics_from_ranks</span><span class="p">(</span>
+<div class="viewcode-block" id="Evaluation.stacked_metrics_from_ranks"><a class="viewcode-back" href="../../generated/besskge.metric.Evaluation.html#besskge.metric.Evaluation.stacked_metrics_from_ranks">[docs]</a>    <span class="k">def</span> <span class="nf">stacked_metrics_from_ranks</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">batch_rank</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">triple_mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

@@ -1,0 +1,6 @@
+besskge.utils.complex\_rotation
+===============================
+
+.. currentmodule:: besskge.utils
+
+.. autofunction:: complex_rotation

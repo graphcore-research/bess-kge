@@ -1,0 +1,6 @@
+besskge.embedding.initialize\_relation\_embedding
+=================================================
+
+.. currentmodule:: besskge.embedding
+
+.. autofunction:: initialize_relation_embedding

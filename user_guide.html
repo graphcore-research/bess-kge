@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User guide &mdash; BESS-KGE  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="BESS overview" href="bess.html" />
+    <link rel="prev" title="BESS-KGE" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BESS-KGE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">User guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation-and-usage">Installation and usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#limitations">Limitations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bess.html">BESS overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_reference.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev_guide.html">Developers guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BESS-KGE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">User guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/user_guide.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="user-guide">
+<h1>User guide<a class="headerlink" href="#user-guide" title="Permalink to this heading"></a></h1>
+<section id="installation-and-usage">
+<h2>Installation and usage<a class="headerlink" href="#installation-and-usage" title="Permalink to this heading"></a></h2>
+<p>1. Install the Poplar SDK following the instructions in the
+<a class="reference external" href="https://docs.graphcore.ai/en/latest/getting-started.html#getting-started">Getting Started guide for your IPU system</a>.</p>
+<ol class="arabic simple" start="2">
+<li><p>Enable the Poplar SDK, create and activate a Python <code class="code docutils literal notranslate"><span class="pre">virtualenv</span></code> and install the PopTorch wheel:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>source &lt;path to Poplar installation&gt;/enable.sh
+source &lt;path to PopART installation&gt;/enable.sh
+python3.8 -m venv .venv
+source .venv/bin/activate
+pip install wheel
+pip install $POPLAR_SDK_ENABLED/../poptorch-*.whl
+</pre></div>
+</div>
+<p>More details are given in the
+<a class="reference external" href="https://docs.graphcore.ai/projects/pytorch-quick-start">PyTorch quick start guide</a>.</p>
+<ol class="arabic simple" start="3">
+<li><p>Pip install BESS-KGE:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">graphcore</span><span class="o">-</span><span class="n">research</span><span class="o">/</span><span class="n">bess</span><span class="o">-</span><span class="n">kge</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Import and use:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">besskge</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The library has been tested on Poplar SDK 3.3.0+1403, Ubuntu 20.04, Python 3.8.</p>
+</div>
+</section>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h2>
+<p>For a walkthrough of the main <code class="code docutils literal notranslate"><span class="pre">besskge</span></code> library functionalities, see our Jupyter notebooks.
+We recommend the following sequence:</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://github.com/graphcore-research/bess-kge/tree/main/notebooks/1_biokg_training_inference.ipynb">KGE training and inference on the OGBL-BioKG dataset</a>.</p></li>
+<li><p><a class="reference external" href="https://github.com/graphcore-research/bess-kge/tree/main/notebooks/2_yago_topk_prediction.ipynb">Link prediction on the YAGO3-10 dataset</a>.</p></li>
+<li><p><a class="reference external" href="https://github.com/graphcore-research/bess-kge/tree/main/notebooks/3_wikikg2_fp16.ipynb">FP16 weights and compute on the OGBL-WikiKG2 dataset</a>.</p></li>
+</ol>
+<p>Click on the <img alt="run_on_gradient" src="_images/gradient-badge1.svg" /> button inside the notebooks to run them <strong>for free</strong> on physical IPUs
+available on <a class="reference external" href="https://www.paperspace.com/graphcore">Paperspace</a>.</p>
+</section>
+<section id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p><code class="code docutils literal notranslate"><span class="pre">besskge</span></code> supports distribution for up to 16 IPUs.</p></li>
+<li><p>Storing embeddings in SRAM introduces limitations on the size of the embedding tables,
+and therefore on the entity count in the knowledge graph. Some (approximate) estimates for these limitations
+are given in the table below (assuming FP16 for weights and FP32 for gradient accumulation and second order momentum).
+Notice that the cap will also depend on the batch size and the number of negative samples used.</p></li>
+</ul>
+<table class="docutils align-default">
+<tbody>
+<tr class="row-odd"><td colspan="2"><p>Embeddings</p></td>
+<td rowspan="2"><p>Optimizer</p></td>
+<td rowspan="2"><p>Gradient
+accumulation</p></td>
+<td colspan="2"><blockquote>
+<div><p>Max number of entities</p>
+</div></blockquote>
+<p>(# embedding parameters) on</p>
+</td>
+</tr>
+<tr class="row-even"><td><p>size</p></td>
+<td><p>dtype</p></td>
+<td><p>IPU-POD4</p></td>
+<td><p>IPU-POD16</p></td>
+</tr>
+<tr class="row-odd"><td><p>100</p></td>
+<td><p>float16</p></td>
+<td><p>SGDM</p></td>
+<td><p>No</p></td>
+<td><p>3.2M (3.2e8)</p></td>
+<td><p>13M (1.3e9)</p></td>
+</tr>
+<tr class="row-even"><td><p>128</p></td>
+<td><p>float16</p></td>
+<td><p>Adam</p></td>
+<td><p>No</p></td>
+<td><p>2.4M (3.0e8)</p></td>
+<td><p>9.9M (1.3e9)</p></td>
+</tr>
+<tr class="row-odd"><td><p>256</p></td>
+<td><p>float16</p></td>
+<td><p>SGDM</p></td>
+<td><p>Yes</p></td>
+<td><p>900K (2.3e8)</p></td>
+<td><p>3.5M (9.0e8)</p></td>
+</tr>
+<tr class="row-even"><td><p>256</p></td>
+<td><p>float16</p></td>
+<td><p>Adam</p></td>
+<td><p>No</p></td>
+<td><p>1.2M (3.0e8)</p></td>
+<td><p>4.8M (1.2e9)</p></td>
+</tr>
+<tr class="row-odd"><td><p>512</p></td>
+<td><p>float16</p></td>
+<td><p>Adam</p></td>
+<td><p>Yes</p></td>
+<td><p>375K (1.9e8)</p></td>
+<td><p>1.5M (7.7e8)</p></td>
+</tr>
+</tbody>
+</table>
+<p>If you get an error message during compilation about the ONNX protobuffer exceeding the maximum size,
+we recommend saving weights to a file using the <code class="code docutils literal notranslate"><span class="pre">poptorch.Options</span></code> API <code class="code docutils literal notranslate"><span class="pre">options._Popart.set(&quot;saveInitializersToFile&quot;,</span> <span class="pre">&quot;my_file.onnx&quot;)</span></code>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="BESS-KGE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bess.html" class="btn btn-neutral float-right" title="BESS overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

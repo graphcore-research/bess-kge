@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BESS overview &mdash; BESS-KGE  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="BESS-KGE API Reference" href="API_reference.html" />
+    <link rel="prev" title="User guide" href="user_guide.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BESS-KGE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">BESS overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="API_reference.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev_guide.html">Developers guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BESS-KGE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">BESS overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/bess.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bess-overview">
+<h1>BESS overview<a class="headerlink" href="#bess-overview" title="Permalink to this heading"></a></h1>
+<p>When distributing the workload over <span class="math notranslate nohighlight">\(n\)</span> workers (=IPUs), BESS
+randomly splits the entity embedding table into <span class="math notranslate nohighlight">\(n\)</span> shards of equal
+size, each of which is stored in a worker’s memory. The
+embedding table for relation types, on the other hand, is replicated
+across workers, as it is usually much smaller.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="_images/embedding_sharding.jpg"><img alt="_images/embedding_sharding.jpg" src="_images/embedding_sharding.jpg" style="height: 250px;" /></a>
+<figcaption>
+<p><span class="caption-text"><strong>Figure 1</strong>. Entity table sharding across <span class="math notranslate nohighlight">\(n=3\)</span> workers.</span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>The entity sharding induces a partitioning of the triples in the
+dataset, according to the shard-pair of the head entity and the tail entity. At
+execution time (for both training and inference), batches are constructed
+by sampling triples uniformly from each of the <span class="math notranslate nohighlight">\(n^2\)</span> shard-pairs.
+Negative entities, used to corrupt the head or tail of a triple in order
+to construct negative samples, are also sampled in a balanced way to ensure
+a variety that is beneficial to the final embedding quality.</p>
+<figure class="align-center" id="id2">
+<span id="figure2"></span><a class="reference internal image-reference" href="_images/batch_together.jpg"><img alt="_images/batch_together.jpg" src="_images/batch_together.jpg" style="width: 700px;" /></a>
+<figcaption>
+<p><span class="caption-text"><strong>Figure 2</strong>. <em>Left</em>: A batch is made up of <span class="math notranslate nohighlight">\(n^2=9\)</span> blocks, each
+containing the same number of triples. The head embeddings of triples
+in block <span class="math notranslate nohighlight">\((i,j)\)</span> are stored on worker <span class="math notranslate nohighlight">\(i\)</span>, the tail
+embeddings on worker <span class="math notranslate nohighlight">\(j\)</span>, for <span class="math notranslate nohighlight">\(i,j = 0,1,2\)</span>. <em>Right</em>: the
+negative entities used to corrupt triples in block <span class="math notranslate nohighlight">\((i,j)\)</span> are
+sampled in equal numbers from all of the <span class="math notranslate nohighlight">\(n\)</span> shards (possibly with
+padding at inference time). In this example, negative samples are constructed
+by corrupting tails.</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>This batching scheme allows us to balance workload and
+communication across workers. First, each worker needs to gather the
+same number of embeddings from its on-chip memory, both for positive and
+negative samples. These include the embeddings needed by the worker
+itself, and the embeddings needed by its peers.</p>
+<figure class="align-center" id="id3">
+<a class="reference internal image-reference" href="_images/gather.jpg"><img alt="_images/gather.jpg" src="_images/gather.jpg" style="width: 650px;" /></a>
+<figcaption>
+<p><span class="caption-text"><strong>Figure 3</strong>. The required embeddings are gathered from the IPU
+SRAM. Each worker needs to retrieve the head embeddings for <span class="math notranslate nohighlight">\(n\)</span>
+positive triple blocks, and the same for tail embeddings (the
+<span class="math notranslate nohighlight">\(3 + 3\)</span> triangles of same colour in <a class="reference internal" href="#figure2"><span class="std std-ref">Figure 2 (left)</span></a>).
+In addition to that, the worker gathers the
+portion (=<span class="math notranslate nohighlight">\(1/n\)</span>) stored in its memory of the negative tails
+needed by all of the <span class="math notranslate nohighlight">\(n^2\)</span> blocks.</span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>The batch in <a class="reference internal" href="#figure2"><span class="std std-ref">Figure 2</span></a> can then be reconstructed by
+sharing the embeddings of positive <strong>tails</strong> and negative entities
+between workers through a balanced AllToAll collective operator. Head
+embeddings remain in place, as each triple block is then scored on the
+worker where the head embedding is stored.</p>
+<figure class="align-center" id="id4">
+<a class="reference internal image-reference" href="_images/alltoall.jpg"><img alt="_images/alltoall.jpg" src="_images/alltoall.jpg" style="width: 650px;" /></a>
+<figcaption>
+<p><span class="caption-text"><strong>Figure 4</strong>. Embeddings of positive and negative tails are exchanged
+between workers with an AllToAll collective (red arrows), which
+effectively transposes rows and columns of the <span class="math notranslate nohighlight">\(n^2\)</span> blocks in
+the picture. After this exchange, each worker has the embeddings of the correct
+<span class="math notranslate nohighlight">\(n\)</span> blocks of positive triples and <span class="math notranslate nohighlight">\(n\)</span> blocks of negative
+tails to compute positive and negative scores.</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>The distribution scheme presented above is implemented in <a class="reference internal" href="generated/besskge.bess.EmbeddingMovingBessKGE.html#besskge.bess.EmbeddingMovingBessKGE" title="besskge.bess.EmbeddingMovingBessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">besskge.bess.EmbeddingMovingBessKGE</span></code></a>.
+While communication is always balanced, exchanging negative embeddings between workers can turn out to be expensive
+when using many negative samples per triple, or when the embedding dimension is large.
+In these cases, using <a class="reference internal" href="generated/besskge.bess.ScoreMovingBessKGE.html#besskge.bess.ScoreMovingBessKGE" title="besskge.bess.ScoreMovingBessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">besskge.bess.ScoreMovingBessKGE</span></code></a> can increase overall throughput.
+This alternative distribution scheme works in the same way as <a class="reference internal" href="generated/besskge.bess.EmbeddingMovingBessKGE.html#besskge.bess.EmbeddingMovingBessKGE" title="besskge.bess.EmbeddingMovingBessKGE"><code class="xref py py-class docutils literal notranslate"><span class="pre">besskge.bess.EmbeddingMovingBessKGE</span></code></a> for
+the sharding of entities and partitioning of triples, as well as for the way embeddings for positive triples are
+shared through AllToAll collectives and scored. The difference lies in how negative scores are computed: instead of
+sending negative embeddings to the query’s worker, all queries are replicated on each device through an AllGather
+collective, scored against the (partial) set of negatives stored on the device and then the scores are
+sent to the correct worker via a new, balanced AllToAll.
+This allows us to communicate negative <strong>scores</strong> instead of negative embeddings, which is cheaper, although it
+requires additional collective communications between devices.</p>
+<figure class="align-center" id="id5">
+<a class="reference internal image-reference" href="_images/allgather.jpg"><img alt="_images/allgather.jpg" src="_images/allgather.jpg" style="width: 700px;" /></a>
+<figcaption>
+<p><span class="caption-text"><strong>Figure 5</strong>. Through an AllGather collective, the head embeddings of the <span class="math notranslate nohighlight">\(n^2\)</span> blocks are
+replicated on all workers. These are then scored against the corresponding negative tails stored on the worker.</span><a class="headerlink" href="#id5" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<figure class="align-center" id="id6">
+<a class="reference internal image-reference" href="_images/score_moving_alltoall.jpg"><img alt="_images/score_moving_alltoall.jpg" src="_images/score_moving_alltoall.jpg" style="width: 700px;" /></a>
+<figcaption>
+<p><span class="caption-text"><strong>Figure 6</strong>. Using a final AllToAll (red arrows) the partial negative <strong>scores</strong> are put back on the worker
+where the head embeddings came from. After this, each worker has the complete set of negative scores for each
+of the <span class="math notranslate nohighlight">\(n\)</span> triple blocks it is responsible for.</span><a class="headerlink" href="#id6" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="user_guide.html" class="btn btn-neutral float-left" title="User guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="API_reference.html" class="btn btn-neutral float-right" title="BESS-KGE API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

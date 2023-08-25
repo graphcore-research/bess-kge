@@ -1,0 +1,6 @@
+besskge.embedding.init\_KGE\_normal
+===================================
+
+.. currentmodule:: besskge.embedding
+
+.. autofunction:: init_KGE_normal

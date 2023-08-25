@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BESS-KGE API Reference &mdash; BESS-KGE  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="besskge.dataset" href="generated/besskge.dataset.html" />
+    <link rel="prev" title="BESS overview" href="bess.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            BESS-KGE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bess.html">BESS overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.dataset.html">besskge.dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.sharding.html">besskge.sharding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.batch_sampler.html">besskge.batch_sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.negative_sampler.html">besskge.negative_sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.bess.html">besskge.bess</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.scoring.html">besskge.scoring</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.loss.html">besskge.loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.metric.html">besskge.metric</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.embedding.html">besskge.embedding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="generated/besskge.utils.html">besskge.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dev_guide.html">Developers guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BESS-KGE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">BESS-KGE API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/API_reference.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bess-kge-api-reference">
+<h1>BESS-KGE API Reference<a class="headerlink" href="#bess-kge-api-reference" title="Permalink to this heading"></a></h1>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/besskge.dataset.html#module-besskge.dataset" title="besskge.dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">besskge.dataset</span></code></a></p></td>
+<td><p>Utilities for building and storing knowledge graph datasets as collections of (h,r,t) triples.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/besskge.sharding.html#module-besskge.sharding" title="besskge.sharding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">besskge.sharding</span></code></a></p></td>
+<td><p>Sharding of embedding tables and triple sets for distributed execution.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/besskge.batch_sampler.html#module-besskge.batch_sampler" title="besskge.batch_sampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">besskge.batch_sampler</span></code></a></p></td>
+<td><p>Classes for sampling batches of positive and negative triples for each processing device, according to the BESS distribution scheme.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/besskge.negative_sampler.html#module-besskge.negative_sampler" title="besskge.negative_sampler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">besskge.negative_sampler</span></code></a></p></td>
+<td><p>Classes for sampling entities to use as corrupted heads/tails when constructing negative samples.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/besskge.bess.html#module-besskge.bess" title="besskge.bess"><code class="xref py py-obj docutils literal notranslate"><span class="pre">besskge.bess</span></code></a></p></td>
+<td><p>PyTorch modules implementing the BESS distribution scheme <span id="id1">[<a class="reference internal" href="bibliography.html#id11" title="Alberto Cattaneo, Daniel Justus, Harry Mellor, Douglas Orr, Jerome Maloberti, Zhenying Liu, Thorin Farnsworth, Andrew Fitzgibbon, Blazej Banaszewski, and Carlo Luschi. BESS: balanced entity sampling and sharing for large-scale knowledge graph completion. arXiv preprint arXiv:2211.12281, 2022.">CJM+22</a>]</span> for KGE training and inference on multiple IPUs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/besskge.scoring.html#module-besskge.scoring" title="besskge.scoring"><code class="xref py py-obj docutils literal notranslate"><span class="pre">besskge.scoring</span></code></a></p></td>
+<td><p>Functions for scoring positive and negative triples, specific to each KGE model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/besskge.loss.html#module-besskge.loss" title="besskge.loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">besskge.loss</span></code></a></p></td>
+<td><p>Functions for computing the batch loss based on the scores of positive and negative samples.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/besskge.metric.html#module-besskge.metric" title="besskge.metric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">besskge.metric</span></code></a></p></td>
+<td><p>Utilities for computing metrics to evaluate the predictions of KGE models.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="generated/besskge.embedding.html#module-besskge.embedding" title="besskge.embedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">besskge.embedding</span></code></a></p></td>
+<td><p>Utilities for initializing and managing entity/relation embedding tables.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="generated/besskge.utils.html#module-besskge.utils" title="besskge.utils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">besskge.utils</span></code></a></p></td>
+<td><p>General purpose utilities.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="bess.html" class="btn btn-neutral float-left" title="BESS overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="generated/besskge.dataset.html" class="btn btn-neutral float-right" title="besskge.dataset" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

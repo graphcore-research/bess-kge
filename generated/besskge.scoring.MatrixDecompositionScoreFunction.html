@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>besskge.scoring.MatrixDecompositionScoreFunction &mdash; BESS-KGE  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="besskge.scoring.PairRE" href="besskge.scoring.PairRE.html" />
+    <link rel="prev" title="besskge.scoring.InterHT" href="besskge.scoring.InterHT.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BESS-KGE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bess.html">BESS overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../API_reference.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="besskge.dataset.html">besskge.dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.sharding.html">besskge.sharding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.batch_sampler.html">besskge.batch_sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.negative_sampler.html">besskge.negative_sampler</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.bess.html">besskge.bess</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="besskge.scoring.html">besskge.scoring</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="besskge.scoring.BaseScoreFunction.html">besskge.scoring.BaseScoreFunction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.scoring.BoxE.html">besskge.scoring.BoxE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.scoring.ComplEx.html">besskge.scoring.ComplEx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.scoring.DistMult.html">besskge.scoring.DistMult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.scoring.DistanceBasedScoreFunction.html">besskge.scoring.DistanceBasedScoreFunction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.scoring.InterHT.html">besskge.scoring.InterHT</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">besskge.scoring.MatrixDecompositionScoreFunction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#besskge.scoring.MatrixDecompositionScoreFunction"><code class="docutils literal notranslate"><span class="pre">MatrixDecompositionScoreFunction</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.scoring.PairRE.html">besskge.scoring.PairRE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.scoring.RotatE.html">besskge.scoring.RotatE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.scoring.TransE.html">besskge.scoring.TransE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.scoring.TripleRE.html">besskge.scoring.TripleRE</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.loss.html">besskge.loss</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.metric.html">besskge.metric</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.embedding.html">besskge.embedding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.utils.html">besskge.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../dev_guide.html">Developers guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BESS-KGE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../API_reference.html">BESS-KGE API Reference</a></li>
+          <li class="breadcrumb-item"><a href="besskge.scoring.html">besskge.scoring</a></li>
+      <li class="breadcrumb-item active">besskge.scoring.MatrixDecompositionScoreFunction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/besskge.scoring.MatrixDecompositionScoreFunction.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="besskge-scoring-matrixdecompositionscorefunction">
+<h1>besskge.scoring.MatrixDecompositionScoreFunction<a class="headerlink" href="#besskge-scoring-matrixdecompositionscorefunction" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">MatrixDecompositionScoreFunction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">negative_sample_sharing</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#MatrixDecompositionScoreFunction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction" title="Permalink to this definition"></a></dt>
+<dd><p>Base class for matrix-decomposition scoring functions.</p>
+<p>Initialize matrix-decomposition scoring function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>negative_sample_sharing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – see <a class="reference internal" href="besskge.scoring.BaseScoreFunction.html#besskge.scoring.BaseScoreFunction" title="besskge.scoring.BaseScoreFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseScoreFunction</span></code></a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.broadcasted_dot_product">
+<span class="sig-name descname"><span class="pre">broadcasted_dot_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#MatrixDecompositionScoreFunction.broadcasted_dot_product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.broadcasted_dot_product" title="Permalink to this definition"></a></dt>
+<dd><p>Broadcasted dot product of queries against sets of entities.</p>
+<p>For each query and candidate, computes the dot product of
+the embeddings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>v1</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
+Batch queries.</p></li>
+<li><p><strong>v2</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_neg, embedding_size) with B = 1, batch_size
+Negative embeddings to score against queries.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>shape: (batch_size, B * n_neg) if
+<a class="reference internal" href="besskge.scoring.BaseScoreFunction.html#besskge.scoring.BaseScoreFunction.negative_sample_sharing" title="besskge.scoring.BaseScoreFunction.negative_sample_sharing"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaseScoreFunction.negative_sample_sharing</span></code></a>
+else (batch_size, n_neg)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.entity_embedding">
+<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.entity_embedding" title="Permalink to this definition"></a></dt>
+<dd><p>Entity embedding table</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.forward" title="Permalink to this definition"></a></dt>
+<dd><p>see <a class="reference internal" href="besskge.scoring.BaseScoreFunction.html#besskge.scoring.BaseScoreFunction.score_triple" title="besskge.scoring.BaseScoreFunction.score_triple"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseScoreFunction.score_triple()</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>Tensor</em></a>) – </p></li>
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>Tensor</em></a>) – </p></li>
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><em>Tensor</em></a>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.negative_sample_sharing">
+<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.negative_sample_sharing" title="Permalink to this definition"></a></dt>
+<dd><p>Share negative entities to construct negative samples</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.reduce_embedding">
+<span class="sig-name descname"><span class="pre">reduce_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#MatrixDecompositionScoreFunction.reduce_embedding"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.reduce_embedding" title="Permalink to this definition"></a></dt>
+<dd><p>Sum reduction along the embedding dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>v</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (<a href="#id1"><span class="problematic" id="id2">*</span></a>, embedding_size)
+The tensor to reduce.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>shape: (<a href="#id3"><span class="problematic" id="id4">*</span></a>,)
+Sum reduction.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.relation_embedding">
+<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.relation_embedding" title="Permalink to this definition"></a></dt>
+<dd><p>Relation embedding table</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.score_heads">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score_heads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.score_heads" title="Permalink to this definition"></a></dt>
+<dd><p>Score sets of head entities against fixed (r,t) queries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_heads, embedding_size) with B = 1, batch_size
+Embeddings of head entities.</p></li>
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
+IDs of relation types in batch.</p></li>
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
+Embedding of tail entities in batch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>shape: (batch_size, B * n_heads)
+if <a class="reference internal" href="besskge.scoring.BaseScoreFunction.html#besskge.scoring.BaseScoreFunction.negative_sample_sharing" title="besskge.scoring.BaseScoreFunction.negative_sample_sharing"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaseScoreFunction.negative_sample_sharing</span></code></a>
+else (batch_size, n_heads).
+Scores of broadcasted triples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.score_tails">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score_tails</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.score_tails" title="Permalink to this definition"></a></dt>
+<dd><p>Score sets of tail entities against fixed (h,r) queries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
+Embeddings of head entities in batch.</p></li>
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
+IDs of relation types in batch.</p></li>
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (B, n_tails, embedding_size) with B = 1, batch_size
+Embedding of tail entities.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>shape: (batch_size, B * n_tails)
+if <a class="reference internal" href="besskge.scoring.BaseScoreFunction.html#besskge.scoring.BaseScoreFunction.negative_sample_sharing" title="besskge.scoring.BaseScoreFunction.negative_sample_sharing"><code class="xref py py-attr docutils literal notranslate"><span class="pre">BaseScoreFunction.negative_sample_sharing</span></code></a>
+else (batch_size, n_tails)
+Scores of broadcasted triples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.score_triple">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">score_triple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.score_triple" title="Permalink to this definition"></a></dt>
+<dd><p>Score a batch of (h,r,t) triples.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>head_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
+Embeddings of head entities in batch.</p></li>
+<li><p><strong>relation_id</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
+IDs of relation types in batch.</p></li>
+<li><p><strong>tail_emb</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, embedding_size)
+Embeddings of tail entities in batch.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>shape: (batch_size,)
+Scores of a batch of triples.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.sharding">
+<span class="sig-name descname"><span class="pre">sharding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="besskge.sharding.Sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a></em><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.sharding" title="Permalink to this definition"></a></dt>
+<dd><p>Sharding of entities</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="besskge.scoring.MatrixDecompositionScoreFunction.update_sharding">
+<span class="sig-name descname"><span class="pre">update_sharding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_sharding</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.scoring.MatrixDecompositionScoreFunction.update_sharding" title="Permalink to this definition"></a></dt>
+<dd><p>Change the sharding of the entity embedding table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>new_sharding</strong> (<a class="reference internal" href="besskge.sharding.Sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – The new entity sharding.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="besskge.scoring.InterHT.html" class="btn btn-neutral float-left" title="besskge.scoring.InterHT" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="besskge.scoring.PairRE.html" class="btn btn-neutral float-right" title="besskge.scoring.PairRE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright (c) 2023 Graphcore Ltd. All rights reserved.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
