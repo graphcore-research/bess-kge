@@ -1,5 +1,10 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
+"""
+Functions for scoring positive and negative triples,
+specific to each KGE model.
+"""
+
 from abc import ABC, abstractmethod
 from typing import Callable, List, Union, cast
 

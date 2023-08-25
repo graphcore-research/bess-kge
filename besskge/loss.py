@@ -1,5 +1,10 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
+"""
+Functions for computing the batch loss based on the scores of positive
+and negative samples.
+"""
+
 from abc import ABC, abstractmethod
 
 import numpy as np

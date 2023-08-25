@@ -1,5 +1,10 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
+"""
+Utilities for building and storing knowledge graph datasets
+as collections of (h,r,t) triples.
+"""
+
 import dataclasses
 import pickle
 import tarfile

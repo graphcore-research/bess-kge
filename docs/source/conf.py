@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..",
 
 project = "BESS-KGE"
 copyright = "(c) 2023 Graphcore Ltd. All rights reserved"
-author = "Alberto Cattaneo"
+author = "Alberto Cattaneo, Daniel Justus"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -35,15 +35,19 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinxcontrib.bibtex",
     "sphinx.ext.autosectionlabel",
+    "myst_parser",
 ]
 numpydoc_show_class_members = False
 todo_include_todos = True
 autosummary_generate = True
 autoclass_content = "both"
 autodoc_typehints = "both"
-bibtex_default_style = "alpha"
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False
 
+bibtex_default_style = "alpha"
 bibtex_bibfiles = ["KGbib.bib"]
+
 templates_path = ["_templates"]
 exclude_patterns = []
 
@@ -59,4 +63,6 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "numpy": ("https://numpy.org/doc/stable", None),
     "torch": ("https://pytorch.org/docs/stable", None),
+    "rtd": ("https://docs.readthedocs.io/en/stable/", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
 }

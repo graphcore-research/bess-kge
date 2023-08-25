@@ -1,15 +1,15 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
+"""
+Utilities for initializing and managing entity/relation embedding tables.
+"""
+
 from typing import Callable, List, Optional, Union
 
 import numpy as np
 import torch
 
 from besskge.sharding import Sharding
-
-"""
-Utilities for entity/relation embeddings.
-"""
 
 
 def init_uniform_norm(embedding_table: torch.Tensor) -> torch.Tensor:

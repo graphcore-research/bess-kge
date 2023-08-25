@@ -1,5 +1,10 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
+"""
+PyTorch modules implementing the BESS distribution scheme :cite:p:`BESS`
+for KGE training and inference on multiple IPUs.
+"""
+
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional, Tuple, Union, cast
 

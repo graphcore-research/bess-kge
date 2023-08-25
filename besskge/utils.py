@@ -1,5 +1,9 @@
 # Copyright (c) 2023 Graphcore Ltd. All rights reserved.
 
+"""
+General purpose utilities.
+"""
+
 import torch
 
 

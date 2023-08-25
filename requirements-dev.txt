@@ -12,3 +12,4 @@ sphinx_rtd_theme==1.2.0
 sphinx_autodoc_typehints==1.22
 sphinx-automodapi==0.15.0
 sphinxcontrib-bibtex==2.5.0
+myst-parser==1.0.0
