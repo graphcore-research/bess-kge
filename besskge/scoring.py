@@ -1089,7 +1089,9 @@ class BoxE(DistanceBasedScoreFunction):
         # Rescale by box_size
         width_ht = width_ht * (
             torch.tensor(1.0, dtype=width_ht.dtype, device=width_ht.device)
-            + torch.nn.functional.elu(box_size.unsqueeze(-1))
+            + torch.nn.functional.elu(box_size.unsqueeze(-1).to(torch.float32)).to(
+                width_ht.dtype
+            )
         )
 
         if self.apply_tanh:
