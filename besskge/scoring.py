@@ -1373,6 +1373,10 @@ class InterHT(DistanceBasedScoreFunction):
 class TranS(DistanceBasedScoreFunction):
     """
     TranS scoring function :cite:p:`TranS`.
+
+    .. math::
+
+        \textbf{e}_h + \textbf{e}_r \approx \textbf{e}_t
     """
 
     def __init__(
@@ -1392,31 +1396,31 @@ class TranS(DistanceBasedScoreFunction):
         offset: float = 1.0,
         inverse_relations: bool = False,
     ) -> None:
-        # """
-        # Initialize TranS model.
+        """
+        Initialize TranS model.
 
-        # :param negative_sample_sharing:
-        #     see :meth:`DistanceBasedScoreFunction.__init__`
-        # :param scoring_norm:
-        #     see :meth:`DistanceBasedScoreFunction.__init__`
-        # :param sharding:
-        #     Entity sharding.
-        # :param n_relation_type:
-        #     Number of relation types in the knowledge graph.
-        # :param embedding_size:
-        #     Size of entity and relation embeddings.
-        # :param entity_initializer:
-        #     Initialization function or table for entity embeddings.
-        # :param relation_initializer:
-        #     Initialization function or table for relation embeddings.
-        # :param normalize_entities:
-        #     If True, L2-normalize embeddings of head and tail entities as well as
-        #     auxiliary head and tail entities before multiplying. Default: True.
-        # :param offset:
-        #     Offset applied to auxiliary entity embeddings. Default: 1.0.
-        # :param inverse_relations:
-        #     If True, learn embeddings for inverse relations. Default: False
-        # """
+        :param negative_sample_sharing:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :param scoring_norm:
+            see :meth:`DistanceBasedScoreFunction.__init__`
+        :param sharding:
+            Entity sharding.
+        :param n_relation_type:
+            Number of relation types in the knowledge graph.
+        :param embedding_size:
+            Size of entity and relation embeddings.
+        :param entity_initializer:
+            Initialization function or table for entity embeddings.
+        :param relation_initializer:
+            Initialization function or table for relation embeddings.
+        :param normalize_entities:
+            If True, L2-normalize embeddings of head and tail entities as well as
+            tilde head and tail entities before multiplying. Default: True.
+        :param offset:
+            Offset applied to tilde entity embeddings. Default: 1.0.
+        :param inverse_relations:
+            If True, learn embeddings for inverse relations. Default: False
+        """
         super(TranS, self).__init__(
             negative_sample_sharing=negative_sample_sharing, scoring_norm=scoring_norm
         )
