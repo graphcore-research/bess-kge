@@ -1373,10 +1373,6 @@ class InterHT(DistanceBasedScoreFunction):
 class TranS(DistanceBasedScoreFunction):
     """
     TranS scoring function :cite:p:`TranS`.
-
-    .. math::
-
-        \textbf{e}_h + \textbf{e}_r \approx \textbf{e}_t
     """
 
     def __init__(
