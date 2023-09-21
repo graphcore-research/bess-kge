@@ -1479,54 +1479,54 @@ class TranS(DistanceBasedScoreFunction):
         return -self.reduce_embedding(R_h - R_t + R_r)
 
 
-    # # docstr-coverage: inherited
-    # def score_heads(
-    #     self,
-    #     head_emb: torch.Tensor,
-    #     relation_id: torch.Tensor,
-    #     tail_emb: torch.Tensor,
-    # ) -> torch.Tensor:
-    #     relation_emb = torch.index_select(
-    #         self.relation_embedding, index=relation_id, dim=0
-    #     )
-    #     head_emb_main, head_emb_aux = torch.split(head_emb, self.embedding_size, dim=-1)
-    #     tail_emb_main, tail_emb_aux = torch.split(tail_emb, self.embedding_size, dim=-1)
-    #     if self.normalize:
-    #         head_emb_main = torch.nn.functional.normalize(head_emb_main, p=2, dim=-1)
-    #         tail_emb_main = torch.nn.functional.normalize(tail_emb_main, p=2, dim=-1)
-    #         head_emb_aux = torch.nn.functional.normalize(head_emb_aux, p=2, dim=-1)
-    #         tail_emb_aux = torch.nn.functional.normalize(tail_emb_aux, p=2, dim=-1)
-    #     if self.negative_sample_sharing:
-    #         head_emb_main = head_emb_main.view(1, -1, self.embedding_size)
-    #         head_emb_aux = head_emb_aux.view(1, -1, self.embedding_size)
-    #     return -self.reduce_embedding(
-    #         head_emb_main * (tail_emb_aux + self.offset).unsqueeze(1)
-    #         + relation_emb.unsqueeze(1)
-    #         - tail_emb_main.unsqueeze(1) * (head_emb_aux + self.offset)
-    #     )
+    # docstr-coverage: inherited
+    def score_heads(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        r, r_bar, r_hat = torch.split(relation_emb, self.embedding_size, dim=-1)
+        head_emb_main, head_emb_tilde = torch.split(head_emb, self.embedding_size, dim=-1)
+        tail_emb_main, tail_emb_tilde = torch.split(tail_emb, self.embedding_size, dim=-1)
+        if self.normalize:
+            head_emb_main = torch.nn.functional.normalize(head_emb_main, p=2, dim=-1)
+            tail_emb_main = torch.nn.functional.normalize(tail_emb_main, p=2, dim=-1)
+            head_emb_tilde = torch.nn.functional.normalize(head_emb_tilde, p=2, dim=-1)
+            tail_emb_tilde = torch.nn.functional.normalize(tail_emb_tilde, p=2, dim=-1)
+        if self.negative_sample_sharing:
+            head_emb_main = head_emb_main.view(1, -1, self.embedding_size)
+            head_emb_tilde = head_emb_tilde.view(1, -1, self.embedding_size)
+        R_h = head_emb_main * (tail_emb_tilde + self.offset).unsqueeze(1)
+        R_t = tail_emb_main.unsqueeze(1) * (head_emb_tilde + self.offset)
+        R_r = r_bar.unsqueeze(1) * head_emb_main + r.unsqueeze(1) + r_hat.unsqueeze(1) * tail_emb_main.unsqueeze(1)
+        return -self.reduce_embedding(R_h - R_t + R_r)
 
-    # # docstr-coverage: inherited
-    # def score_tails(
-    #     self,
-    #     head_emb: torch.Tensor,
-    #     relation_id: torch.Tensor,
-    #     tail_emb: torch.Tensor,
-    # ) -> torch.Tensor:
-    #     relation_emb = torch.index_select(
-    #         self.relation_embedding, index=relation_id, dim=0
-    #     )
-    #     head_emb_main, head_emb_aux = torch.split(head_emb, self.embedding_size, dim=-1)
-    #     tail_emb_main, tail_emb_aux = torch.split(tail_emb, self.embedding_size, dim=-1)
-    #     if self.normalize:
-    #         head_emb_main = torch.nn.functional.normalize(head_emb_main, p=2, dim=-1)
-    #         tail_emb_main = torch.nn.functional.normalize(tail_emb_main, p=2, dim=-1)
-    #         head_emb_aux = torch.nn.functional.normalize(head_emb_aux, p=2, dim=-1)
-    #         tail_emb_aux = torch.nn.functional.normalize(tail_emb_aux, p=2, dim=-1)
-    #     if self.negative_sample_sharing:
-    #         tail_emb_main = tail_emb_main.view(1, -1, self.embedding_size)
-    #         tail_emb_aux = tail_emb_aux.view(1, -1, self.embedding_size)
-    #     return -self.reduce_embedding(
-    #         head_emb_main.unsqueeze(1) * (tail_emb_aux + self.offset)
-    #         + relation_emb.unsqueeze(1)
-    #         - tail_emb_main * (head_emb_aux + self.offset).unsqueeze(1)
-    #     )
+    # docstr-coverage: inherited
+    def score_tails(
+        self,
+        head_emb: torch.Tensor,
+        relation_id: torch.Tensor,
+        tail_emb: torch.Tensor,
+    ) -> torch.Tensor:
+        relation_emb = torch.index_select(
+            self.relation_embedding, index=relation_id, dim=0
+        )
+        r, r_bar, r_hat = torch.split(relation_emb, self.embedding_size, dim=-1)
+        head_emb_main, head_emb_tilde = torch.split(head_emb, self.embedding_size, dim=-1)
+        tail_emb_main, tail_emb_tilde = torch.split(tail_emb, self.embedding_size, dim=-1)
+        if self.normalize:
+            head_emb_main = torch.nn.functional.normalize(head_emb_main, p=2, dim=-1)
+            tail_emb_main = torch.nn.functional.normalize(tail_emb_main, p=2, dim=-1)
+            head_emb_tilde = torch.nn.functional.normalize(head_emb_tilde, p=2, dim=-1)
+            tail_emb_tilde = torch.nn.functional.normalize(tail_emb_tilde, p=2, dim=-1)
+        if self.negative_sample_sharing:
+            tail_emb_main = tail_emb_main.view(1, -1, self.embedding_size)
+            tail_emb_tilde = tail_emb_tilde.view(1, -1, self.embedding_size)
+        R_h = head_emb_main.unsqueeze(1) * (tail_emb_tilde + self.offset)
+        R_t = tail_emb_main * (head_emb_tilde + self.offset).unsqueeze(1)
+        R_r = r_bar.unsqueeze(1) * head_emb_main.unsqueeze(1) + r.unsqueeze(1) + r_hat.unsqueeze(1) * tail_emb_main
+        return -self.reduce_embedding(R_h - R_t + R_r)
