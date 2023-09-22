@@ -1473,10 +1473,7 @@ class TranS(DistanceBasedScoreFunction):
             tail_emb_main = torch.nn.functional.normalize(tail_emb_main, p=2, dim=-1)
             head_emb_tilde = torch.nn.functional.normalize(head_emb_tilde, p=2, dim=-1)
             tail_emb_tilde = torch.nn.functional.normalize(tail_emb_tilde, p=2, dim=-1)
-        R_h = head_emb_main * (tail_emb_tilde + self.offset)
-        R_t = tail_emb_main * (head_emb_tilde + self.offset)
-        R_r = r_bar * head_emb_main + r + r_hat * tail_emb_main
-        return -self.reduce_embedding(R_h - R_t + R_r)
+        return -self.reduce_embedding(head_emb_main * (tail_emb_tilde + self.offset + r_bar) - tail_emb_main * (head_emb_tilde + self.offset - r_hat) + r)
 
 
     # docstr-coverage: inherited
@@ -1499,11 +1496,8 @@ class TranS(DistanceBasedScoreFunction):
             tail_emb_tilde = torch.nn.functional.normalize(tail_emb_tilde, p=2, dim=-1)
         if self.negative_sample_sharing:
             head_emb_main = head_emb_main.view(1, -1, self.embedding_size)
-            head_emb_tilde = head_emb_tilde.view(1, -1, self.embedding_size)
-        R_h = head_emb_main * (tail_emb_tilde + self.offset).unsqueeze(1)
-        R_t = tail_emb_main.unsqueeze(1) * (head_emb_tilde + self.offset)
-        R_r = r_bar.unsqueeze(1) * head_emb_main + r.unsqueeze(1) + r_hat.unsqueeze(1) * tail_emb_main.unsqueeze(1)
-        return -self.reduce_embedding(R_h - R_t + R_r)
+            head_emb_tilde = head_emb_tilde.view(1, -1, self.embedding_size)     
+        return -self.reduce_embedding(head_emb_main * (tail_emb_tilde + self.offset + r_bar).unsqueeze(1) - tail_emb_main.unsqueeze(1) * (head_emb_tilde + self.offset - r_hat.unsqueeze(1)) + r.unsqueeze(1))
 
     # docstr-coverage: inherited
     def score_tails(
@@ -1525,8 +1519,5 @@ class TranS(DistanceBasedScoreFunction):
             tail_emb_tilde = torch.nn.functional.normalize(tail_emb_tilde, p=2, dim=-1)
         if self.negative_sample_sharing:
             tail_emb_main = tail_emb_main.view(1, -1, self.embedding_size)
-            tail_emb_tilde = tail_emb_tilde.view(1, -1, self.embedding_size)
-        R_h = head_emb_main.unsqueeze(1) * (tail_emb_tilde + self.offset)
-        R_t = tail_emb_main * (head_emb_tilde + self.offset).unsqueeze(1)
-        R_r = r_bar.unsqueeze(1) * head_emb_main.unsqueeze(1) + r.unsqueeze(1) + r_hat.unsqueeze(1) * tail_emb_main
-        return -self.reduce_embedding(R_h - R_t + R_r)
+            tail_emb_tilde = tail_emb_tilde.view(1, -1, self.embedding_size)        
+        return -self.reduce_embedding(head_emb_main.unsqueeze(1) * (tail_emb_tilde + self.offset + r_bar.unsqueeze(1)) - tail_emb_main * (head_emb_tilde + self.offset - r_hat).unsqueeze(1) + r.unsqueeze(1))
