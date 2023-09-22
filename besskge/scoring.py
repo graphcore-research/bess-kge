@@ -1434,8 +1434,8 @@ class TranS(DistanceBasedScoreFunction):
         if isinstance(relation_initializer, list):
             relation_initializer = 3 * relation_initializer
         # self.relation_embedding[..., :embedding_size] : relation embedding
-        # self.relation_embedding[..., :embedding_size] : bar relation embedding
-        # self.relation_embedding[..., :embedding_size] : hat relation embedding
+        # self.relation_embedding[..., embedding_size:2*embedding_size] : bar relation embedding
+        # self.relation_embedding[..., 2*embedding_size:] : hat relation embedding
         self.relation_embedding = initialize_relation_embedding(
             n_relation_type,
             inverse_relations,
@@ -1447,7 +1447,7 @@ class TranS(DistanceBasedScoreFunction):
             == self.relation_embedding.shape[-1] / 3
             == embedding_size
         ), (
-            "Trans requires `2*embedding_size` embedding parameters for each entity"
+            "TranS requires `2*embedding_size` embedding parameters for each entity"
             " and `3*embedding_size` embedding parameters for each relation"
         )
         self.embedding_size = embedding_size
