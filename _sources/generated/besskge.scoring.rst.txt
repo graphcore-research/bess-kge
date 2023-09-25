@@ -32,6 +32,7 @@ besskge.scoring
       MatrixDecompositionScoreFunction
       PairRE
       RotatE
+      TranS
       TransE
       TripleRE
    
