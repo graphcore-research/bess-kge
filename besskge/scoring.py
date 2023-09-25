@@ -1434,8 +1434,8 @@ class TranS(DistanceBasedScoreFunction):
         if isinstance(relation_initializer, list):
             relation_initializer = 3 * relation_initializer
         # self.relation_embedding[..., :embedding_size] : relation embedding
-        # self.relation_embedding[..., embedding_size:2*embedding_size] : bar relation embedding
-        # self.relation_embedding[..., 2*embedding_size:] : hat relation embedding
+        # self.relation_embedding[..., embedding_size:2*embedding_size] : bar r embedding
+        # self.relation_embedding[..., 2*embedding_size:] : hat r embedding
         self.relation_embedding = initialize_relation_embedding(
             n_relation_type,
             inverse_relations,
@@ -1466,15 +1466,22 @@ class TranS(DistanceBasedScoreFunction):
             self.relation_embedding, index=relation_id, dim=0
         )
         r, r_bar, r_hat = torch.split(relation_emb, self.embedding_size, dim=-1)
-        head_emb_main, head_emb_tilde = torch.split(head_emb, self.embedding_size, dim=-1)
-        tail_emb_main, tail_emb_tilde = torch.split(tail_emb, self.embedding_size, dim=-1)
+        head_emb_main, head_emb_tilde = torch.split(
+            head_emb, self.embedding_size, dim=-1
+        )
+        tail_emb_main, tail_emb_tilde = torch.split(
+            tail_emb, self.embedding_size, dim=-1
+        )
         if self.normalize:
             head_emb_main = torch.nn.functional.normalize(head_emb_main, p=2, dim=-1)
             tail_emb_main = torch.nn.functional.normalize(tail_emb_main, p=2, dim=-1)
             head_emb_tilde = torch.nn.functional.normalize(head_emb_tilde, p=2, dim=-1)
             tail_emb_tilde = torch.nn.functional.normalize(tail_emb_tilde, p=2, dim=-1)
-        return -self.reduce_embedding(head_emb_main * (tail_emb_tilde + self.offset + r_bar) - tail_emb_main * (head_emb_tilde + self.offset - r_hat) + r)
-
+        return -self.reduce_embedding(
+            head_emb_main * (tail_emb_tilde + self.offset + r_bar)
+            - tail_emb_main * (head_emb_tilde + self.offset - r_hat)
+            + r
+        )
 
     # docstr-coverage: inherited
     def score_heads(
@@ -1487,8 +1494,12 @@ class TranS(DistanceBasedScoreFunction):
             self.relation_embedding, index=relation_id, dim=0
         )
         r, r_bar, r_hat = torch.split(relation_emb, self.embedding_size, dim=-1)
-        head_emb_main, head_emb_tilde = torch.split(head_emb, self.embedding_size, dim=-1)
-        tail_emb_main, tail_emb_tilde = torch.split(tail_emb, self.embedding_size, dim=-1)
+        head_emb_main, head_emb_tilde = torch.split(
+            head_emb, self.embedding_size, dim=-1
+        )
+        tail_emb_main, tail_emb_tilde = torch.split(
+            tail_emb, self.embedding_size, dim=-1
+        )
         if self.normalize:
             head_emb_main = torch.nn.functional.normalize(head_emb_main, p=2, dim=-1)
             tail_emb_main = torch.nn.functional.normalize(tail_emb_main, p=2, dim=-1)
@@ -1496,8 +1507,13 @@ class TranS(DistanceBasedScoreFunction):
             tail_emb_tilde = torch.nn.functional.normalize(tail_emb_tilde, p=2, dim=-1)
         if self.negative_sample_sharing:
             head_emb_main = head_emb_main.view(1, -1, self.embedding_size)
-            head_emb_tilde = head_emb_tilde.view(1, -1, self.embedding_size)     
-        return -self.reduce_embedding(head_emb_main * (tail_emb_tilde + self.offset + r_bar).unsqueeze(1) - tail_emb_main.unsqueeze(1) * (head_emb_tilde + self.offset - r_hat.unsqueeze(1)) + r.unsqueeze(1))
+            head_emb_tilde = head_emb_tilde.view(1, -1, self.embedding_size)
+        return -self.reduce_embedding(
+            head_emb_main * (tail_emb_tilde + self.offset + r_bar).unsqueeze(1)
+            - tail_emb_main.unsqueeze(1)
+            * (head_emb_tilde + self.offset - r_hat.unsqueeze(1))
+            + r.unsqueeze(1)
+        )
 
     # docstr-coverage: inherited
     def score_tails(
@@ -1510,8 +1526,12 @@ class TranS(DistanceBasedScoreFunction):
             self.relation_embedding, index=relation_id, dim=0
         )
         r, r_bar, r_hat = torch.split(relation_emb, self.embedding_size, dim=-1)
-        head_emb_main, head_emb_tilde = torch.split(head_emb, self.embedding_size, dim=-1)
-        tail_emb_main, tail_emb_tilde = torch.split(tail_emb, self.embedding_size, dim=-1)
+        head_emb_main, head_emb_tilde = torch.split(
+            head_emb, self.embedding_size, dim=-1
+        )
+        tail_emb_main, tail_emb_tilde = torch.split(
+            tail_emb, self.embedding_size, dim=-1
+        )
         if self.normalize:
             head_emb_main = torch.nn.functional.normalize(head_emb_main, p=2, dim=-1)
             tail_emb_main = torch.nn.functional.normalize(tail_emb_main, p=2, dim=-1)
@@ -1519,5 +1539,11 @@ class TranS(DistanceBasedScoreFunction):
             tail_emb_tilde = torch.nn.functional.normalize(tail_emb_tilde, p=2, dim=-1)
         if self.negative_sample_sharing:
             tail_emb_main = tail_emb_main.view(1, -1, self.embedding_size)
-            tail_emb_tilde = tail_emb_tilde.view(1, -1, self.embedding_size)        
-        return -self.reduce_embedding(head_emb_main.unsqueeze(1) * (tail_emb_tilde + self.offset + r_bar.unsqueeze(1)) - tail_emb_main * (head_emb_tilde + self.offset - r_hat).unsqueeze(1) + r.unsqueeze(1))
+            tail_emb_tilde = tail_emb_tilde.view(1, -1, self.embedding_size)
+        return -self.reduce_embedding(
+            head_emb_main.unsqueeze(1)
+            * (tail_emb_tilde + self.offset + r_bar.unsqueeze(1))
+            - tail_emb_main * (head_emb_tilde + self.offset - r_hat).unsqueeze(1)
+            + r.unsqueeze(1)
+        )
+        
