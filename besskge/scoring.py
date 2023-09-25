@@ -1546,4 +1546,3 @@ class TranS(DistanceBasedScoreFunction):
             - tail_emb_main * (head_emb_tilde + self.offset - r_hat).unsqueeze(1)
             + r.unsqueeze(1)
         )
-        
