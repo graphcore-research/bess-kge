@@ -15,7 +15,7 @@ Setting up a VS Code server on [Paperspace](https://www.paperspace.com/graphcore
     https://console.paperspace.com/github/{USERID}/{REPONAME}?container=graphcore%2Fpytorch-paperspace%3A3.3.0-ubuntu-20.04-20230703&amp;machine=Free-IPU-POD4
     ```    
 
-    where `{USERID}/{REPOPNAME}` is the github address of the forked repository (e.g. `graphcore-research/besskge` for the original repo).
+    where `{USERID}/{REPOPNAME}` is the github address of the forked repository (e.g. `graphcore-research/bess-kge` for the original repo).
 
 3. Start the machine (this will also clone the repo for you) and open up a terminal from the left pane.
 
