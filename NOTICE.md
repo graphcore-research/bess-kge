@@ -2,9 +2,7 @@ Copyright (c) 2023 Graphcore Ltd. Licensed under the MIT License.
 
 The included code is released under an MIT license, (see [LICENSE](LICENSE)).
 
-The ogbl-biokg and ogbl-wikikg2 datasets are licensed under CC-0.
-
-The [YAGO3 dataset](https://yago-knowledge.org/downloads/yago-3) by the [YAGO team](https://yago-knowledge.org/contributors) of the [Max-Planck Institute for Informatics](https://www.mpi-inf.mpg.de/home/) and [Telcom Paris](https://www.telecom-paris.fr/) is licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+## Dependencies
 
 Our dependencies are (see [requirements.txt](requirements.txt)):
 
@@ -18,8 +16,21 @@ Our dependencies are (see [requirements.txt](requirements.txt)):
 
 We also use additional Python dependencies for development/testing/documentation (see [requirements-dev.txt](requirements-dev.txt)).
 
+## Dataset disclaimer
 
-**This directory includes derived work from the following:**
+This repository provides dataloaders for third party datasets. The use of these datasets is at own risk and Graphcore offers no warranties of any kind. It is the user's responsibility to comply with all license requirements for datasets downloaded with dataloaders in this repository.
+
+The tutorial notebooks make use of the following datasets: 
+
+* [ogbl-biokg](https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg), licensed under CC-0;
+
+* [ogbl-wikikg2](https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2), licensed under CC-0;
+
+* [YAGO3 dataset](https://yago-knowledge.org/downloads/yago-3) by the [YAGO team](https://yago-knowledge.org/contributors) of the [Max-Planck Institute for Informatics](https://www.mpi-inf.mpg.de/home/) and [Telcom Paris](https://www.telecom-paris.fr/), licensed under [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+
+## Derived work
+
+This directory includes derived work from the following:
 
 ---
 
