@@ -1,5 +1,6 @@
 # BESS-KGE
 ![Continuous integration](https://github.com/graphcore-research/bess-kge/actions/workflows/ci.yaml/badge.svg)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
 
 [**Installation guide**](#usage)
 | [**Tutorials**](#paperspace-notebook-tutorials)
@@ -76,6 +77,17 @@ Additional variations of the distribution scheme are detailed in the [BESS-KGE d
 ### Modules
 
 All APIs are documented in the [BESS-KGE API documentation](https://graphcore-research.github.io/bess-kge/API_reference.html).
+
+### Datasets
+
+BESS-KGE provides built-in dataloaders for the following datasets. Notice that the use of these datasets is at own risk and Graphcore offers no warranties of any kind. It is the user's responsibility to comply with all license requirements for datasets downloaded with dataloaders in this repository.
+
+| Dataset | Builder method | Entities | Entity types | Relation types | Triples | License | 
+| --- | --- | --- | --- | --- | --- | --- |
+| [ogbl-biokg](https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg) | [KGDataset.build_ogbl_biokg](https://graphcore-research.github.io/bess-kge/generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_ogbl_biokg) | 93,773 | 5 | 51 | 5,088,450 | CC-0 |
+| [ogbl-wikikg2](https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg) | [KGDataset.build_ogbl_wikikg2](https://graphcore-research.github.io/bess-kge/generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_ogbl_wikikg2) | 2,500,604 | 1 | 535 | 16,968,094 | CC-0 |
+| [YAGO3-10](https://yago-knowledge.org/downloads/yago-3) | [KGDataset.build_yago310](https://graphcore-research.github.io/bess-kge/generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_yago310) | 123,182 | 1 | 37 | 1,089,040 | CC BY 3.0 |
+| [OpenBioLink2020](https://github.com/openbiolink/openbiolink#benchmark-dataset) | [KGDataset.build_openbiolink](https://graphcore-research.github.io/bess-kge/generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_openbiolink) | 184,635 | 7 | 28 | 4,563,405 | [link](https://github.com/openbiolink/openbiolink#Source-databases-and-their-licenses) |
 
 ### Known limitations
 
@@ -182,7 +194,7 @@ For pointers on how to run BESS-KGE on a custom Knowledge Graph dataset, see the
 
 ## Contributing
 
-You can contribute to the BESS-KGE project. See [How to contribute to the BESS-KGE project](CONTRIBUTING.md)
+You can contribute to the BESS-KGE project: PRs are welcome! For details, see [How to contribute to the BESS-KGE project](CONTRIBUTING.md).
 
 ## References
 BESS: Balanced Entity Sampling and Sharing for Large-Scale Knowledge Graph Completion ([arXiv](https://arxiv.org/abs/2211.12281))
@@ -191,6 +203,6 @@ BESS: Balanced Entity Sampling and Sharing for Large-Scale Knowledge Graph Compl
 
 Copyright (c) 2023 Graphcore Ltd. Licensed under the MIT License.
 
-The included code is released under the MIT license, (see [details of the license](LICENSE)).
+The included code is released under the MIT license (see [details of the license](LICENSE)).
 
 See [notices](NOTICE.md) for dependencies, credits, derived work and further details.

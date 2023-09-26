@@ -8,6 +8,7 @@ as collections of (h,r,t) triples.
 import dataclasses
 import pickle
 import tarfile
+import zipfile
 from io import BytesIO
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
@@ -73,221 +74,6 @@ class KGDataset:
             return types
         else:
             return None
-
-    @classmethod
-    def build_biokg(cls, root: Path) -> "KGDataset":
-        """
-        Build the ogbl-biokg dataset :cite:p:`OGB`
-
-        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg
-
-        :param root:
-            Local path to the dataset. If the dataset is not present in this
-            location, then it is downloaded and stored here.
-
-        :return: The ogbl-biokg KGDataset.
-        """
-        dataset = ogb.linkproppred.LinkPropPredDataset(name="ogbl-biokg", root=root)
-        split_edge = dataset.get_edge_split()
-        n_relation_type = len(dataset[0]["edge_reltype"].keys())
-        type_counts = dataset[0]["num_nodes_dict"]
-        type_offsets = np.concatenate(
-            ([0], np.cumsum(np.fromiter(type_counts.values(), dtype=int)))
-        )
-        n_entity = type_offsets[-1]
-        type_offsets = dict(zip(type_counts.keys(), type_offsets))
-        triples = {}
-        neg_heads = {}
-        neg_tails = {}
-        for part, hrt in split_edge.items():
-            h_label, h_type_idx = np.unique(hrt["head_type"], return_inverse=True)
-            t_label, t_type_idx = np.unique(hrt["tail_type"], return_inverse=True)
-            h_type_offsets = np.array([type_offsets[lab] for lab in h_label])
-            t_type_offsets = np.array([type_offsets[lab] for lab in t_label])
-            hrt["head"] += h_type_offsets[h_type_idx]
-            hrt["tail"] += t_type_offsets[t_type_idx]
-            triples[part] = np.stack(
-                [hrt["head"], hrt["relation"], hrt["tail"]], axis=-1
-            )
-            if part != "train":
-                neg_heads[part] = hrt["head_neg"] + h_type_offsets[h_type_idx][:, None]
-                neg_tails[part] = hrt["tail_neg"] + t_type_offsets[t_type_idx][:, None]
-
-        ent_dict: List[str] = []
-        for k in type_offsets.keys():
-            ent_dict.extend(
-                pd.read_csv(root.joinpath(f"ogbl_biokg/mapping/{k}_entidx2name.csv.gz"))
-                .sort_values("ent idx")["ent name"]
-                .values.tolist()
-            )
-        rel_dict = (
-            pd.read_csv(root.joinpath("ogbl_biokg/mapping/relidx2relname.csv.gz"))
-            .sort_values("rel idx")["rel name"]
-            .values.tolist()
-        )
-
-        return cls(
-            n_entity=n_entity,
-            n_relation_type=n_relation_type,
-            entity_dict=ent_dict,
-            relation_dict=rel_dict,
-            type_offsets=type_offsets,
-            triples=triples,
-            neg_heads=neg_heads,
-            neg_tails=neg_tails,
-        )
-
-    @classmethod
-    def build_wikikg2(cls, root: Path) -> "KGDataset":
-        """
-        Build the ogbl-wikikg2 dataset :cite:p:`OGB`
-
-        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2
-
-        :param root:
-            Local path to the dataset. If the dataset is not present in this
-            location, then it is downloaded and stored here.
-
-        :return: The ogbl-wikikg2 KGDataset.
-        """
-        dataset = ogb.linkproppred.LinkPropPredDataset(name="ogbl-wikikg2", root=root)
-        split_data = dataset.get_edge_split()
-
-        triples = {}
-        neg_heads = {}
-        neg_tails = {}
-        for part, hrt in split_data.items():
-            triples[part] = np.stack(
-                [hrt["head"], hrt["relation"], hrt["tail"]], axis=-1
-            )
-            if part != "train":
-                neg_heads[part] = hrt["head_neg"]
-                neg_tails[part] = hrt["tail_neg"]
-
-        ent_dict = (
-            pd.read_csv(root.joinpath("ogbl_wikikg2/mapping/nodeidx2entityid.csv.gz"))
-            .sort_values("node idx")["entity id"]
-            .values.tolist()
-        )
-        rel_dict = (
-            pd.read_csv(root.joinpath("ogbl_wikikg2/mapping/reltype2relid.csv.gz"))
-            .sort_values("reltype")["rel id"]
-            .values.tolist()
-        )
-
-        return cls(
-            n_entity=dataset.graph["num_nodes"],
-            n_relation_type=split_data["train"]["relation"].max() + 1,
-            entity_dict=ent_dict,
-            relation_dict=rel_dict,
-            type_offsets=None,
-            triples=triples,
-            neg_heads=neg_heads,
-            neg_tails=neg_tails,
-        )
-
-    @classmethod
-    def build_yago310(cls, root: Path) -> "KGDataset":
-        """
-        Build the YAGO3-10 dataset.
-        This is the subgraph of the YAGO3 knowledge
-        graph :cite:p:`YAGO3` containing only entities which have at least 10
-        relations associated to them. First used in :cite:p:`ConvE`.
-
-        .. seealso:: https://yago-knowledge.org/downloads/yago-3
-
-        :param root:
-            Local path to the dataset. If the dataset is not present in this
-            location, then it is downloaded and stored here.
-
-        :return: The YAGO3-10 KGDataset.
-        """
-
-        if not (
-            root.joinpath("train.txt").is_file()
-            and root.joinpath("valid.txt").is_file()
-            and root.joinpath("test.txt").is_file()
-        ):
-            print("Downloading dataset...")
-            res = requests.get(
-                url="https://github.com/TimDettmers/ConvE/raw/master/YAGO3-10.tar.gz"
-            )
-            with tarfile.open(fileobj=BytesIO(res.content)) as tarf:
-                tarf.extractall(path=root)
-
-        train = np.loadtxt(root.joinpath("train.txt"), delimiter="\t", dtype=str)
-        valid = np.loadtxt(root.joinpath("valid.txt"), delimiter="\t", dtype=str)
-        test = np.loadtxt(root.joinpath("test.txt"), delimiter="\t", dtype=str)
-
-        entity_dict, entity_id = np.unique(
-            np.concatenate(
-                [
-                    train[:, 0],
-                    train[:, 2],
-                    valid[:, 0],
-                    valid[:, 2],
-                    test[:, 0],
-                    test[:, 2],
-                ]
-            ),
-            return_inverse=True,
-        )
-        entity_split_limits = np.cumsum(
-            [
-                train.shape[0],
-                train.shape[0],
-                valid.shape[0],
-                valid.shape[0],
-                test.shape[0],
-            ]
-        )
-        (
-            train_head_id,
-            train_tail_id,
-            validation_head_id,
-            validation_tail_id,
-            test_head_id,
-            test_tail_id,
-        ) = np.split(entity_id, entity_split_limits)
-
-        rel_dict, rel_id = np.unique(
-            np.concatenate([train[:, 1], valid[:, 1], test[:, 1]]),
-            return_inverse=True,
-        )
-        relation_split_limits = np.cumsum([train.shape[0], valid.shape[0]])
-        train_rel_id, validation_rel_id, test_rel_id = np.split(
-            rel_id, relation_split_limits
-        )
-
-        triples = {
-            "train": np.concatenate(
-                [train_head_id[:, None], train_rel_id[:, None], train_tail_id[:, None]],
-                axis=1,
-            ),
-            "validation": np.concatenate(
-                [
-                    validation_head_id[:, None],
-                    validation_rel_id[:, None],
-                    validation_tail_id[:, None],
-                ],
-                axis=1,
-            ),
-            "test": np.concatenate(
-                [test_head_id[:, None], test_rel_id[:, None], test_tail_id[:, None]],
-                axis=1,
-            ),
-        }
-
-        return cls(
-            n_entity=len(entity_dict),
-            n_relation_type=len(rel_dict),
-            entity_dict=entity_dict.tolist(),
-            relation_dict=rel_dict.tolist(),
-            type_offsets=None,
-            triples=triples,
-            neg_heads=None,
-            neg_tails=None,
-        )
 
     @classmethod
     def from_triples(
@@ -434,6 +220,225 @@ class KGDataset:
                 type_offsets=type_offsets,
                 triples=triples,
             )
+
+    @classmethod
+    def build_ogbl_biokg(cls, root: Path) -> "KGDataset":
+        """
+        Build the ogbl-biokg dataset :cite:p:`OGB`
+
+        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg
+
+        :param root:
+            Local path to the dataset. If the dataset is not present in this
+            location, then it is downloaded and stored here.
+
+        :return: The ogbl-biokg KGDataset.
+        """
+        dataset = ogb.linkproppred.LinkPropPredDataset(name="ogbl-biokg", root=root)
+        split_edge = dataset.get_edge_split()
+        n_relation_type = len(dataset[0]["edge_reltype"].keys())
+        type_counts = dataset[0]["num_nodes_dict"]
+        type_offsets = np.concatenate(
+            ([0], np.cumsum(np.fromiter(type_counts.values(), dtype=int)))
+        )
+        n_entity = type_offsets[-1]
+        type_offsets = dict(zip(type_counts.keys(), type_offsets))
+        triples = {}
+        neg_heads = {}
+        neg_tails = {}
+        for part, hrt in split_edge.items():
+            h_label, h_type_idx = np.unique(hrt["head_type"], return_inverse=True)
+            t_label, t_type_idx = np.unique(hrt["tail_type"], return_inverse=True)
+            h_type_offsets = np.array([type_offsets[lab] for lab in h_label])
+            t_type_offsets = np.array([type_offsets[lab] for lab in t_label])
+            hrt["head"] += h_type_offsets[h_type_idx]
+            hrt["tail"] += t_type_offsets[t_type_idx]
+            triples[part] = np.stack(
+                [hrt["head"], hrt["relation"], hrt["tail"]], axis=-1
+            )
+            if part != "train":
+                neg_heads[part] = hrt["head_neg"] + h_type_offsets[h_type_idx][:, None]
+                neg_tails[part] = hrt["tail_neg"] + t_type_offsets[t_type_idx][:, None]
+
+        ent_dict: List[str] = []
+        for k in type_offsets.keys():
+            ent_dict.extend(
+                pd.read_csv(root.joinpath(f"ogbl_biokg/mapping/{k}_entidx2name.csv.gz"))
+                .sort_values("ent idx")["ent name"]
+                .values.tolist()
+            )
+        rel_dict = (
+            pd.read_csv(root.joinpath("ogbl_biokg/mapping/relidx2relname.csv.gz"))
+            .sort_values("rel idx")["rel name"]
+            .values.tolist()
+        )
+
+        return cls(
+            n_entity=n_entity,
+            n_relation_type=n_relation_type,
+            entity_dict=ent_dict,
+            relation_dict=rel_dict,
+            type_offsets=type_offsets,
+            triples=triples,
+            neg_heads=neg_heads,
+            neg_tails=neg_tails,
+        )
+
+    @classmethod
+    def build_ogbl_wikikg2(cls, root: Path) -> "KGDataset":
+        """
+        Build the ogbl-wikikg2 dataset :cite:p:`OGB`
+
+        .. seealso:: https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2
+
+        :param root:
+            Local path to the dataset. If the dataset is not present in this
+            location, then it is downloaded and stored here.
+
+        :return: The ogbl-wikikg2 KGDataset.
+        """
+        dataset = ogb.linkproppred.LinkPropPredDataset(name="ogbl-wikikg2", root=root)
+        split_data = dataset.get_edge_split()
+
+        triples = {}
+        neg_heads = {}
+        neg_tails = {}
+        for part, hrt in split_data.items():
+            triples[part] = np.stack(
+                [hrt["head"], hrt["relation"], hrt["tail"]], axis=-1
+            )
+            if part != "train":
+                neg_heads[part] = hrt["head_neg"]
+                neg_tails[part] = hrt["tail_neg"]
+
+        ent_dict = (
+            pd.read_csv(root.joinpath("ogbl_wikikg2/mapping/nodeidx2entityid.csv.gz"))
+            .sort_values("node idx")["entity id"]
+            .values.tolist()
+        )
+        rel_dict = (
+            pd.read_csv(root.joinpath("ogbl_wikikg2/mapping/reltype2relid.csv.gz"))
+            .sort_values("reltype")["rel id"]
+            .values.tolist()
+        )
+
+        return cls(
+            n_entity=dataset.graph["num_nodes"],
+            n_relation_type=split_data["train"]["relation"].max() + 1,
+            entity_dict=ent_dict,
+            relation_dict=rel_dict,
+            type_offsets=None,
+            triples=triples,
+            neg_heads=neg_heads,
+            neg_tails=neg_tails,
+        )
+
+    @classmethod
+    def build_yago310(cls, root: Path) -> "KGDataset":
+        """
+        Build the YAGO3-10 dataset.
+        This is the subgraph of the YAGO3 knowledge
+        graph :cite:p:`YAGO3` containing only entities which have at least 10
+        relations associated to them. First used in :cite:p:`ConvE`.
+
+        .. seealso:: https://yago-knowledge.org/downloads/yago-3
+
+        :param root:
+            Local path to the dataset. If the dataset is not present in this
+            location, then it is downloaded and stored here.
+
+        :return: The YAGO3-10 KGDataset.
+        """
+
+        if not (
+            root.joinpath("train.txt").is_file()
+            and root.joinpath("valid.txt").is_file()
+            and root.joinpath("test.txt").is_file()
+        ):
+            print("Downloading dataset...")
+            res = requests.get(
+                url="https://github.com/TimDettmers/ConvE/raw/master/YAGO3-10.tar.gz"
+            )
+            with tarfile.open(fileobj=BytesIO(res.content)) as tarf:
+                tarf.extractall(path=root)
+
+        train_triples = pd.read_csv(
+            root.joinpath("train.txt"), delimiter="\t", dtype=str, header=None
+        )
+        valid_triples = pd.read_csv(
+            root.joinpath("valid.txt"), delimiter="\t", dtype=str, header=None
+        )
+        test_triples = pd.read_csv(
+            root.joinpath("test.txt"), delimiter="\t", dtype=str, header=None
+        )
+
+        return cls.from_dataframe(
+            {"train": train_triples, "valid": valid_triples, "test": test_triples},
+            head_column=0,
+            relation_column=1,
+            tail_column=2,
+        )
+
+    @classmethod
+    def build_openbiolink(cls, root: Path) -> "KGDataset":
+        """
+        Build the high-quality version of the OpenBioLink2020
+        dataset :cite:p:`openbiolink`
+
+        .. seealso:: https://github.com/openbiolink/openbiolink#benchmark-dataset
+
+        :param root:
+            Local path to the dataset. If the dataset is not present in this
+            location, then it is downloaded and stored here.
+
+        :return: The HQ OpenBioLink2020 KGDataset.
+        """
+
+        if not (
+            root.joinpath("HQ_DIR/train_test_data/train_sample.csv").is_file()
+            and root.joinpath("HQ_DIR/train_test_data/val_sample.csv").is_file()
+            and root.joinpath("HQ_DIR/train_test_data/test_sample.csv").is_file()
+            and root.joinpath("HQ_DIR/train_test_data/train_val_nodes.csv").is_file()
+        ):
+            print("Downloading dataset...")
+            res = requests.get(url="https://zenodo.org/record/3834052/files/HQ_DIR.zip")
+            with zipfile.ZipFile(BytesIO(res.content)) as zip_f:
+                zip_f.extractall(path=root)
+
+        column_names = ["h_label", "r_label", "t_label", "quality", "TP/TN", "source"]
+        train_triples = pd.read_csv(
+            root.joinpath("HQ_DIR/train_test_data/train_sample.csv"),
+            header=None,
+            names=column_names,
+            sep="\t",
+        )
+        valid_triples = pd.read_csv(
+            root.joinpath("HQ_DIR/train_test_data/val_sample.csv"),
+            header=None,
+            names=column_names,
+            sep="\t",
+        )
+        test_triples = pd.read_csv(
+            root.joinpath("HQ_DIR/train_test_data/test_sample.csv"),
+            header=None,
+            names=column_names,
+            sep="\t",
+        )
+
+        entity_types = pd.read_csv(
+            root.joinpath("HQ_DIR/train_test_data/train_val_nodes.csv"),
+            header=None,
+            names=["ent_label", "ent_type"],
+            sep="\t",
+        ).set_index("ent_label")["ent_type"]
+
+        return cls.from_dataframe(
+            {"train": train_triples, "valid": valid_triples, "test": test_triples},
+            head_column="h_label",
+            relation_column="r_label",
+            tail_column="t_label",
+            entity_types=entity_types,
+        )
 
     def save(self, out_file: Path) -> None:
         """
