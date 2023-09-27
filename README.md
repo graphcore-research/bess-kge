@@ -84,7 +84,7 @@ BESS-KGE provides built-in dataloaders for the following datasets. Notice that t
 
 | Dataset | Builder method | Entities | Entity types | Relation types | Triples | License | 
 | --- | --- | --- | --- | --- | --- | --- |
-| [ogbl-biokg](https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg) | [KGDataset.build_ogbl_biokg](https://graphcore-research.github.io/bess-kge/generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_ogbl_biokg) | 93,773 | 5 | 51 | 5,088,450 | CC-0 |
+| [ogbl-biokg](https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg) | [KGDataset.build_ogbl_biokg](https://graphcore-research.github.io/bess-kge/generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_ogbl_biokg) | 93,773 | 5 | 51 | 5,088,434 | CC-0 |
 | [ogbl-wikikg2](https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2) | [KGDataset.build_ogbl_wikikg2](https://graphcore-research.github.io/bess-kge/generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_ogbl_wikikg2) | 2,500,604 | 1 | 535 | 16,968,094 | CC-0 |
 | [YAGO3-10](https://yago-knowledge.org/downloads/yago-3) | [KGDataset.build_yago310](https://graphcore-research.github.io/bess-kge/generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_yago310) | 123,182 | 1 | 37 | 1,089,040 | CC BY 3.0 |
 | [OpenBioLink2020](https://github.com/openbiolink/openbiolink#benchmark-dataset) | [KGDataset.build_openbiolink](https://graphcore-research.github.io/bess-kge/generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_openbiolink) | 184,635 | 7 | 28 | 4,563,405 | [link](https://github.com/openbiolink/openbiolink#Source-databases-and-their-licenses) |
