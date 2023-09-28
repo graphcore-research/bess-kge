@@ -49,7 +49,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Developers guide</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#vs-code-server-on-paperspace">VS Code server on Paperspace</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setup-on-local-machine">Setup on local machine</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#tips">Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#development-tips">Development tips</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
@@ -81,20 +81,31 @@
              
   <section id="how-to-contribute-to-the-bess-kge-project">
 <h1>How to contribute to the BESS-KGE project<a class="headerlink" href="#how-to-contribute-to-the-bess-kge-project" title="Permalink to this heading"></a></h1>
+<p><img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square" /></p>
 <p>You can contribute to the development of the BESS-KGE project, even if you don’t have access to IPUs (you can use the <a class="reference external" href="https://docs.graphcore.ai/projects/poptorch-user-guide/en/3.2.0/reference.html#poptorch.Options.useIpuModel">IPUModel</a> to emulate most functionalities of the physical hardware).</p>
 <section id="vs-code-server-on-paperspace">
 <h2>VS Code server on Paperspace<a class="headerlink" href="#vs-code-server-on-paperspace" title="Permalink to this heading"></a></h2>
-<p>Setting up a VS Code server on <a class="reference external" href="https://www.paperspace.com/graphcore">Paperspace</a> will allow you to tunnel into a machine with IPUs from the VS Code web editor or the desktop app. This requires minimum effort and is an excellent solution for developing and testing code directly on IPU hardware.</p>
-<p>You can launch a 6-hours session on a Paperspace machine with access to 4 IPUs <strong>for free</strong> by clicking on this button: <a href="https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-paperspace%3A3.3.0-ubuntu-20.04-20230703&amp;machine=Free-IPU-POD4"><img src="https://assets.paperspace.io/img/gradient-badge.svg" alt="Run on Gradient"></a></p>
-<p>Start the machine (this will also clone the repo for you) and open up a terminal from the left pane.</p>
-<p><img alt="terminal_pane" src="_images/Terminal1.png" /></p>
-<p>In the terminal, run the command</p>
+<p>Setting up a VS Code server on <a class="reference external" href="https://www.paperspace.com/graphcore">Paperspace</a> will allow you to tunnel into a machine with IPUs from the VS Code web editor or the desktop app. This requires minimum effort and is an excellent solution for developing and testing code directly on IPU hardware. Here’s how to do it.</p>
+<ol class="arabic">
+<li><p>Fork the <a class="reference external" href="https://github.com/graphcore-research/bess-kge">BESS-KGE repository</a>.</p></li>
+<li><p>You can launch a 6-hours session on a Paperspace machine with access to 4 IPUs <strong>for free</strong> by using a link of the form:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>https://console.paperspace.com/github/{USERID}/{REPONAME}?container=graphcore%2Fpytorch-paperspace%3A3.3.0-ubuntu-20.04-20230703&amp;amp;machine=Free-IPU-POD4
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">{USERID}/{REPOPNAME}</span></code> is the github address of the forked repository (e.g. <code class="docutils literal notranslate"><span class="pre">graphcore-research/bess-kge</span></code> for the original repo).</p>
+</li>
+<li><p>Start the machine (this will also clone the repo for you) and open up a terminal from the left pane.</p>
+<p><img alt="terminal_pane" src="_images/Terminal3.png" /></p>
+</li>
+<li><p>In the terminal, run the command</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>bash<span class="w"> </span>.gradient/launch_vscode_server.sh<span class="w"> </span><span class="o">{</span>tunnel-name<span class="o">}</span>
 </pre></div>
 </div>
-<p>where <code class="docutils literal notranslate"><span class="pre">tunnel-name</span></code> is an optional argument that you can use to define the name of the remote tunnel (if not set, it will default to <code class="docutils literal notranslate"><span class="pre">ipu-paperspace</span></code>).</p>
-<p>The script will download and install all dependencies and start the tunnel. You will be asked to authorize the tunnel through GitHub, before being provided with the tunnel link. Please refer to <a class="reference external" href="https://ipu.dev/fmo4AZ">this notebook</a> for additional details on these steps and to connect the VS Code desktop app to the remote tunnel.</p>
-<p>Once VS Code is connected to the Paperspace machine, run <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">build</span></code> to build all custom ops. You are now ready to create a new git branch and start developing!</p>
+<p>where <code class="docutils literal notranslate"><span class="pre">tunnel-name</span></code> is an optional argument that you can use to define the name of the remote tunnel (if not set, it will default to <code class="docutils literal notranslate"><span class="pre">ipu-paperspace</span></code>). The script will download and install all dependencies and start the tunnel.</p>
+</li>
+<li><p>When asked, authorize the tunnel through GitHub (with an account having writing privileges to the forked repository). You will be then provided with the tunnel link. Please refer to <a class="reference external" href="https://ipu.dev/fmo4AZ">this notebook</a> for additional details on these steps and to connect the VS Code desktop app to the remote tunnel.</p></li>
+<li><p>Once VS Code is connected to the Paperspace machine, run <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">build</span></code> to build all custom ops. You are now ready to start developing!</p></li>
+</ol>
 <p>When closing a session and stopping the Paperspace machine, remember to unregister the tunnel in VS Code as explained in the “Common Issues” paragraph of the <a class="reference external" href="https://ipu.dev/fmo4AZ">notebook</a>. To resume your work, just access the clone of the BESS-KGE repo in the “Projects” section of your Paperspace profile, start a new machine and repeat the operations above. All code changes to the local repo, as well as VS Code settings and extensions installed, will persist across sessions.</p>
 </section>
 <section id="setup-on-local-machine">
@@ -112,11 +123,13 @@ pip<span class="w"> </span>install<span class="w"> </span><span class="nv">$POPL
 pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements-dev.txt
 </pre></div>
 </div>
-<p>Finally, build all custom ops by running <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">build</span></code></p>
+<p>Finally, clone your fork of the BESS-KGE repository and build all custom ops by running <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">build</span></code></p>
 </section>
-<section id="tips">
-<h2>Tips<a class="headerlink" href="#tips" title="Permalink to this heading"></a></h2>
-<p>Run <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">--help</span></code> for a list of dev options. In particular, use <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">ci</span></code> to run all CI checks locally. Run individual tests with pattern matching filtering <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">tests</span> <span class="pre">-k</span> <span class="pre">FILTER</span></code>.</p>
+<section id="development-tips">
+<h2>Development tips<a class="headerlink" href="#development-tips" title="Permalink to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">./dev</span></code> command can be used to run several utility scripts during development. Check <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">--help</span></code> for a list of dev options.</p>
+<p>Before submitting a PR to the upstream repo, use <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">ci</span></code> to run all CI checks locally. In particular, be mindful of our formatting requirements: you can check for formatting errors by running <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">format</span></code> and <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">lint</span></code> (both commands are automatically run inside <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">ci</span></code>).</p>
+<p>Add unit tests to the <code class="docutils literal notranslate"><span class="pre">tests</span></code> folder. You can run individual unit tests with pattern matching filtering <code class="docutils literal notranslate"><span class="pre">./dev</span> <span class="pre">tests</span> <span class="pre">-k</span> <span class="pre">FILTER</span></code>.</p>
 <p>Add <code class="docutils literal notranslate"><span class="pre">.cpp</span></code> custom ops to <code class="docutils literal notranslate"><span class="pre">besskge/custom_ops</span></code>. Also, update the <a class="reference internal" href="#Makefile"><span class="xref myst">Makefile</span></a> when adding custom ops.</p>
 </section>
 </section>

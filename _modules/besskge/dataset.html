@@ -82,9 +82,10 @@
 <span class="kn">import</span> <span class="nn">dataclasses</span>
 <span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">import</span> <span class="nn">tarfile</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
 <span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">ogb.linkproppred</span>
@@ -148,8 +149,154 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="KGDataset.build_biokg"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_biokg">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">build_biokg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="KGDataset.from_triples"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.from_triples">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_triples</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">],</span>
+        <span class="n">split</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">),</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1234</span><span class="p">,</span>
+        <span class="n">entity_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">relation_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">type_offsets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build a dataset from an array of triples, where IDs for entities</span>
+<span class="sd">        and relations have already been assigned. Note that, if entities have</span>
+<span class="sd">        types, entities of the same type need to have contiguous IDs.</span>
+<span class="sd">        Triples are randomly split in train/validation/test sets.</span>
+<span class="sd">        If a pre-defined train/validation/test split is wanted, the KGDataset</span>
+<span class="sd">        class should be instantiated manually.</span>
+
+<span class="sd">        :param data:</span>
+<span class="sd">            Numpy array of triples [head_id, relation_id, tail_id]. Shape</span>
+<span class="sd">            (num_triples, 3).</span>
+<span class="sd">        :param split:</span>
+<span class="sd">            Tuple to set the train/validation/test split.</span>
+<span class="sd">        :param seed:</span>
+<span class="sd">            Random seed for the train/validation/test split.</span>
+<span class="sd">        :param entity_dict:</span>
+<span class="sd">            Optional entity labels by ID.</span>
+<span class="sd">        :param relation_dict:</span>
+<span class="sd">            Optional relation labels by ID.</span>
+<span class="sd">        :param type_offsets:</span>
+<span class="sd">            Offset of entity types</span>
+
+<span class="sd">        :return: Instance of the KGDataset class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">num_triples</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">num_train</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_triples</span> <span class="o">*</span> <span class="n">split</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">num_valid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_triples</span> <span class="o">*</span> <span class="n">split</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">rng</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">triples</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="n">triples</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span> <span class="n">triples</span><span class="p">[</span><span class="s2">&quot;valid&quot;</span><span class="p">],</span> <span class="n">triples</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">num_train</span><span class="p">,</span> <span class="n">num_train</span> <span class="o">+</span> <span class="n">num_valid</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">n_entity</span><span class="o">=</span><span class="n">data</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">n_relation_type</span><span class="o">=</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">entity_dict</span><span class="o">=</span><span class="n">entity_dict</span><span class="p">,</span>
+            <span class="n">relation_dict</span><span class="o">=</span><span class="n">relation_dict</span><span class="p">,</span>
+            <span class="n">type_offsets</span><span class="o">=</span><span class="n">type_offsets</span><span class="p">,</span>
+            <span class="n">triples</span><span class="o">=</span><span class="n">triples</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="KGDataset.from_dataframe"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.from_dataframe">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_dataframe</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]],</span>
+        <span class="n">head_column</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="n">relation_column</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="n">tail_column</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span>
+        <span class="n">entity_types</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="s2">&quot;pd.Series[str]&quot;</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">split</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">),</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1234</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Build a KGDataset from a pandas DataFrame of labeled (h,r,t) triples.</span>
+<span class="sd">        IDs for entities and relations are automatically assigned based on labels</span>
+<span class="sd">        in such a way that entities of the same type have contiguous IDs.</span>
+
+<span class="sd">        :param df:</span>
+<span class="sd">            Pandas DataFrame of all triples in the knowledge graph dataset,</span>
+<span class="sd">            or dictionary of DataFrames of triples for each part of the dataset split</span>
+<span class="sd">        :param head_column:</span>
+<span class="sd">            Name of the DataFrame column storing head entities</span>
+<span class="sd">        :param relation_column:</span>
+<span class="sd">            Name of the DataFrame column storing relations</span>
+<span class="sd">        :param tail_column:</span>
+<span class="sd">            Name of the DataFrame column storing tail entities</span>
+<span class="sd">        :param entity_types:</span>
+<span class="sd">            If entities have types, dictionary or pandas Series of mappings</span>
+<span class="sd">            entity label -&gt; entity type.</span>
+<span class="sd">        :param split:</span>
+<span class="sd">            Tuple to set the train/validation/test split.</span>
+<span class="sd">            Only used if no pre-defined dataset split is specified,</span>
+<span class="sd">            i.e. if `df` is not a dictionary.</span>
+<span class="sd">        :param seed:</span>
+<span class="sd">            Random seed for the train/validation/test split.</span>
+<span class="sd">            Only used if no pre-defined dataset split is specified,</span>
+<span class="sd">            i.e. if `df` is not a dictionary.</span>
+
+<span class="sd">        :return: Instance of the KGDataset class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">df_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="n">df</span><span class="p">}</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="k">else</span> <span class="n">df</span>
+        <span class="n">unique_ent</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">dfp</span><span class="p">[</span><span class="n">head_column</span><span class="p">],</span> <span class="n">dfp</span><span class="p">[</span><span class="n">tail_column</span><span class="p">]])</span>
+                <span class="k">for</span> <span class="n">dfp</span> <span class="ow">in</span> <span class="n">df_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">ent2id</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_ent</span><span class="p">)),</span> <span class="n">index</span><span class="o">=</span><span class="n">unique_ent</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ent_id&quot;</span><span class="p">)</span>
+        <span class="n">unique_rel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">dfp</span><span class="p">[</span><span class="n">relation_column</span><span class="p">]</span> <span class="k">for</span> <span class="n">dfp</span> <span class="ow">in</span> <span class="n">df_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="n">rel2id</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_rel</span><span class="p">)),</span> <span class="n">index</span><span class="o">=</span><span class="n">unique_rel</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;rel_id&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">entity_types</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ent2type</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">entity_types</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;ent_type&quot;</span><span class="p">)</span>
+            <span class="n">ent2id_type</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+                <span class="n">ent2id</span><span class="p">,</span> <span class="n">ent2type</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;ent_type&quot;</span><span class="p">)</span>
+            <span class="n">ent2id</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">ent2id_type</span><span class="o">.</span><span class="n">index</span>
+            <span class="n">type_off</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">ent2id_type</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;ent_type&quot;</span><span class="p">)[</span><span class="s2">&quot;ent_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">type_off</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">type_offsets</span> <span class="o">=</span> <span class="n">type_off</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">type_offsets</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">entity_dict</span> <span class="o">=</span> <span class="n">ent2id</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">relation_dict</span> <span class="o">=</span> <span class="n">rel2id</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="n">triples</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">part</span><span class="p">,</span> <span class="n">dfp</span> <span class="ow">in</span> <span class="n">df_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">heads</span> <span class="o">=</span> <span class="n">dfp</span><span class="p">[</span><span class="n">head_column</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">ent2id</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">tails</span> <span class="o">=</span> <span class="n">dfp</span><span class="p">[</span><span class="n">tail_column</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">ent2id</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">rels</span> <span class="o">=</span> <span class="n">dfp</span><span class="p">[</span><span class="n">relation_column</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">rel2id</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+            <span class="n">triples</span><span class="p">[</span><span class="n">part</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">heads</span><span class="p">,</span> <span class="n">rels</span><span class="p">,</span> <span class="n">tails</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">KGDataset</span><span class="o">.</span><span class="n">from_triples</span><span class="p">(</span>
+                <span class="n">triples</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">],</span> <span class="n">split</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">entity_dict</span><span class="p">,</span> <span class="n">relation_dict</span><span class="p">,</span> <span class="n">type_offsets</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+                <span class="n">n_entity</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">entity_dict</span><span class="p">),</span>
+                <span class="n">n_relation_type</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">relation_dict</span><span class="p">),</span>
+                <span class="n">entity_dict</span><span class="o">=</span><span class="n">entity_dict</span><span class="p">,</span>
+                <span class="n">relation_dict</span><span class="o">=</span><span class="n">relation_dict</span><span class="p">,</span>
+                <span class="n">type_offsets</span><span class="o">=</span><span class="n">type_offsets</span><span class="p">,</span>
+                <span class="n">triples</span><span class="o">=</span><span class="n">triples</span><span class="p">,</span>
+            <span class="p">)</span></div>
+
+<div class="viewcode-block" id="KGDataset.build_ogbl_biokg"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_ogbl_biokg">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">build_ogbl_biokg</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build the ogbl-biokg dataset :cite:p:`OGB`</span>
 
@@ -211,8 +358,8 @@
             <span class="n">neg_tails</span><span class="o">=</span><span class="n">neg_tails</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="KGDataset.build_wikikg2"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_wikikg2">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">build_wikikg2</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="KGDataset.build_ogbl_wikikg2"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_ogbl_wikikg2">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">build_ogbl_wikikg2</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build the ogbl-wikikg2 dataset :cite:p:`OGB`</span>
 
@@ -289,130 +436,82 @@
             <span class="k">with</span> <span class="n">tarfile</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">content</span><span class="p">))</span> <span class="k">as</span> <span class="n">tarf</span><span class="p">:</span>
                 <span class="n">tarf</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
 
-        <span class="n">train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;train.txt&quot;</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
-        <span class="n">valid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;valid.txt&quot;</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
-        <span class="n">test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;test.txt&quot;</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
-
-        <span class="n">entity_dict</span><span class="p">,</span> <span class="n">entity_id</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">train</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
-                    <span class="n">train</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span>
-                    <span class="n">valid</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
-                    <span class="n">valid</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span>
-                    <span class="n">test</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span>
-                    <span class="n">test</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span>
-                <span class="p">]</span>
-            <span class="p">),</span>
-            <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">train_triples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;train.txt&quot;</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span>
         <span class="p">)</span>
-        <span class="n">entity_split_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="n">train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="n">train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="n">valid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="n">valid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                <span class="n">test</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-            <span class="p">]</span>
+        <span class="n">valid_triples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;valid.txt&quot;</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span>
         <span class="p">)</span>
-        <span class="p">(</span>
-            <span class="n">train_head_id</span><span class="p">,</span>
-            <span class="n">train_tail_id</span><span class="p">,</span>
-            <span class="n">validation_head_id</span><span class="p">,</span>
-            <span class="n">validation_tail_id</span><span class="p">,</span>
-            <span class="n">test_head_id</span><span class="p">,</span>
-            <span class="n">test_tail_id</span><span class="p">,</span>
-        <span class="p">)</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">entity_id</span><span class="p">,</span> <span class="n">entity_split_limits</span><span class="p">)</span>
-
-        <span class="n">rel_dict</span><span class="p">,</span> <span class="n">rel_id</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">train</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">valid</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">test</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]),</span>
-            <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">relation_split_limits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">([</span><span class="n">train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">valid</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
-        <span class="n">train_rel_id</span><span class="p">,</span> <span class="n">validation_rel_id</span><span class="p">,</span> <span class="n">test_rel_id</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
-            <span class="n">rel_id</span><span class="p">,</span> <span class="n">relation_split_limits</span>
+        <span class="n">test_triples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;test.txt&quot;</span><span class="p">),</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span>
         <span class="p">)</span>
 
-        <span class="n">triples</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">train_head_id</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">train_rel_id</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">train_tail_id</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]],</span>
-                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">validation_head_id</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span>
-                    <span class="n">validation_rel_id</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span>
-                    <span class="n">validation_tail_id</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span>
-                <span class="p">],</span>
-                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="p">),</span>
-            <span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">test_head_id</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">test_rel_id</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">test_tail_id</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]],</span>
-                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-            <span class="p">),</span>
-        <span class="p">}</span>
-
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">n_entity</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">entity_dict</span><span class="p">),</span>
-            <span class="n">n_relation_type</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">rel_dict</span><span class="p">),</span>
-            <span class="n">entity_dict</span><span class="o">=</span><span class="n">entity_dict</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
-            <span class="n">relation_dict</span><span class="o">=</span><span class="n">rel_dict</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
-            <span class="n">type_offsets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">triples</span><span class="o">=</span><span class="n">triples</span><span class="p">,</span>
-            <span class="n">neg_heads</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">neg_tails</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">train_triples</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="n">valid_triples</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="n">test_triples</span><span class="p">},</span>
+            <span class="n">head_column</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">relation_column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">tail_column</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span></div>
 
-<div class="viewcode-block" id="KGDataset.from_triples"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.from_triples">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_triples</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span>
-        <span class="n">data</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">],</span>
-        <span class="n">split</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">),</span>
-        <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1234</span><span class="p">,</span>
-        <span class="n">entity_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">relation_dict</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">type_offsets</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
+<div class="viewcode-block" id="KGDataset.build_openbiolink"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_openbiolink">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">build_openbiolink</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;KGDataset&quot;</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Build a dataset from an array of triples. Note that if a pre-defined</span>
-<span class="sd">        train/validation/test split is wanted the KGDataset class should be instantiated</span>
-<span class="sd">        manually.</span>
+<span class="sd">        Build the high-quality version of the OpenBioLink2020</span>
+<span class="sd">        dataset :cite:p:`openbiolink`</span>
 
-<span class="sd">        :param data:</span>
-<span class="sd">            Numpy array of triples [head_id, relation_id, tail_id]. Shape</span>
-<span class="sd">            (num_triples, 3).</span>
-<span class="sd">        :param split:</span>
-<span class="sd">            Tuple to set the train/validation/test split.</span>
-<span class="sd">        :param seed:</span>
-<span class="sd">            Random seed for the train/validation/test split.</span>
-<span class="sd">        :param entity_dict:</span>
-<span class="sd">            Optional entity labels by ID.</span>
-<span class="sd">        :param relation_dict:</span>
-<span class="sd">            Optional relation labels by ID.</span>
-<span class="sd">        :param type_offsets:</span>
-<span class="sd">            Offset of entity types</span>
+<span class="sd">        .. seealso:: https://github.com/openbiolink/openbiolink#benchmark-dataset</span>
 
-<span class="sd">        :return: Instance of the KGDataset class.</span>
+<span class="sd">        :param root:</span>
+<span class="sd">            Local path to the dataset. If the dataset is not present in this</span>
+<span class="sd">            location, then it is downloaded and stored here.</span>
+
+<span class="sd">        :return: The HQ OpenBioLink2020 KGDataset.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">num_triples</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">num_train</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_triples</span> <span class="o">*</span> <span class="n">split</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">num_valid</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_triples</span> <span class="o">*</span> <span class="n">split</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-        <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
-        <span class="n">rng</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+            <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;HQ_DIR/train_test_data/train_sample.csv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;HQ_DIR/train_test_data/val_sample.csv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;HQ_DIR/train_test_data/test_sample.csv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+            <span class="ow">and</span> <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;HQ_DIR/train_test_data/train_val_nodes.csv&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Downloading dataset...&quot;</span><span class="p">)</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://zenodo.org/record/3834052/files/HQ_DIR.zip&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">content</span><span class="p">))</span> <span class="k">as</span> <span class="n">zip_f</span><span class="p">:</span>
+                <span class="n">zip_f</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
 
-        <span class="n">triples</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">triples</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">],</span> <span class="n">triples</span><span class="p">[</span><span class="s2">&quot;valid&quot;</span><span class="p">],</span> <span class="n">triples</span><span class="p">[</span><span class="s2">&quot;test&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
-            <span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">num_train</span><span class="p">,</span> <span class="n">num_train</span> <span class="o">+</span> <span class="n">num_valid</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+        <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;h_label&quot;</span><span class="p">,</span> <span class="s2">&quot;r_label&quot;</span><span class="p">,</span> <span class="s2">&quot;t_label&quot;</span><span class="p">,</span> <span class="s2">&quot;quality&quot;</span><span class="p">,</span> <span class="s2">&quot;TP/TN&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">]</span>
+        <span class="n">train_triples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;HQ_DIR/train_test_data/train_sample.csv&quot;</span><span class="p">),</span>
+            <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">names</span><span class="o">=</span><span class="n">column_names</span><span class="p">,</span>
+            <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">valid_triples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;HQ_DIR/train_test_data/val_sample.csv&quot;</span><span class="p">),</span>
+            <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">names</span><span class="o">=</span><span class="n">column_names</span><span class="p">,</span>
+            <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">test_triples</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;HQ_DIR/train_test_data/test_sample.csv&quot;</span><span class="p">),</span>
+            <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">names</span><span class="o">=</span><span class="n">column_names</span><span class="p">,</span>
+            <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">n_entity</span><span class="o">=</span><span class="n">data</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="n">n_relation_type</span><span class="o">=</span><span class="n">data</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
-            <span class="n">entity_dict</span><span class="o">=</span><span class="n">entity_dict</span><span class="p">,</span>
-            <span class="n">relation_dict</span><span class="o">=</span><span class="n">relation_dict</span><span class="p">,</span>
-            <span class="n">type_offsets</span><span class="o">=</span><span class="n">type_offsets</span><span class="p">,</span>
-            <span class="n">triples</span><span class="o">=</span><span class="n">triples</span><span class="p">,</span>
+        <span class="n">entity_types</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+            <span class="n">root</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;HQ_DIR/train_test_data/train_val_nodes.csv&quot;</span><span class="p">),</span>
+            <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ent_label&quot;</span><span class="p">,</span> <span class="s2">&quot;ent_type&quot;</span><span class="p">],</span>
+            <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;ent_label&quot;</span><span class="p">)[</span><span class="s2">&quot;ent_type&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_dataframe</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">train_triples</span><span class="p">,</span> <span class="s2">&quot;valid&quot;</span><span class="p">:</span> <span class="n">valid_triples</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="n">test_triples</span><span class="p">},</span>
+            <span class="n">head_column</span><span class="o">=</span><span class="s2">&quot;h_label&quot;</span><span class="p">,</span>
+            <span class="n">relation_column</span><span class="o">=</span><span class="s2">&quot;r_label&quot;</span><span class="p">,</span>
+            <span class="n">tail_column</span><span class="o">=</span><span class="s2">&quot;t_label&quot;</span><span class="p">,</span>
+            <span class="n">entity_types</span><span class="o">=</span><span class="n">entity_types</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 <div class="viewcode-block" id="KGDataset.save"><a class="viewcode-back" href="../../generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>

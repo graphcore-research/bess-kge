@@ -115,8 +115,8 @@
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="besskge.dataset.KGDataset.build_biokg">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_biokg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/dataset.html#KGDataset.build_biokg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.dataset.KGDataset.build_biokg" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="besskge.dataset.KGDataset.build_ogbl_biokg">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_ogbl_biokg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/dataset.html#KGDataset.build_ogbl_biokg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.dataset.KGDataset.build_ogbl_biokg" title="Permalink to this definition"></a></dt>
 <dd><p>Build the ogbl-biokg dataset <span id="id1">[<a class="reference internal" href="../bibliography.html#id6" title="Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, and Jure Leskovec. Open graph benchmark: datasets for machine learning on graphs. In Advances in Neural Information Processing Systems 33: Annual Conference on Neural Information Processing Systems 2020, NeurIPS 2020. 2020.">HFZ+20</a>]</span></p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -137,8 +137,8 @@ location, then it is downloaded and stored here.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="besskge.dataset.KGDataset.build_wikikg2">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_wikikg2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/dataset.html#KGDataset.build_wikikg2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.dataset.KGDataset.build_wikikg2" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="besskge.dataset.KGDataset.build_ogbl_wikikg2">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_ogbl_wikikg2</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/dataset.html#KGDataset.build_ogbl_wikikg2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.dataset.KGDataset.build_ogbl_wikikg2" title="Permalink to this definition"></a></dt>
 <dd><p>Build the ogbl-wikikg2 dataset <span id="id2">[<a class="reference internal" href="../bibliography.html#id6" title="Weihua Hu, Matthias Fey, Marinka Zitnik, Yuxiao Dong, Hongyu Ren, Bowen Liu, Michele Catasta, and Jure Leskovec. Open graph benchmark: datasets for machine learning on graphs. In Advances in Neural Information Processing Systems 33: Annual Conference on Neural Information Processing Systems 2020, NeurIPS 2020. 2020.">HFZ+20</a>]</span></p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
@@ -159,12 +159,35 @@ location, then it is downloaded and stored here.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="besskge.dataset.KGDataset.build_openbiolink">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_openbiolink</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/dataset.html#KGDataset.build_openbiolink"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.dataset.KGDataset.build_openbiolink" title="Permalink to this definition"></a></dt>
+<dd><p>Build the high-quality version of the OpenBioLink2020
+dataset <span id="id3">[<a class="reference internal" href="../bibliography.html#id19" title="Breit Anna, Ott Simon, Agibetov Asan, and Samwald Matthias. OpenBioLink: a benchmarking framework for large-scale biomedical link prediction. Bioinformatics, 36(13):4097-4098, 2020.">ASAM20</a>]</span></p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://github.com/openbiolink/openbiolink#benchmark-dataset">https://github.com/openbiolink/openbiolink#benchmark-dataset</a></p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>root</strong> (<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>) – Local path to the dataset. If the dataset is not present in this
+location, then it is downloaded and stored here.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#besskge.dataset.KGDataset" title="besskge.dataset.KGDataset"><code class="xref py py-class docutils literal notranslate"><span class="pre">KGDataset</span></code></a></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The HQ OpenBioLink2020 KGDataset.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="besskge.dataset.KGDataset.build_yago310">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">build_yago310</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/dataset.html#KGDataset.build_yago310"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.dataset.KGDataset.build_yago310" title="Permalink to this definition"></a></dt>
 <dd><p>Build the YAGO3-10 dataset.
 This is the subgraph of the YAGO3 knowledge
-graph <span id="id3">[<a class="reference internal" href="../bibliography.html#id12" title="Farzaneh Mahdisoltani, Joanna Biega, and Fabian M. Suchanek. YAGO3: A knowledge base from multilingual wikipedias. In Seventh Biennial Conference on Innovative Data Systems Research, CIDR 2015, Asilomar, CA, USA, January 4-7, 2015, Online Proceedings. 2015.">MBS15</a>]</span> containing only entities which have at least 10
-relations associated to them. First used in <span id="id4">[<a class="reference internal" href="../bibliography.html#id13" title="Tim Dettmers, Minervini Pasquale, Stenetorp Pontus, and Sebastian Riedel. Convolutional 2d knowledge graph embeddings. In Proceedings of the 32th AAAI Conference on Artificial Intelligence, 1811–1818. 2018.">DPPR18</a>]</span>.</p>
+graph <span id="id4">[<a class="reference internal" href="../bibliography.html#id12" title="Farzaneh Mahdisoltani, Joanna Biega, and Fabian M. Suchanek. YAGO3: A knowledge base from multilingual wikipedias. In Seventh Biennial Conference on Innovative Data Systems Research, CIDR 2015, Asilomar, CA, USA, January 4-7, 2015, Online Proceedings. 2015.">MBS15</a>]</span> containing only entities which have at least 10
+relations associated to them. First used in <span id="id5">[<a class="reference internal" href="../bibliography.html#id13" title="Tim Dettmers, Minervini Pasquale, Stenetorp Pontus, and Sebastian Riedel. Convolutional 2d knowledge graph embeddings. In Proceedings of the 32th AAAI Conference on Artificial Intelligence, 1811–1818. 2018.">DPPR18</a>]</span>.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><a class="reference external" href="https://yago-knowledge.org/downloads/yago-3">https://yago-knowledge.org/downloads/yago-3</a></p>
@@ -190,11 +213,47 @@ location, then it is downloaded and stored here.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="besskge.dataset.KGDataset.from_dataframe">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_column</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_types</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.7,</span> <span class="pre">0.15,</span> <span class="pre">0.15)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1234</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/dataset.html#KGDataset.from_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.dataset.KGDataset.from_dataframe" title="Permalink to this definition"></a></dt>
+<dd><p>Build a KGDataset from a pandas DataFrame of labeled (h,r,t) triples.
+IDs for entities and relations are automatically assigned based on labels
+in such a way that entities of the same type have contiguous IDs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> – Pandas DataFrame of all triples in the knowledge graph dataset,
+or dictionary of DataFrames of triples for each part of the dataset split</p></li>
+<li><p><strong>head_column</strong> – Name of the DataFrame column storing head entities</p></li>
+<li><p><strong>relation_column</strong> – Name of the DataFrame column storing relations</p></li>
+<li><p><strong>tail_column</strong> – Name of the DataFrame column storing tail entities</p></li>
+<li><p><strong>entity_types</strong> – If entities have types, dictionary or pandas Series of mappings
+entity label -&gt; entity type.</p></li>
+<li><p><strong>split</strong> – Tuple to set the train/validation/test split.
+Only used if no pre-defined dataset split is specified,
+i.e. if <cite>df</cite> is not a dictionary.</p></li>
+<li><p><strong>seed</strong> – Random seed for the train/validation/test split.
+Only used if no pre-defined dataset split is specified,
+i.e. if <cite>df</cite> is not a dictionary.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Instance of the KGDataset class.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#besskge.dataset.KGDataset" title="besskge.dataset.KGDataset">KGDataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="besskge.dataset.KGDataset.from_triples">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_triples</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.7,</span> <span class="pre">0.15,</span> <span class="pre">0.15)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1234</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/dataset.html#KGDataset.from_triples"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.dataset.KGDataset.from_triples" title="Permalink to this definition"></a></dt>
-<dd><p>Build a dataset from an array of triples. Note that if a pre-defined
-train/validation/test split is wanted the KGDataset class should be instantiated
-manually.</p>
+<dd><p>Build a dataset from an array of triples, where IDs for entities
+and relations have already been assigned. Note that, if entities have
+types, entities of the same type need to have contiguous IDs.
+Triples are randomly split in train/validation/test sets.
+If a pre-defined train/validation/test split is wanted, the KGDataset
+class should be instantiated manually.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
