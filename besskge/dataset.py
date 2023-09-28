@@ -8,9 +8,10 @@ as collections of (h,r,t) triples.
 import dataclasses
 import pickle
 import tarfile
+import zipfile
 from io import BytesIO
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import ogb.linkproppred
@@ -75,7 +76,153 @@ class KGDataset:
             return None
 
     @classmethod
-    def build_biokg(cls, root: Path) -> "KGDataset":
+    def from_triples(
+        cls,
+        data: NDArray[np.int32],
+        split: Tuple[float, float, float] = (0.7, 0.15, 0.15),
+        seed: int = 1234,
+        entity_dict: Optional[List[str]] = None,
+        relation_dict: Optional[List[str]] = None,
+        type_offsets: Optional[Dict[str, int]] = None,
+    ) -> "KGDataset":
+        """
+        Build a dataset from an array of triples, where IDs for entities
+        and relations have already been assigned. Note that, if entities have
+        types, entities of the same type need to have contiguous IDs.
+        Triples are randomly split in train/validation/test sets.
+        If a pre-defined train/validation/test split is wanted, the KGDataset
+        class should be instantiated manually.
+
+        :param data:
+            Numpy array of triples [head_id, relation_id, tail_id]. Shape
+            (num_triples, 3).
+        :param split:
+            Tuple to set the train/validation/test split.
+        :param seed:
+            Random seed for the train/validation/test split.
+        :param entity_dict:
+            Optional entity labels by ID.
+        :param relation_dict:
+            Optional relation labels by ID.
+        :param type_offsets:
+            Offset of entity types
+
+        :return: Instance of the KGDataset class.
+        """
+        num_triples = data.shape[0]
+        num_train = int(num_triples * split[0])
+        num_valid = int(num_triples * split[1])
+
+        rng = np.random.default_rng(seed=seed)
+        rng.shuffle(data, axis=0)
+
+        triples = dict()
+        triples["train"], triples["valid"], triples["test"] = np.split(
+            data, (num_train, num_train + num_valid), axis=0
+        )
+
+        return cls(
+            n_entity=data[:, [0, 2]].max() + 1,
+            n_relation_type=data[:, 1].max() + 1,
+            entity_dict=entity_dict,
+            relation_dict=relation_dict,
+            type_offsets=type_offsets,
+            triples=triples,
+        )
+
+    @classmethod
+    def from_dataframe(
+        cls,
+        df: Union[pd.DataFrame, Dict[str, pd.DataFrame]],
+        head_column: Union[int, str],
+        relation_column: Union[int, str],
+        tail_column: Union[int, str],
+        entity_types: Optional[Union["pd.Series[str]", Dict[str, str]]] = None,
+        split: Tuple[float, float, float] = (0.7, 0.15, 0.15),
+        seed: int = 1234,
+    ) -> "KGDataset":
+        """
+        Build a KGDataset from a pandas DataFrame of labeled (h,r,t) triples.
+        IDs for entities and relations are automatically assigned based on labels
+        in such a way that entities of the same type have contiguous IDs.
+
+        :param df:
+            Pandas DataFrame of all triples in the knowledge graph dataset,
+            or dictionary of DataFrames of triples for each part of the dataset split
+        :param head_column:
+            Name of the DataFrame column storing head entities
+        :param relation_column:
+            Name of the DataFrame column storing relations
+        :param tail_column:
+            Name of the DataFrame column storing tail entities
+        :param entity_types:
+            If entities have types, dictionary or pandas Series of mappings
+            entity label -> entity type.
+        :param split:
+            Tuple to set the train/validation/test split.
+            Only used if no pre-defined dataset split is specified,
+            i.e. if `df` is not a dictionary.
+        :param seed:
+            Random seed for the train/validation/test split.
+            Only used if no pre-defined dataset split is specified,
+            i.e. if `df` is not a dictionary.
+
+        :return: Instance of the KGDataset class.
+        """
+
+        df_dict = {"all": df} if isinstance(df, pd.DataFrame) else df
+        unique_ent = pd.concat(
+            [
+                pd.concat([dfp[head_column], dfp[tail_column]])
+                for dfp in df_dict.values()
+            ]
+        ).unique()
+        ent2id = pd.Series(np.arange(len(unique_ent)), index=unique_ent, name="ent_id")
+        unique_rel = pd.concat(
+            [dfp[relation_column] for dfp in df_dict.values()]
+        ).unique()
+        rel2id = pd.Series(np.arange(len(unique_rel)), index=unique_rel, name="rel_id")
+
+        if entity_types is not None:
+            ent2type = pd.Series(entity_types, name="ent_type")
+            ent2id_type = pd.merge(
+                ent2id, ent2type, how="left", left_index=True, right_index=True
+            ).sort_values("ent_type")
+            ent2id.index = ent2id_type.index
+            type_off = (
+                ent2id_type.groupby("ent_type")["ent_type"].count().cumsum().shift(1)
+            )
+            type_off.iloc[0] = 0
+            type_offsets = type_off.astype("int64").to_dict()
+        else:
+            type_offsets = None
+
+        entity_dict = ent2id.index.tolist()
+        relation_dict = rel2id.index.tolist()
+
+        triples = {}
+        for part, dfp in df_dict.items():
+            heads = dfp[head_column].map(ent2id).values.astype(np.int32)
+            tails = dfp[tail_column].map(ent2id).values.astype(np.int32)
+            rels = dfp[relation_column].map(rel2id).values.astype(np.int32)
+            triples[part] = np.stack([heads, rels, tails], axis=1)
+
+        if isinstance(df, pd.DataFrame):
+            return KGDataset.from_triples(
+                triples["all"], split, seed, entity_dict, relation_dict, type_offsets
+            )
+        else:
+            return cls(
+                n_entity=len(entity_dict),
+                n_relation_type=len(relation_dict),
+                entity_dict=entity_dict,
+                relation_dict=relation_dict,
+                type_offsets=type_offsets,
+                triples=triples,
+            )
+
+    @classmethod
+    def build_ogbl_biokg(cls, root: Path) -> "KGDataset":
         """
         Build the ogbl-biokg dataset :cite:p:`OGB`
 
@@ -138,7 +285,7 @@ class KGDataset:
         )
 
     @classmethod
-    def build_wikikg2(cls, root: Path) -> "KGDataset":
+    def build_ogbl_wikikg2(cls, root: Path) -> "KGDataset":
         """
         Build the ogbl-wikikg2 dataset :cite:p:`OGB`
 
@@ -215,130 +362,82 @@ class KGDataset:
             with tarfile.open(fileobj=BytesIO(res.content)) as tarf:
                 tarf.extractall(path=root)
 
-        train = np.loadtxt(root.joinpath("train.txt"), delimiter="\t", dtype=str)
-        valid = np.loadtxt(root.joinpath("valid.txt"), delimiter="\t", dtype=str)
-        test = np.loadtxt(root.joinpath("test.txt"), delimiter="\t", dtype=str)
-
-        entity_dict, entity_id = np.unique(
-            np.concatenate(
-                [
-                    train[:, 0],
-                    train[:, 2],
-                    valid[:, 0],
-                    valid[:, 2],
-                    test[:, 0],
-                    test[:, 2],
-                ]
-            ),
-            return_inverse=True,
+        train_triples = pd.read_csv(
+            root.joinpath("train.txt"), delimiter="\t", dtype=str, header=None
         )
-        entity_split_limits = np.cumsum(
-            [
-                train.shape[0],
-                train.shape[0],
-                valid.shape[0],
-                valid.shape[0],
-                test.shape[0],
-            ]
+        valid_triples = pd.read_csv(
+            root.joinpath("valid.txt"), delimiter="\t", dtype=str, header=None
         )
-        (
-            train_head_id,
-            train_tail_id,
-            validation_head_id,
-            validation_tail_id,
-            test_head_id,
-            test_tail_id,
-        ) = np.split(entity_id, entity_split_limits)
-
-        rel_dict, rel_id = np.unique(
-            np.concatenate([train[:, 1], valid[:, 1], test[:, 1]]),
-            return_inverse=True,
-        )
-        relation_split_limits = np.cumsum([train.shape[0], valid.shape[0]])
-        train_rel_id, validation_rel_id, test_rel_id = np.split(
-            rel_id, relation_split_limits
+        test_triples = pd.read_csv(
+            root.joinpath("test.txt"), delimiter="\t", dtype=str, header=None
         )
 
-        triples = {
-            "train": np.concatenate(
-                [train_head_id[:, None], train_rel_id[:, None], train_tail_id[:, None]],
-                axis=1,
-            ),
-            "validation": np.concatenate(
-                [
-                    validation_head_id[:, None],
-                    validation_rel_id[:, None],
-                    validation_tail_id[:, None],
-                ],
-                axis=1,
-            ),
-            "test": np.concatenate(
-                [test_head_id[:, None], test_rel_id[:, None], test_tail_id[:, None]],
-                axis=1,
-            ),
-        }
-
-        return cls(
-            n_entity=len(entity_dict),
-            n_relation_type=len(rel_dict),
-            entity_dict=entity_dict.tolist(),
-            relation_dict=rel_dict.tolist(),
-            type_offsets=None,
-            triples=triples,
-            neg_heads=None,
-            neg_tails=None,
+        return cls.from_dataframe(
+            {"train": train_triples, "valid": valid_triples, "test": test_triples},
+            head_column=0,
+            relation_column=1,
+            tail_column=2,
         )
 
     @classmethod
-    def from_triples(
-        cls,
-        data: NDArray[np.int32],
-        split: Tuple[float, float, float] = (0.7, 0.15, 0.15),
-        seed: int = 1234,
-        entity_dict: Optional[List[str]] = None,
-        relation_dict: Optional[List[str]] = None,
-        type_offsets: Optional[Dict[str, int]] = None,
-    ) -> "KGDataset":
+    def build_openbiolink(cls, root: Path) -> "KGDataset":
         """
-        Build a dataset from an array of triples. Note that if a pre-defined
-        train/validation/test split is wanted the KGDataset class should be instantiated
-        manually.
+        Build the high-quality version of the OpenBioLink2020
+        dataset :cite:p:`openbiolink`
 
-        :param data:
-            Numpy array of triples [head_id, relation_id, tail_id]. Shape
-            (num_triples, 3).
-        :param split:
-            Tuple to set the train/validation/test split.
-        :param seed:
-            Random seed for the train/validation/test split.
-        :param entity_dict:
-            Optional entity labels by ID.
-        :param relation_dict:
-            Optional relation labels by ID.
-        :param type_offsets:
-            Offset of entity types
+        .. seealso:: https://github.com/openbiolink/openbiolink#benchmark-dataset
 
-        :return: Instance of the KGDataset class.
+        :param root:
+            Local path to the dataset. If the dataset is not present in this
+            location, then it is downloaded and stored here.
+
+        :return: The HQ OpenBioLink2020 KGDataset.
         """
-        num_triples = data.shape[0]
-        num_train = int(num_triples * split[0])
-        num_valid = int(num_triples * split[1])
 
-        rng = np.random.default_rng(seed=seed)
-        rng.shuffle(data, axis=0)
+        if not (
+            root.joinpath("HQ_DIR/train_test_data/train_sample.csv").is_file()
+            and root.joinpath("HQ_DIR/train_test_data/val_sample.csv").is_file()
+            and root.joinpath("HQ_DIR/train_test_data/test_sample.csv").is_file()
+            and root.joinpath("HQ_DIR/train_test_data/train_val_nodes.csv").is_file()
+        ):
+            print("Downloading dataset...")
+            res = requests.get(url="https://zenodo.org/record/3834052/files/HQ_DIR.zip")
+            with zipfile.ZipFile(BytesIO(res.content)) as zip_f:
+                zip_f.extractall(path=root)
 
-        triples = dict()
-        triples["train"], triples["valid"], triples["test"] = np.split(
-            data, (num_train, num_train + num_valid), axis=0
+        column_names = ["h_label", "r_label", "t_label", "quality", "TP/TN", "source"]
+        train_triples = pd.read_csv(
+            root.joinpath("HQ_DIR/train_test_data/train_sample.csv"),
+            header=None,
+            names=column_names,
+            sep="\t",
+        )
+        valid_triples = pd.read_csv(
+            root.joinpath("HQ_DIR/train_test_data/val_sample.csv"),
+            header=None,
+            names=column_names,
+            sep="\t",
+        )
+        test_triples = pd.read_csv(
+            root.joinpath("HQ_DIR/train_test_data/test_sample.csv"),
+            header=None,
+            names=column_names,
+            sep="\t",
         )
 
-        return cls(
-            n_entity=data[:, [0, 2]].max() + 1,
-            n_relation_type=data[:, 1].max() + 1,
-            entity_dict=entity_dict,
-            relation_dict=relation_dict,
-            type_offsets=type_offsets,
-            triples=triples,
+        entity_types = pd.read_csv(
+            root.joinpath("HQ_DIR/train_test_data/train_val_nodes.csv"),
+            header=None,
+            names=["ent_label", "ent_type"],
+            sep="\t",
+        ).set_index("ent_label")["ent_type"]
+
+        return cls.from_dataframe(
+            {"train": train_triples, "valid": valid_triples, "test": test_triples},
+            head_column="h_label",
+            relation_column="r_label",
+            tail_column="t_label",
+            entity_types=entity_types,
         )
 
     def save(self, out_file: Path) -> None:
