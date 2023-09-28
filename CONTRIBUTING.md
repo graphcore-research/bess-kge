@@ -12,7 +12,7 @@ Setting up a VS Code server on [Paperspace](https://www.paperspace.com/graphcore
 
 2. You can launch a 6-hours session on a Paperspace machine with access to 4 IPUs **for free** by using a link of the form:
     ```
-    https://console.paperspace.com/github/{USERID}/{REPONAME}?container=graphcore%2Fpytorch-paperspace%3A3.3.0-ubuntu-20.04-20230703&amp;machine=Free-IPU-POD4
+    https://console.paperspace.com/github/{USERID}/{REPONAME}?container=graphcore%2Fpytorch-paperspace%3A3.3.0-ubuntu-20.04-20230703&machine=Free-IPU-POD4
     ```    
 
     where `{USERID}/{REPOPNAME}` is the github address of the forked repository (e.g. `graphcore-research/bess-kge` for the original repo).
