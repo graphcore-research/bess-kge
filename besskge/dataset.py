@@ -449,6 +449,7 @@ class KGDataset:
         """
         with open(out_file, "wb") as f:
             pickle.dump(self, f)
+        print(f"KGDataset saved to {out_file}")
 
     @classmethod
     def load(cls, path: Path) -> "KGDataset":
@@ -466,5 +467,6 @@ class KGDataset:
             kg_dataset = pickle.load(f)
             if not isinstance(kg_dataset, KGDataset):
                 raise ValueError(f"File at path {path} is not a KGDataset")
+        print(f"Loaded KGDataset at {path}")
 
         return kg_dataset
