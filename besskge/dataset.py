@@ -137,7 +137,7 @@ class KGDataset:
         head_column: Union[int, str],
         relation_column: Union[int, str],
         tail_column: Union[int, str],
-        entity_types: Optional[Union["pd.Series[str]", Dict[str, str]]] = None,
+        entity_types: Optional[Union[pd.Series, Dict[str, str]]] = None,  # type: ignore
         split: Tuple[float, float, float] = (0.7, 0.15, 0.15),
         seed: int = 1234,
     ) -> "KGDataset":
@@ -157,7 +157,7 @@ class KGDataset:
             Name of the DataFrame column storing tail entities
         :param entity_types:
             If entities have types, dictionary or pandas Series of mappings
-            entity label -> entity type.
+            entity label -> entity type (as strings).
         :param split:
             Tuple to set the train/validation/test split.
             Only used if no pre-defined dataset split is specified,
