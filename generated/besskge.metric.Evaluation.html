@@ -108,15 +108,15 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>metric_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]) – List of metrics to compute. Currently supports “mrr” and “hits&#64;K”.</p></li>
-<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Mode used for metrics. Can be “optimistic”, “pessimistic”
+<li><p><strong>metric_list</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]) – List of metrics to compute. Currently supports “mrr” and “hits&#64;K”.</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Mode used for metrics. Can be “optimistic”, “pessimistic”
 or “average”. Default: “average”.</p></li>
-<li><p><strong>worst_rank_infty</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, assign a prediction rank of infinity as the worst possible
+<li><p><strong>worst_rank_infty</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, assign a prediction rank of infinity as the worst possible
 rank. If False, assign a prediction rank of <cite>n_negative + 1</cite> as the
 worst possible rank. Default: False.</p></li>
-<li><p><strong>reduction</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Method to use to reduce metrics along the batch dimension.
+<li><p><strong>reduction</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Method to use to reduce metrics along the batch dimension.
 Currently supports “none” (no reduction) and “sum”.</p></li>
-<li><p><strong>return_ranks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, returns prediction ranks alongside metrics.</p></li>
+<li><p><strong>return_ranks</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, returns prediction ranks alongside metrics.</p></li>
 </ul>
 </dd>
 </dl>
@@ -128,15 +128,15 @@ of the elements in the batch.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>batch_rank</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
+<li><p><strong>batch_rank</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 Prediction rank for each element in the batch.</p></li>
-<li><p><strong>triple_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (batch_size,)
+<li><p><strong>triple_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (batch_size,)
 Boolean mask. If provided, all metrics for the elements where
 <code class="code docutils literal notranslate"><span class="pre">~triple_mask</span></code> are set to 0.0.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The dictionary of (reduced) batch metrics.</p>
@@ -152,16 +152,16 @@ ORDERED candidate IDs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ground_truth</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
+<li><p><strong>ground_truth</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 Indices of ground truth entities for each query.</p></li>
-<li><p><strong>candidate_indices</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, n_candidates)
+<li><p><strong>candidate_indices</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, n_candidates)
 Indices of top <cite>n_candidates</cite> predicted entities,
 ordered by decreasing likelihood. The indices
 on each row are assumed to be distinct.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The rank of the ground truth among the predictions.</p>
@@ -178,14 +178,14 @@ the candidate entities.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pos_score</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
+<li><p><strong>pos_score</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 Scores of positive triples.</p></li>
-<li><p><strong>candidate_score</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, n_candidate)
+<li><p><strong>candidate_score</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size, n_candidate)
 Scores of candidate triples.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The rank of the positive score among the ordered scores
@@ -203,14 +203,14 @@ the ordering of <code class="xref py py-attr docutils literal notranslate"><span
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>batch_rank</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
+<li><p><strong>batch_rank</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (batch_size,)
 see <a class="reference internal" href="#besskge.metric.Evaluation.dict_metrics_from_ranks" title="besskge.metric.Evaluation.dict_metrics_from_ranks"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Evaluation.dict_metrics_from_ranks()</span></code></a>.</p></li>
-<li><p><strong>triple_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.11)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (batch_size,)
+<li><p><strong>triple_mask</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]) – shape: (batch_size,)
 see <a class="reference internal" href="#besskge.metric.Evaluation.dict_metrics_from_ranks" title="besskge.metric.Evaluation.dict_metrics_from_ranks"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Evaluation.dict_metrics_from_ranks()</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (1, n_metrics, batch_size)

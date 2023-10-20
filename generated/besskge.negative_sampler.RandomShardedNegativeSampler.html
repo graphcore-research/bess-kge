@@ -108,17 +108,17 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>n_negative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of negative samples per shard-pair
+<li><p><strong>n_negative</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of negative samples per shard-pair
 (if <a class="reference internal" href="#besskge.negative_sampler.RandomShardedNegativeSampler.flat_negative_format" title="besskge.negative_sampler.RandomShardedNegativeSampler.flat_negative_format"><code class="xref py py-attr docutils literal notranslate"><span class="pre">flat_negative_format</span></code></a>) or per triple.</p></li>
 <li><p><strong>sharding</strong> (<a class="reference internal" href="besskge.sharding.Sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – Sharding of entities.</p></li>
-<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Seed of RNG.</p></li>
-<li><p><strong>corruption_scheme</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – “h”: corrupt head entities;
+<li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Seed of RNG.</p></li>
+<li><p><strong>corruption_scheme</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – “h”: corrupt head entities;
 “t”: corrupt tail entities;
 “ht”: corrupt head entities for the first half of each triple
 partition, tail entities for the second half.</p></li>
-<li><p><strong>local_sampling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, sample negative entities only from the shard where the
+<li><p><strong>local_sampling</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, sample negative entities only from the shard where the
 triple is processed.</p></li>
-<li><p><strong>flat_negative_format</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, sample <code class="xref py py-attr docutils literal notranslate"><span class="pre">n_negative</span></code> negative entities for each
+<li><p><strong>flat_negative_format</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, sample <code class="xref py py-attr docutils literal notranslate"><span class="pre">n_negative</span></code> negative entities for each
 shard-pair, instead of each triple. If True, requires use of
 negative sample sharing. Default: False.</p></li>
 </ul>
@@ -126,19 +126,19 @@ negative sample sharing. Default: False.</p></li>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.negative_sampler.RandomShardedNegativeSampler.corruption_scheme">
-<span class="sig-name descname"><span class="pre">corruption_scheme</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></em><a class="headerlink" href="#besskge.negative_sampler.RandomShardedNegativeSampler.corruption_scheme" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">corruption_scheme</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></em><a class="headerlink" href="#besskge.negative_sampler.RandomShardedNegativeSampler.corruption_scheme" title="Permalink to this definition"></a></dt>
 <dd><p>Which entity to corrupt; “h”, “t”, “ht”</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.negative_sampler.RandomShardedNegativeSampler.flat_negative_format">
-<span class="sig-name descname"><span class="pre">flat_negative_format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.negative_sampler.RandomShardedNegativeSampler.flat_negative_format" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">flat_negative_format</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.negative_sampler.RandomShardedNegativeSampler.flat_negative_format" title="Permalink to this definition"></a></dt>
 <dd><p>Sample negatives per triple partition, instead of per triple</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="besskge.negative_sampler.RandomShardedNegativeSampler.local_sampling">
-<span class="sig-name descname"><span class="pre">local_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.negative_sampler.RandomShardedNegativeSampler.local_sampling" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">local_sampling</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.negative_sampler.RandomShardedNegativeSampler.local_sampling" title="Permalink to this definition"></a></dt>
 <dd><p>Sample negatives only from processing device</p>
 </dd></dl>
 
