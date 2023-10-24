@@ -35,6 +35,7 @@ class AllScoresPipeline(torch.nn.Module):
         score_fn: BaseScoreFunction,
         evaluation: Optional[Evaluation] = None,
         windows_size: int = 1000,
+        use_ipu_model: bool = False,
     ) -> None:
         """
         Initialize pipeline.
@@ -55,6 +56,8 @@ class AllScoresPipeline(torch.nn.Module):
             scored against each query at each step on IPU and returned to host.
             Should be decreased with large batch sizes, to avoid an OOM error.
             Default: 1000.
+        :param use_ipu_model:
+            Run pipeline on IPU Model instead of actual hardware. Default: False.
         """
         super().__init__()
         self.batch_sampler = batch_sampler
@@ -88,6 +91,7 @@ class AllScoresPipeline(torch.nn.Module):
         inf_options.replication_factor = self.bess_module.sharding.n_shard
         inf_options.deviceIterations(self.batch_sampler.batches_per_step)
         inf_options.outputMode(poptorch.OutputMode.All)
+        inf_options.useIpuModel(use_ipu_model)
         self.dl = self.batch_sampler.get_dataloader(options=inf_options, shuffle=False)
 
         self.poptorch_module = poptorch.inferenceModel(

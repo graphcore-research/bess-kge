@@ -84,7 +84,12 @@ def test_all_scores_pipeline(corruption_scheme: str, compute_metrics: bool) -> N
         evaluation = None
 
     pipeline = AllScoresPipeline(
-        test_bs, corruption_scheme, score_fn, evaluation, windows_size=1000
+        test_bs,
+        corruption_scheme,
+        score_fn,
+        evaluation,
+        windows_size=1000,
+        use_ipu_model=True,
     )
     out = pipeline()
 
