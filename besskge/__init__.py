@@ -45,6 +45,7 @@ from . import (  # NOQA:F401,E402
     loss,
     metric,
     negative_sampler,
+    pipeline,
     scoring,
     sharding,
     utils,
