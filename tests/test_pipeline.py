@@ -90,7 +90,7 @@ def test_all_scores_pipeline(corruption_scheme: str, compute_metrics: bool) -> N
 
     # Shuffle triples in same order of out["scores"]
     triple_reordered = torch.from_numpy(
-        ds.triples["test"][partitioned_triple_set.triple_sort_idx[out["triple_ids"]]]
+        ds.triples["test"][partitioned_triple_set.triple_sort_idx[out["triple_idx"]]]
     )
 
     # Real scores

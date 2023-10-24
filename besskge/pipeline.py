@@ -188,7 +188,7 @@ class AllScoresPipeline(torch.nn.Module):
 
         out = dict(scores=torch.concat(scores, dim=0))
         if ids:
-            out["triple_ids"] = torch.concat(ids, dim=0)
+            out["triple_idx"] = torch.concat(ids, dim=0)
         if self.evaluation:
             concat_metrics = dict()
             for m in metrics[0].keys():
