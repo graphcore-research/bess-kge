@@ -14,10 +14,10 @@ from besskge.scoring import ComplEx
 from besskge.sharding import PartitionedTripleSet, Sharding
 
 seed = 1234
-n_entity = 20000
+n_entity = 5000
 n_relation_type = 50
 n_shard = 4
-n_test_triple = 5000
+n_test_triple = 1000
 batches_per_step = 2
 shard_bs = 400
 embedding_size = 128
