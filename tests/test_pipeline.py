@@ -88,6 +88,7 @@ def test_all_scores_pipeline(corruption_scheme: str, compute_metrics: bool) -> N
         corruption_scheme,
         score_fn,
         evaluation,
+        return_scores=True,
         windows_size=1000,
         use_ipu_model=True,
     )

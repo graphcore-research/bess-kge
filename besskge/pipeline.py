@@ -34,6 +34,7 @@ class AllScoresPipeline(torch.nn.Module):
         corruption_scheme: str,
         score_fn: BaseScoreFunction,
         evaluation: Optional[Evaluation] = None,
+        return_scores: bool = False,
         windows_size: int = 1000,
         use_ipu_model: bool = False,
     ) -> None:
@@ -51,6 +52,11 @@ class AllScoresPipeline(torch.nn.Module):
         :param evaluation:
             Evaluation module, for computing metrics.
             Default: None.
+        :param return_scores:
+            If True, store and return scores of all queries' completions.
+            For large number of queries/entities, this can cause the host
+            to go OOM.
+            Default: False.
         :param windows_size:
             Size of the sliding window, namely the number of negative entities
             scored against each query at each step on IPU and returned to host.
@@ -61,6 +67,10 @@ class AllScoresPipeline(torch.nn.Module):
         """
         super().__init__()
         self.batch_sampler = batch_sampler
+        if not (evaluation or return_scores):
+            raise ValueError(
+                "Nothing to return. Provide `evaluation` or set" " `return_scores=True`"
+            )
         if corruption_scheme not in ["h", "t"]:
             raise ValueError("corruption_scheme needs to be either 'h' or 't'")
         if (
@@ -82,6 +92,7 @@ class AllScoresPipeline(torch.nn.Module):
         )
         self.score_fn = score_fn
         self.evaluation = evaluation
+        self.return_scores = return_scores
         self.window_size = windows_size
         self.bess_module = AllScoresBESS(
             self.candidate_sampler, self.score_fn, self.window_size
@@ -167,7 +178,8 @@ class AllScoresPipeline(torch.nn.Module):
             batch_scores_filt = batch_scores[triple_mask.flatten()][
                 :, np.unique(np.concatenate(batch_idx), return_index=True)[1]
             ][:, : self.bess_module.sharding.n_entity]
-            scores.append(torch.clone(batch_scores_filt))
+            if self.return_scores:
+                scores.append(torch.clone(batch_scores_filt))
 
             if self.evaluation:
                 assert (
@@ -190,7 +202,9 @@ class AllScoresPipeline(torch.nn.Module):
                 if self.evaluation.return_ranks:
                     ranks.append(batch_ranks)
 
-        out = dict(scores=torch.concat(scores, dim=0))
+        out = dict()
+        if scores:
+            out["scores"] = torch.concat(scores, dim=0)
         if ids:
             out["triple_idx"] = torch.concat(ids, dim=0)
         if self.evaluation:
