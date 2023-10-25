@@ -69,7 +69,7 @@ class AllScoresPipeline(torch.nn.Module):
         self.batch_sampler = batch_sampler
         if not (evaluation or return_scores):
             raise ValueError(
-                "Nothing to return. Provide `evaluation` or set" " `return_scores=True`"
+                "Nothing to return. Provide `evaluation` or set `return_scores=True`"
             )
         if corruption_scheme not in ["h", "t"]:
             raise ValueError("corruption_scheme needs to be either 'h' or 't'")
