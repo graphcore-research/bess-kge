@@ -102,7 +102,8 @@ class AllScoresPipeline(torch.nn.Module):
         inf_options.replication_factor = self.bess_module.sharding.n_shard
         inf_options.deviceIterations(self.batch_sampler.batches_per_step)
         inf_options.outputMode(poptorch.OutputMode.All)
-        inf_options.useIpuModel(use_ipu_model)
+        if use_ipu_model:
+            inf_options.useIpuModel(True)
         self.dl = self.batch_sampler.get_dataloader(options=inf_options, shuffle=False)
 
         self.poptorch_module = poptorch.inferenceModel(
