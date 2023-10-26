@@ -4,11 +4,12 @@
 High-level APIs for training/inference with BESS.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 import poptorch
 import torch
+from numpy.typing import NDArray
 from tqdm import tqdm
 
 from besskge.batch_sampler import ShardedBatchSampler
@@ -16,13 +17,15 @@ from besskge.bess import AllScoresBESS
 from besskge.metric import Evaluation
 from besskge.negative_sampler import PlaceholderNegativeSampler
 from besskge.scoring import BaseScoreFunction
+from besskge.utils import get_entity_filter
 
 
 class AllScoresPipeline(torch.nn.Module):
     """
-    Pipeline to compute scores of (h, r, ?) / (?, r, t)
-    queries against all entities in the KG, and related
-    prediction metrics.
+    Pipeline to compute scores of (h, r, ?) / (?, r, t) queries against all entities
+    in the KG, and related prediction metrics.
+    It supports filtering out the scores of specific completions that appear in a given
+    set of triples.
 
     To be used in combination with a batch sampler based on a
     "h_shard"/"t_shard"-partitioned triple set.
@@ -34,6 +37,7 @@ class AllScoresPipeline(torch.nn.Module):
         corruption_scheme: str,
         score_fn: BaseScoreFunction,
         evaluation: Optional[Evaluation] = None,
+        filter_triples: Optional[List[Union[torch.Tensor, NDArray[np.int32]]]] = None,
         return_scores: bool = False,
         windows_size: int = 1000,
         use_ipu_model: bool = False,
@@ -52,8 +56,13 @@ class AllScoresPipeline(torch.nn.Module):
         :param evaluation:
             Evaluation module, for computing metrics.
             Default: None.
+        :param filter_triples:
+            The set of all triples whose scores need to be filtered.
+            The triples passed here must have GLOBAL IDs for head/tail
+            entities. Default: None.
         :param return_scores:
-            If True, store and return scores of all queries' completions.
+            If True, store and return scores of all queries' completions
+            (with filters applied, if specified).
             For large number of queries/entities, this can cause the host
             to go OOM.
             Default: False.
@@ -94,6 +103,7 @@ class AllScoresPipeline(torch.nn.Module):
         self.evaluation = evaluation
         self.return_scores = return_scores
         self.window_size = windows_size
+        self.corruption_scheme = corruption_scheme
         self.bess_module = AllScoresBESS(
             self.candidate_sampler, self.score_fn, self.window_size
         )
@@ -114,6 +124,36 @@ class AllScoresPipeline(torch.nn.Module):
             0,
             poptorch.VariableRetrievalMode.OnePerGroup,
         )
+        self.filter_triples: Optional[torch.Tensor] = None
+        if filter_triples:
+            # Reconstruct global IDs for all entities in triples
+            local_id_col = (
+                0 if self.batch_sampler.triple_partition_mode == "h_shard" else 2
+            )
+            triple_shard_offset = np.concatenate(
+                [np.array([0]), np.cumsum(batch_sampler.triple_counts)]
+            )
+            global_id_triples = []
+            for i in range(len(triple_shard_offset) - 1):
+                shard_triples = np.copy(
+                    batch_sampler.triples[
+                        triple_shard_offset[i] : triple_shard_offset[i + 1]
+                    ]
+                )
+                shard_triples[
+                    :, local_id_col
+                ] = self.bess_module.sharding.shard_and_idx_to_entity[i][
+                    shard_triples[:, local_id_col]
+                ]
+                global_id_triples.append(shard_triples)
+            self.triples = torch.from_numpy(np.concatenate(global_id_triples, axis=0))
+            self.filter_triples = torch.concat(
+                [
+                    tr if isinstance(tr, torch.Tensor) else torch.from_numpy(tr)
+                    for tr in filter_triples
+                ],
+                dim=0,
+            )
 
     def forward(self) -> Dict[str, Any]:
         """
@@ -179,19 +219,26 @@ class AllScoresPipeline(torch.nn.Module):
             batch_scores_filt = batch_scores[triple_mask.flatten()][
                 :, np.unique(np.concatenate(batch_idx), return_index=True)[1]
             ][:, : self.bess_module.sharding.n_entity]
-            if self.return_scores:
-                scores.append(torch.clone(batch_scores_filt))
+            # Scores of positive triples
+            true_scores = batch_scores_filt[
+                torch.arange(batch_scores_filt.shape[0]),
+                ground_truth[triple_mask],
+            ]
+            if self.filter_triples is not None:
+                # Filter for triples in batch
+                batch_filter = get_entity_filter(
+                    self.triples[triple_id[triple_mask]],
+                    self.filter_triples,
+                    filter_mode=self.corruption_scheme,
+                )
+                batch_scores_filt[batch_filter[:, 0], batch_filter[:, 1]] = -torch.inf
 
             if self.evaluation:
                 assert (
                     ground_truth is not None
                 ), "Evaluation requires providing ground truth entities"
-                # Scores of true triples
-                true_scores = batch_scores_filt[
-                    torch.arange(batch_scores_filt.shape[0]),
-                    ground_truth[triple_mask],
-                ]
-                # Mask scores of true triples to compute ranks
+                # If not already masked, mask scores of true triples
+                # to compute metrics
                 batch_scores_filt[
                     torch.arange(batch_scores_filt.shape[0]),
                     ground_truth[triple_mask],
@@ -202,6 +249,13 @@ class AllScoresPipeline(torch.nn.Module):
                 metrics.append(self.evaluation.dict_metrics_from_ranks(batch_ranks))
                 if self.evaluation.return_ranks:
                     ranks.append(batch_ranks)
+            if self.return_scores:
+                # Restore positive scores in the returned scores
+                batch_scores_filt[
+                    torch.arange(batch_scores_filt.shape[0]),
+                    ground_truth[triple_mask],
+                ] = true_scores
+                scores.append(batch_scores_filt)
 
         out = dict()
         if scores:

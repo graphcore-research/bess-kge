@@ -33,6 +33,42 @@ def gather_indices(x: torch.Tensor, index: torch.Tensor) -> torch.Tensor:
     return x.view(-1, mask_size)
 
 
+def get_entity_filter(
+    triples: torch.Tensor, filter_triples: torch.Tensor, filter_mode: str
+) -> torch.Tensor:
+    """
+    Compare two sets of triples: for each triple (h,r,t) in the first set, find
+    the entities `e` such that (e,r,t) (or (h,r,e), depending on `filter_mode`)
+    appears in the second set of triples.
+
+    :param triples: shape (x, 3)
+        The set of triples to construct filters for.
+    :param filter_triples: shape (y, 3)
+        The set of triples determining the head/tail entities to filter.
+    :param filter_mode:
+        Set to "h" to look for entities appearing as heads of the same (r,t) pair,
+        or to "t" to look for entities appearing as tails of the same (h,r) pair.
+
+    :return: shape (z, 2)
+        The sparse filters. Each row is given by a tuple (i, j), with i the index
+        of the triple in `triples` to which the filter applies to and j the global
+        ID of the entity to filter.
+    """
+    if filter_mode == "t":
+        ent_col = 0
+    elif filter_mode == "h":
+        ent_col = 2
+    else:
+        raise ValueError("`filter_mode` needs to be either 'h' or 't'")
+    relation_filter = (filter_triples[:, 1]) == triples[:, 1].view(-1, 1)
+    entity_filter = (filter_triples[:, ent_col]) == triples[:, ent_col].view(-1, 1)
+
+    filter = (entity_filter & relation_filter).nonzero(as_tuple=False)
+    filter[:, 1] = filter_triples[:, 2 - ent_col].view(1, -1)[:, filter[:, 1]]
+
+    return filter
+
+
 def complex_multiplication(v1: torch.Tensor, v2: torch.Tensor) -> torch.Tensor:
     """
     Batched complex multiplication.
