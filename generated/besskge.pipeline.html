@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>besskge.utils.complex_rotation &mdash; BESS-KGE  documentation</title>
+  <title>besskge.pipeline &mdash; BESS-KGE  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -15,12 +15,11 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="besskge.utils.gather_indices" href="besskge.utils.gather_indices.html" />
-    <link rel="prev" title="besskge.utils.complex_multiplication" href="besskge.utils.complex_multiplication.html" /> 
+    <link rel="next" title="besskge.pipeline.AllScoresPipeline" href="besskge.pipeline.AllScoresPipeline.html" />
+    <link rel="prev" title="BESS-KGE API Reference" href="../API_reference.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -47,7 +46,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../bess.html">BESS overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../API_reference.html">API reference</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="besskge.pipeline.html">besskge.pipeline</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">besskge.pipeline</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="besskge.pipeline.AllScoresPipeline.html">besskge.pipeline.AllScoresPipeline</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="besskge.dataset.html">besskge.dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="besskge.sharding.html">besskge.sharding</a></li>
 <li class="toctree-l2"><a class="reference internal" href="besskge.batch_sampler.html">besskge.batch_sampler</a></li>
@@ -57,16 +59,7 @@
 <li class="toctree-l2"><a class="reference internal" href="besskge.loss.html">besskge.loss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="besskge.metric.html">besskge.metric</a></li>
 <li class="toctree-l2"><a class="reference internal" href="besskge.embedding.html">besskge.embedding</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="besskge.utils.html">besskge.utils</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="besskge.utils.complex_multiplication.html">besskge.utils.complex_multiplication</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">besskge.utils.complex_rotation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.utils.complex_rotation"><code class="docutils literal notranslate"><span class="pre">complex_rotation()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="besskge.utils.gather_indices.html">besskge.utils.gather_indices</a></li>
-<li class="toctree-l3"><a class="reference internal" href="besskge.utils.get_entity_filter.html">besskge.utils.get_entity_filter</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="besskge.utils.html">besskge.utils</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../dev_guide.html">Developers guide</a></li>
@@ -88,10 +81,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../API_reference.html">BESS-KGE API Reference</a></li>
-          <li class="breadcrumb-item"><a href="besskge.utils.html">besskge.utils</a></li>
-      <li class="breadcrumb-item active">besskge.utils.complex_rotation</li>
+      <li class="breadcrumb-item active">besskge.pipeline</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/generated/besskge.utils.complex_rotation.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/generated/besskge.pipeline.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -99,40 +91,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="besskge-utils-complex-rotation">
-<h1>besskge.utils.complex_rotation<a class="headerlink" href="#besskge-utils-complex-rotation" title="Permalink to this heading"></a></h1>
-<dl class="py function">
-<dt class="sig sig-object py" id="besskge.utils.complex_rotation">
-<span class="sig-prename descclassname"><span class="pre">besskge.utils.</span></span><span class="sig-name descname"><span class="pre">complex_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/utils.html#complex_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.utils.complex_rotation" title="Permalink to this definition"></a></dt>
-<dd><p>Batched rotation by unitary tensors.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>v</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (a, 2*e)
-Complex tensor to rotate:
-<code class="code docutils literal notranslate"><span class="pre">v[:,:e]</span></code> real part, <code class="code docutils literal notranslate"><span class="pre">v[:,e:]</span></code> imaginary part.</p></li>
-<li><p><strong>r</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (a, e)
-Rotate <code class="code docutils literal notranslate"><span class="pre">v[k]</span></code> by <span class="math notranslate nohighlight">\(e^{i \pi r[k]}\)</span></p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>shape: (a, 2*e)
-Row-wise rotated tensors.</p>
-</dd>
-</dl>
-</dd></dl>
-
+  <section id="module-besskge.pipeline">
+<span id="besskge-pipeline"></span><h1>besskge.pipeline<a class="headerlink" href="#module-besskge.pipeline" title="Permalink to this heading"></a></h1>
+<p>High-level APIs for training/inference with BESS.</p>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="besskge.pipeline.AllScoresPipeline.html#besskge.pipeline.AllScoresPipeline" title="besskge.pipeline.AllScoresPipeline"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AllScoresPipeline</span></code></a>(batch_sampler, ...[, ...])</p></td>
+<td><p>Pipeline to compute scores of (h, r, ?) / (?, r, t) queries against all entities in the KG, and related prediction metrics.</p></td>
+</tr>
+</tbody>
+</table>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="besskge.utils.complex_multiplication.html" class="btn btn-neutral float-left" title="besskge.utils.complex_multiplication" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="besskge.utils.gather_indices.html" class="btn btn-neutral float-right" title="besskge.utils.gather_indices" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../API_reference.html" class="btn btn-neutral float-left" title="BESS-KGE API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="besskge.pipeline.AllScoresPipeline.html" class="btn btn-neutral float-right" title="besskge.pipeline.AllScoresPipeline" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

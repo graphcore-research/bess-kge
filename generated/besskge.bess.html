@@ -18,7 +18,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="besskge.bess.BessKGE" href="besskge.bess.BessKGE.html" />
+    <link rel="next" title="besskge.bess.AllScoresBESS" href="besskge.bess.AllScoresBESS.html" />
     <link rel="prev" title="besskge.negative_sampler.TypeBasedShardedNegativeSampler" href="besskge.negative_sampler.TypeBasedShardedNegativeSampler.html" /> 
 </head>
 
@@ -46,11 +46,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../bess.html">BESS overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../API_reference.html">API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="besskge.pipeline.html">besskge.pipeline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="besskge.dataset.html">besskge.dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="besskge.sharding.html">besskge.sharding</a></li>
 <li class="toctree-l2"><a class="reference internal" href="besskge.batch_sampler.html">besskge.batch_sampler</a></li>
 <li class="toctree-l2"><a class="reference internal" href="besskge.negative_sampler.html">besskge.negative_sampler</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">besskge.bess</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="besskge.bess.AllScoresBESS.html">besskge.bess.AllScoresBESS</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.bess.BessKGE.html">besskge.bess.BessKGE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.bess.EmbeddingMovingBessKGE.html">besskge.bess.EmbeddingMovingBessKGE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.bess.ScoreMovingBessKGE.html">besskge.bess.ScoreMovingBessKGE</a></li>
@@ -100,17 +102,20 @@ for KGE training and inference on multiple IPUs.</p>
 <p class="rubric">Classes</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="besskge.bess.BessKGE.html#besskge.bess.BessKGE" title="besskge.bess.BessKGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BessKGE</span></code></a>(negative_sampler, score_fn[, ...])</p></td>
-<td><p>Base class for distributed training and inference of KGE models, using the distribution framework BESS <span id="id2">[<a class="reference internal" href="../bibliography.html#id11" title="Alberto Cattaneo, Daniel Justus, Harry Mellor, Douglas Orr, Jerome Maloberti, Zhenying Liu, Thorin Farnsworth, Andrew Fitzgibbon, Blazej Banaszewski, and Carlo Luschi. BESS: balanced entity sampling and sharing for large-scale knowledge graph completion. arXiv preprint arXiv:2211.12281, 2022.">CJM+22</a>]</span>.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="besskge.bess.AllScoresBESS.html#besskge.bess.AllScoresBESS" title="besskge.bess.AllScoresBESS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AllScoresBESS</span></code></a>(candidate_sampler, score_fn[, ...])</p></td>
+<td><p>Distributed scoring of (h, r, ?) or (?, r, t) queries against the entities in the knowledge graph, returning all scores to host in blocks, based on the BESS <span id="id2">[<a class="reference internal" href="../bibliography.html#id11" title="Alberto Cattaneo, Daniel Justus, Harry Mellor, Douglas Orr, Jerome Maloberti, Zhenying Liu, Thorin Farnsworth, Andrew Fitzgibbon, Blazej Banaszewski, and Carlo Luschi. BESS: balanced entity sampling and sharing for large-scale knowledge graph completion. arXiv preprint arXiv:2211.12281, 2022.">CJM+22</a>]</span> inference scheme.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="besskge.bess.EmbeddingMovingBessKGE.html#besskge.bess.EmbeddingMovingBessKGE" title="besskge.bess.EmbeddingMovingBessKGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EmbeddingMovingBessKGE</span></code></a>(negative_sampler, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="besskge.bess.BessKGE.html#besskge.bess.BessKGE" title="besskge.bess.BessKGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BessKGE</span></code></a>(negative_sampler, score_fn[, ...])</p></td>
+<td><p>Base class for distributed training and inference of KGE models, using the distribution framework BESS <span id="id3">[<a class="reference internal" href="../bibliography.html#id11" title="Alberto Cattaneo, Daniel Justus, Harry Mellor, Douglas Orr, Jerome Maloberti, Zhenying Liu, Thorin Farnsworth, Andrew Fitzgibbon, Blazej Banaszewski, and Carlo Luschi. BESS: balanced entity sampling and sharing for large-scale knowledge graph completion. arXiv preprint arXiv:2211.12281, 2022.">CJM+22</a>]</span>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="besskge.bess.EmbeddingMovingBessKGE.html#besskge.bess.EmbeddingMovingBessKGE" title="besskge.bess.EmbeddingMovingBessKGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EmbeddingMovingBessKGE</span></code></a>(negative_sampler, ...)</p></td>
 <td><p>Compute negative scores on the shard where the positive triples are scored (namely the head shard).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="besskge.bess.ScoreMovingBessKGE.html#besskge.bess.ScoreMovingBessKGE" title="besskge.bess.ScoreMovingBessKGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScoreMovingBessKGE</span></code></a>(negative_sampler, score_fn)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="besskge.bess.ScoreMovingBessKGE.html#besskge.bess.ScoreMovingBessKGE" title="besskge.bess.ScoreMovingBessKGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ScoreMovingBessKGE</span></code></a>(negative_sampler, score_fn)</p></td>
 <td><p>Compute negative scores on the shard where the negative entities are stored.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="besskge.bess.TopKQueryBessKGE.html#besskge.bess.TopKQueryBessKGE" title="besskge.bess.TopKQueryBessKGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TopKQueryBessKGE</span></code></a>(k, candidate_sampler, score_fn)</p></td>
-<td><p>Distributed scoring of (h, r, ?) or (?, r, t) queries (against all entities in the knowledge graph, or a query-specific set) returning the top-k most likely completions, based on the BESS <span id="id3">[<a class="reference internal" href="../bibliography.html#id11" title="Alberto Cattaneo, Daniel Justus, Harry Mellor, Douglas Orr, Jerome Maloberti, Zhenying Liu, Thorin Farnsworth, Andrew Fitzgibbon, Blazej Banaszewski, and Carlo Luschi. BESS: balanced entity sampling and sharing for large-scale knowledge graph completion. arXiv preprint arXiv:2211.12281, 2022.">CJM+22</a>]</span> inference scheme.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="besskge.bess.TopKQueryBessKGE.html#besskge.bess.TopKQueryBessKGE" title="besskge.bess.TopKQueryBessKGE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TopKQueryBessKGE</span></code></a>(k, candidate_sampler, score_fn)</p></td>
+<td><p>Distributed scoring of (h, r, ?) or (?, r, t) queries (against all entities in the knowledge graph, or a query-specific set) returning the top-k most likely completions, based on the BESS <span id="id4">[<a class="reference internal" href="../bibliography.html#id11" title="Alberto Cattaneo, Daniel Justus, Harry Mellor, Douglas Orr, Jerome Maloberti, Zhenying Liu, Thorin Farnsworth, Andrew Fitzgibbon, Blazej Banaszewski, and Carlo Luschi. BESS: balanced entity sampling and sharing for large-scale knowledge graph completion. arXiv preprint arXiv:2211.12281, 2022.">CJM+22</a>]</span> inference scheme.</p></td>
 </tr>
 </tbody>
 </table>
@@ -121,7 +126,7 @@ for KGE training and inference on multiple IPUs.</p>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="besskge.negative_sampler.TypeBasedShardedNegativeSampler.html" class="btn btn-neutral float-left" title="besskge.negative_sampler.TypeBasedShardedNegativeSampler" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="besskge.bess.BessKGE.html" class="btn btn-neutral float-right" title="besskge.bess.BessKGE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="besskge.bess.AllScoresBESS.html" class="btn btn-neutral float-right" title="besskge.bess.AllScoresBESS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

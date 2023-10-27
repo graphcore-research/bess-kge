@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>besskge.utils.complex_rotation &mdash; BESS-KGE  documentation</title>
+  <title>besskge.utils.get_entity_filter &mdash; BESS-KGE  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -15,12 +15,11 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
-        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="besskge.utils.gather_indices" href="besskge.utils.gather_indices.html" />
-    <link rel="prev" title="besskge.utils.complex_multiplication" href="besskge.utils.complex_multiplication.html" /> 
+    <link rel="next" title="How to contribute to the BESS-KGE project" href="../dev_guide.html" />
+    <link rel="prev" title="besskge.utils.gather_indices" href="besskge.utils.gather_indices.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -59,12 +58,12 @@
 <li class="toctree-l2"><a class="reference internal" href="besskge.embedding.html">besskge.embedding</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="besskge.utils.html">besskge.utils</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="besskge.utils.complex_multiplication.html">besskge.utils.complex_multiplication</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">besskge.utils.complex_rotation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.utils.complex_rotation"><code class="docutils literal notranslate"><span class="pre">complex_rotation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.utils.complex_rotation.html">besskge.utils.complex_rotation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.utils.gather_indices.html">besskge.utils.gather_indices</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">besskge.utils.get_entity_filter</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#besskge.utils.get_entity_filter"><code class="docutils literal notranslate"><span class="pre">get_entity_filter()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="besskge.utils.gather_indices.html">besskge.utils.gather_indices</a></li>
-<li class="toctree-l3"><a class="reference internal" href="besskge.utils.get_entity_filter.html">besskge.utils.get_entity_filter</a></li>
 </ul>
 </li>
 </ul>
@@ -89,9 +88,9 @@
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../API_reference.html">BESS-KGE API Reference</a></li>
           <li class="breadcrumb-item"><a href="besskge.utils.html">besskge.utils</a></li>
-      <li class="breadcrumb-item active">besskge.utils.complex_rotation</li>
+      <li class="breadcrumb-item active">besskge.utils.get_entity_filter</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/generated/besskge.utils.complex_rotation.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/generated/besskge.utils.get_entity_filter.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -99,28 +98,33 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="besskge-utils-complex-rotation">
-<h1>besskge.utils.complex_rotation<a class="headerlink" href="#besskge-utils-complex-rotation" title="Permalink to this heading"></a></h1>
+  <section id="besskge-utils-get-entity-filter">
+<h1>besskge.utils.get_entity_filter<a class="headerlink" href="#besskge-utils-get-entity-filter" title="Permalink to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="besskge.utils.complex_rotation">
-<span class="sig-prename descclassname"><span class="pre">besskge.utils.</span></span><span class="sig-name descname"><span class="pre">complex_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/utils.html#complex_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.utils.complex_rotation" title="Permalink to this definition"></a></dt>
-<dd><p>Batched rotation by unitary tensors.</p>
+<dt class="sig sig-object py" id="besskge.utils.get_entity_filter">
+<span class="sig-prename descclassname"><span class="pre">besskge.utils.</span></span><span class="sig-name descname"><span class="pre">get_entity_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">triples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_triples</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/utils.html#get_entity_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.utils.get_entity_filter" title="Permalink to this definition"></a></dt>
+<dd><p>Compare two sets of triples: for each triple (h,r,t) in the first set, find
+the entities <cite>e</cite> such that (e,r,t) (or (h,r,e), depending on <cite>filter_mode</cite>)
+appears in the second set of triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>v</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (a, 2*e)
-Complex tensor to rotate:
-<code class="code docutils literal notranslate"><span class="pre">v[:,:e]</span></code> real part, <code class="code docutils literal notranslate"><span class="pre">v[:,e:]</span></code> imaginary part.</p></li>
-<li><p><strong>r</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (a, e)
-Rotate <code class="code docutils literal notranslate"><span class="pre">v[k]</span></code> by <span class="math notranslate nohighlight">\(e^{i \pi r[k]}\)</span></p></li>
+<li><p><strong>triples</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape (x, 3)
+The set of triples to construct filters for.</p></li>
+<li><p><strong>filter_triples</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape (y, 3)
+The set of triples determining the head/tail entities to filter.</p></li>
+<li><p><strong>filter_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>) – Set to “h” to look for entities appearing as heads of the same (r,t) pair,
+or to “t” to look for entities appearing as tails of the same (h,r) pair.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>shape: (a, 2*e)
-Row-wise rotated tensors.</p>
+<dd class="field-odd"><p>shape (z, 2)
+The sparse filters. Each row is given by a tuple (i, j), with i the index
+of the triple in <cite>triples</cite> to which the filter applies to and j the global
+ID of the entity to filter.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -131,8 +135,8 @@ Row-wise rotated tensors.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="besskge.utils.complex_multiplication.html" class="btn btn-neutral float-left" title="besskge.utils.complex_multiplication" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="besskge.utils.gather_indices.html" class="btn btn-neutral float-right" title="besskge.utils.gather_indices" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="besskge.utils.gather_indices.html" class="btn btn-neutral float-left" title="besskge.utils.gather_indices" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../dev_guide.html" class="btn btn-neutral float-right" title="How to contribute to the BESS-KGE project" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

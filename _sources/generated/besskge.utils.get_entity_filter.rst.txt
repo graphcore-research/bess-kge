@@ -1,0 +1,6 @@
+besskge.utils.get\_entity\_filter
+=================================
+
+.. currentmodule:: besskge.utils
+
+.. autofunction:: get_entity_filter

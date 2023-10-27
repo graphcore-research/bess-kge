@@ -6,6 +6,7 @@ BESS-KGE API Reference
    :template: module.rst
    :recursive:
 
+   besskge.pipeline
    besskge.dataset
    besskge.sharding
    besskge.batch_sampler

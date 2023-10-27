@@ -781,22 +781,22 @@
 <span class="sd">        and respective scores are kept to be used in the next iteration, while</span>
 <span class="sd">        the rest are discarded.</span>
 
-<span class="sd">        :param relation: shape: (shard_bs,)</span>
+<span class="sd">        :param relation: shape: (1, shard_bs,)</span>
 <span class="sd">            Relation indices.</span>
-<span class="sd">        :param head: shape: (shard_bs,)</span>
+<span class="sd">        :param head: shape: (1, shard_bs,)</span>
 <span class="sd">            Head indices, if known. Default: None.</span>
-<span class="sd">        :param tail: shape: (shard_bs,)</span>
+<span class="sd">        :param tail: shape: (1, shard_bs,)</span>
 <span class="sd">            Tail indices, if known. Default: None.</span>
-<span class="sd">        :param negative: shape: (n_shard, B, padded_negative)</span>
+<span class="sd">        :param negative: shape: (1, n_shard, B, padded_negative)</span>
 <span class="sd">            Candidates to score against the queries.</span>
 <span class="sd">            It can be the same set for all queries (B=1),</span>
 <span class="sd">            or specific for each query in the batch (B=shard_bs).</span>
 <span class="sd">            If None, score each query against all entities in the knowledge</span>
 <span class="sd">            graph. Default: None.</span>
-<span class="sd">        :param triple_mask: shape: (shard_bs,)</span>
+<span class="sd">        :param triple_mask: shape: (1, shard_bs,)</span>
 <span class="sd">            Mask to filter the triples in the micro-batch</span>
 <span class="sd">            before computing metrics. Default: None.</span>
-<span class="sd">        :param negative_mask: shape: (n_shard, B, padded_negative)</span>
+<span class="sd">        :param negative_mask: shape: (1, n_shard, B, padded_negative)</span>
 <span class="sd">            If candidates are provided, mask to discard padding</span>
 <span class="sd">            negatives when computing best completions.</span>
 <span class="sd">            Requires the use of :code:`mask_on_gather=True` in the candidate</span>
@@ -993,6 +993,147 @@
                 <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">out_dict</span></div></div>
+
+
+<div class="viewcode-block" id="AllScoresBESS"><a class="viewcode-back" href="../../generated/besskge.bess.AllScoresBESS.html#besskge.bess.AllScoresBESS">[docs]</a><span class="k">class</span> <span class="nc">AllScoresBESS</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Distributed scoring of (h, r, ?) or (?, r, t) queries against</span>
+<span class="sd">    the entities in the knowledge graph, returning all scores to</span>
+<span class="sd">    host in blocks, based on the BESS :cite:p:`BESS`</span>
+<span class="sd">    inference scheme.</span>
+<span class="sd">    To be used in combination with a batch sampler based on a</span>
+<span class="sd">    &quot;h_shard&quot;/&quot;t_shard&quot;-partitioned triple set.</span>
+<span class="sd">    Since each iteration on IPU computes only part of the scores</span>
+<span class="sd">    (based on the size of the sliding window), metrics should be</span>
+<span class="sd">    computed on host after aggregating data (see</span>
+<span class="sd">    :class:`besskge.pipeline.AllScoresPipeline`).</span>
+
+<span class="sd">    Only to be used for inference.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">candidate_sampler</span><span class="p">:</span> <span class="n">PlaceholderNegativeSampler</span><span class="p">,</span>
+        <span class="n">score_fn</span><span class="p">:</span> <span class="n">BaseScoreFunction</span><span class="p">,</span>
+        <span class="n">window_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize AllScores BESS-KGE module.</span>
+
+<span class="sd">        :param candidate_sampler:</span>
+<span class="sd">            :class:`besskge.negative_sampler.PlaceholderNegativeSampler` class,</span>
+<span class="sd">            specifying corruption scheme.</span>
+<span class="sd">        :param score_fn:</span>
+<span class="sd">            Scoring function.</span>
+<span class="sd">        :param window_size:</span>
+<span class="sd">            Size of the sliding window, namely the number of negative entities</span>
+<span class="sd">            scored against each query at each step on IPU and returned to host.</span>
+<span class="sd">            Should be decreased with large batch sizes, to avoid an OOM error.</span>
+<span class="sd">            Default: 1000.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span> <span class="o">=</span> <span class="n">score_fn</span><span class="o">.</span><span class="n">sharding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span> <span class="o">=</span> <span class="n">score_fn</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span> <span class="o">=</span> <span class="n">candidate_sampler</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">window_size</span> <span class="o">=</span> <span class="n">window_size</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">score_fn</span><span class="o">.</span><span class="n">negative_sample_sharing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;AllScoresBESS requires using negative sample sharing&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;t&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;AllScoresBESS only support &#39;h&#39;, &#39;t&#39; corruption scheme&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="p">,</span> <span class="n">PlaceholderNegativeSampler</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;AllScoresBESS requires a `PlaceholderNegativeSampler`&quot;</span>
+                <span class="s2">&quot; candidate_sampler&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">entity_embedding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">candidate</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_size</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_step</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">max_entity_per_shard</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_size</span><span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="AllScoresBESS.forward"><a class="viewcode-back" href="../../generated/besskge.bess.AllScoresBESS.html#besskge.bess.AllScoresBESS.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">step</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">head</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tail</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Forward step.</span>
+
+<span class="sd">        Similarly to :class:`ScoreMovingBessKGE`, candidates are scored on the</span>
+<span class="sd">        device where they are gathered, then scores for the same query against</span>
+<span class="sd">        candidates in different shards are collected together via an AllToAll.</span>
+
+<span class="sd">        :param step:</span>
+<span class="sd">            The index of the block (of size self.window_size) of entities</span>
+<span class="sd">            on each IPU to score against queries.</span>
+<span class="sd">        :param relation: shape: (1, shard_bs,)</span>
+<span class="sd">            Relation indices.</span>
+<span class="sd">        :param head: shape: (1, shard_bs,)</span>
+<span class="sd">            Head indices, if known. Default: None.</span>
+<span class="sd">        :param tail: shape: (1, shard_bs,)</span>
+<span class="sd">            Tail indices, if known. Default: None.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">            The scores for the completions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">relation</span> <span class="o">=</span> <span class="n">relation</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">head</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">head</span> <span class="o">=</span> <span class="n">head</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tail</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tail</span> <span class="o">=</span> <span class="n">tail</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">n_shard</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">n_shard</span>
+        <span class="n">shard_bs</span> <span class="o">=</span> <span class="n">relation</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">relation_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">relation</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
+            <span class="n">tail_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="p">[</span><span class="n">tail</span><span class="p">]</span>
+            <span class="n">tail_embedding_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">tail_embedding</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
+            <span class="n">head_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="p">[</span><span class="n">head</span><span class="p">]</span>
+            <span class="n">head_embedding_all</span> <span class="o">=</span> <span class="n">all_gather</span><span class="p">(</span><span class="n">head_embedding</span><span class="p">,</span> <span class="n">n_shard</span><span class="p">)</span>
+
+        <span class="c1"># Local indices of the entities to score against queries</span>
+        <span class="n">ent_slice</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span>
+            <span class="n">step</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_size</span>
+            <span class="o">+</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">window_size</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">relation</span><span class="o">.</span><span class="n">device</span><span class="p">),</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">max_entity_per_shard</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">negative_embedding</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="p">[</span><span class="n">ent_slice</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_heads</span><span class="p">(</span>
+                <span class="n">negative_embedding</span><span class="p">,</span>
+                <span class="n">relation_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">tail_embedding_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sampler</span><span class="o">.</span><span class="n">corruption_scheme</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
+            <span class="n">scores</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">score_fn</span><span class="o">.</span><span class="n">score_tails</span><span class="p">(</span>
+                <span class="n">head_embedding_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">relation_all</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">end_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">negative_embedding</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Send back queries to original shard</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">all_to_all</span><span class="p">(</span>
+                <span class="n">scores</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_shard</span><span class="p">,</span> <span class="n">shard_bs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">window_size</span><span class="p">),</span>
+                <span class="n">n_shard</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">start_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># shape (bs, n_shard * ws)</span>
+
+        <span class="k">return</span> <span class="n">scores</span></div></div>
 </pre></div>
 
            </div>

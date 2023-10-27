@@ -107,6 +107,42 @@
     <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mask_size</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="get_entity_filter"><a class="viewcode-back" href="../../generated/besskge.utils.get_entity_filter.html#besskge.utils.get_entity_filter">[docs]</a><span class="k">def</span> <span class="nf">get_entity_filter</span><span class="p">(</span>
+    <span class="n">triples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">filter_triples</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">filter_mode</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compare two sets of triples: for each triple (h,r,t) in the first set, find</span>
+<span class="sd">    the entities `e` such that (e,r,t) (or (h,r,e), depending on `filter_mode`)</span>
+<span class="sd">    appears in the second set of triples.</span>
+
+<span class="sd">    :param triples: shape (x, 3)</span>
+<span class="sd">        The set of triples to construct filters for.</span>
+<span class="sd">    :param filter_triples: shape (y, 3)</span>
+<span class="sd">        The set of triples determining the head/tail entities to filter.</span>
+<span class="sd">    :param filter_mode:</span>
+<span class="sd">        Set to &quot;h&quot; to look for entities appearing as heads of the same (r,t) pair,</span>
+<span class="sd">        or to &quot;t&quot; to look for entities appearing as tails of the same (h,r) pair.</span>
+
+<span class="sd">    :return: shape (z, 2)</span>
+<span class="sd">        The sparse filters. Each row is given by a tuple (i, j), with i the index</span>
+<span class="sd">        of the triple in `triples` to which the filter applies to and j the global</span>
+<span class="sd">        ID of the entity to filter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">filter_mode</span> <span class="o">==</span> <span class="s2">&quot;t&quot;</span><span class="p">:</span>
+        <span class="n">ent_col</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">elif</span> <span class="n">filter_mode</span> <span class="o">==</span> <span class="s2">&quot;h&quot;</span><span class="p">:</span>
+        <span class="n">ent_col</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`filter_mode` needs to be either &#39;h&#39; or &#39;t&#39;&quot;</span><span class="p">)</span>
+    <span class="n">relation_filter</span> <span class="o">=</span> <span class="p">(</span><span class="n">filter_triples</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">==</span> <span class="n">triples</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">entity_filter</span> <span class="o">=</span> <span class="p">(</span><span class="n">filter_triples</span><span class="p">[:,</span> <span class="n">ent_col</span><span class="p">])</span> <span class="o">==</span> <span class="n">triples</span><span class="p">[:,</span> <span class="n">ent_col</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="nb">filter</span> <span class="o">=</span> <span class="p">(</span><span class="n">entity_filter</span> <span class="o">&amp;</span> <span class="n">relation_filter</span><span class="p">)</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">as_tuple</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">filter</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">filter_triples</span><span class="p">[:,</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">ent_col</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)[:,</span> <span class="nb">filter</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span>
+
+    <span class="k">return</span> <span class="nb">filter</span></div>
+
+
 <div class="viewcode-block" id="complex_multiplication"><a class="viewcode-back" href="../../generated/besskge.utils.complex_multiplication.html#besskge.utils.complex_multiplication">[docs]</a><span class="k">def</span> <span class="nf">complex_multiplication</span><span class="p">(</span><span class="n">v1</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">v2</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Batched complex multiplication.</span>

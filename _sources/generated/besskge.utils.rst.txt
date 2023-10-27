@@ -21,6 +21,7 @@ besskge.utils
       complex_multiplication
       complex_rotation
       gather_indices
+      get_entity_filter
    
    
 
