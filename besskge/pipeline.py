@@ -271,7 +271,11 @@ class AllScoresPipeline(torch.nn.Module):
             if self.return_scores:
                 scores.append(batch_scores_filt)
             if self.return_topk:
-                topk_ids.append(torch.topk(batch_scores_filt, k=self.k, dim=-1).indices)
+                topk_ids.append(
+                    torch.topk(
+                        batch_scores_filt.to(torch.float32), k=self.k, dim=-1
+                    ).indices
+                )
 
         out = dict()
         if scores:
