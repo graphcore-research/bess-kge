@@ -106,7 +106,7 @@ def test_all_scores_pipeline(
         return_scores=True,
         return_topk=True,
         k=10,
-        windows_size=1000,
+        window_size=1000,
         use_ipu_model=True,
     )
     out = pipeline()

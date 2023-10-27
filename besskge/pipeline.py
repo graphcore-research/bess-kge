@@ -41,7 +41,7 @@ class AllScoresPipeline(torch.nn.Module):
         return_scores: bool = False,
         return_topk: bool = False,
         k: int = 10,
-        windows_size: int = 1000,
+        window_size: int = 1000,
         use_ipu_model: bool = False,
     ) -> None:
         """
@@ -75,7 +75,7 @@ class AllScoresPipeline(torch.nn.Module):
         :param k:
             If `return_topk` is set to True, for each query return the
             top-k most likely predictions (after filtering). Default: 10.
-        :param windows_size:
+        :param window_size:
             Size of the sliding window, namely the number of negative entities
             scored against each query at each step on IPU and returned to host.
             Should be decreased with large batch sizes, to avoid an OOM error.
@@ -113,7 +113,7 @@ class AllScoresPipeline(torch.nn.Module):
         self.return_scores = return_scores
         self.return_topk = return_topk
         self.k = k
-        self.window_size = windows_size
+        self.window_size = window_size
         self.corruption_scheme = corruption_scheme
         self.bess_module = AllScoresBESS(
             self.candidate_sampler, self.score_fn, self.window_size
