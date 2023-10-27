@@ -104,6 +104,8 @@ def test_all_scores_pipeline(
         evaluation,
         filter_triples=triples_to_filter,  # type: ignore
         return_scores=True,
+        return_topk=True,
+        k=10,
         windows_size=1000,
         use_ipu_model=True,
     )
@@ -160,7 +162,6 @@ def test_all_scores_pipeline(
             )
 
     cpu_ranks = evaluation.ranks_from_scores(pos_scores, cpu_scores)
-
     # we allow for a off-by-one rank difference on at most 1% of triples,
     # due to rounding differences in CPU vs IPU score computations
     assert torch.all(torch.abs(cpu_ranks - out["ranks"]) <= 1)
@@ -172,3 +173,6 @@ def test_all_scores_pipeline(
     ] = pos_scores
 
     assert_close(cpu_scores, out["scores"], atol=1e-3, rtol=1e-4)
+    assert torch.all(
+        torch.topk(cpu_scores, k=pipeline.k, dim=-1).indices == out["topk_global_id"]
+    )

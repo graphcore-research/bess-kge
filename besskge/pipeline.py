@@ -39,6 +39,8 @@ class AllScoresPipeline(torch.nn.Module):
         evaluation: Optional[Evaluation] = None,
         filter_triples: Optional[List[Union[torch.Tensor, NDArray[np.int32]]]] = None,
         return_scores: bool = False,
+        return_topk: bool = False,
+        k: int = 10,
         windows_size: int = 1000,
         use_ipu_model: bool = False,
     ) -> None:
@@ -66,6 +68,13 @@ class AllScoresPipeline(torch.nn.Module):
             For large number of queries/entities, this can cause the host
             to go OOM.
             Default: False.
+        :param return_topk:
+            If True, return for each query the global IDs of the most likely
+            completions, after filtering out the scores of `filter_triples`.
+            Default: False.
+        :param k:
+            If `return_topk` is set to True, for each query return the
+            top-k most likely predictions (after filtering). Default: 10.
         :param windows_size:
             Size of the sliding window, namely the number of negative entities
             scored against each query at each step on IPU and returned to host.
@@ -102,6 +111,8 @@ class AllScoresPipeline(torch.nn.Module):
         self.score_fn = score_fn
         self.evaluation = evaluation
         self.return_scores = return_scores
+        self.return_topk = return_topk
+        self.k = k
         self.window_size = windows_size
         self.corruption_scheme = corruption_scheme
         self.bess_module = AllScoresBESS(
@@ -168,6 +179,7 @@ class AllScoresPipeline(torch.nn.Module):
         ids = []
         metrics = []
         ranks = []
+        topk_ids = []
         n_triple = 0
         for batch in tqdm(iter(self.dl)):
             triple_mask = batch.pop("triple_mask")
@@ -219,11 +231,12 @@ class AllScoresPipeline(torch.nn.Module):
             batch_scores_filt = batch_scores[triple_mask.flatten()][
                 :, np.unique(np.concatenate(batch_idx), return_index=True)[1]
             ][:, : self.bess_module.sharding.n_entity]
-            # Scores of positive triples
-            true_scores = batch_scores_filt[
-                torch.arange(batch_scores_filt.shape[0]),
-                ground_truth[triple_mask],
-            ]
+            if ground_truth is not None:
+                # Scores of positive triples
+                true_scores = batch_scores_filt[
+                    torch.arange(batch_scores_filt.shape[0]),
+                    ground_truth[triple_mask],
+                ]
             if self.filter_triples is not None:
                 # Filter for triples in batch
                 batch_filter = get_entity_filter(
@@ -249,29 +262,35 @@ class AllScoresPipeline(torch.nn.Module):
                 metrics.append(self.evaluation.dict_metrics_from_ranks(batch_ranks))
                 if self.evaluation.return_ranks:
                     ranks.append(batch_ranks)
-            if self.return_scores:
+            if ground_truth is not None:
                 # Restore positive scores in the returned scores
                 batch_scores_filt[
                     torch.arange(batch_scores_filt.shape[0]),
                     ground_truth[triple_mask],
                 ] = true_scores
+            if self.return_scores:
                 scores.append(batch_scores_filt)
+            if self.return_topk:
+                topk_ids.append(torch.topk(batch_scores_filt, k=self.k, dim=-1).indices)
 
         out = dict()
         if scores:
             out["scores"] = torch.concat(scores, dim=0)
+        if topk_ids:
+            out["topk_global_id"] = torch.concat(topk_ids, dim=0)
         if ids:
             out["triple_idx"] = torch.concat(ids, dim=0)
         if self.evaluation:
-            concat_metrics = dict()
+            final_metrics = dict()
             for m in metrics[0].keys():
-                concat_metrics[m] = torch.concat(
-                    [met[m].reshape(-1) for met in metrics]
+                # Reduce metrics over all batches
+                final_metrics[m] = self.evaluation.reduction(
+                    torch.concat([met[m].reshape(-1) for met in metrics])
                 )
-            out["metrics"] = concat_metrics  # type: ignore
+            out["metrics"] = final_metrics  # type: ignore
             # Average metrics over all triples
             out["metrics_avg"] = {
-                m: v.sum() / n_triple for m, v in concat_metrics.items()
+                m: v.sum() / n_triple for m, v in final_metrics.items()
             }  # type: ignore
             if ranks:
                 out["ranks"] = torch.concat(ranks, dim=0)
