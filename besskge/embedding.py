@@ -26,6 +26,24 @@ def init_uniform_norm(embedding_table: torch.Tensor) -> torch.Tensor:
     return torch.nn.functional.normalize(torch.nn.init.uniform(embedding_table), dim=-1)
 
 
+def init_xavier_norm(embedding_table: torch.Tensor, gain: float = 1.0) -> torch.Tensor:
+    """
+    Initialize embeddings according to Xavier normal scheme, with
+    `fan_in = 0`, `fan_out=row_size`.
+
+    :param embedding_table:
+        Tensor of embedding parameters to initialize.
+    :param gain:
+        Scaling factor for standard deviation. Default: 1.0.
+
+    :return:
+        Initialized tensor.
+    """
+    return torch.nn.init.normal_(
+        embedding_table, std=gain * np.sqrt(2.0 / embedding_table.shape[-1])
+    )
+
+
 def init_KGE_uniform(
     embedding_table: torch.Tensor, b: float = 1.0, divide_by_embedding_size: bool = True
 ) -> torch.Tensor:
