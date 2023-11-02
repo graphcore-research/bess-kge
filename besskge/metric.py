@@ -149,6 +149,7 @@ class Evaluation:
             raise ValueError(
                 "`pos_score` and `candidate_score` need to have same size at dimension 0"
             )
+        pos_score.nan_to_num_(-torch.inf)
 
         if self.mode == "optimistic":
             n_better = torch.sum(candidate_score > pos_score, dim=-1).to(torch.float32)
