@@ -26,6 +26,7 @@ besskge.scoring
       BaseScoreFunction
       BoxE
       ComplEx
+      ConvE
       DistMult
       DistanceBasedScoreFunction
       InterHT

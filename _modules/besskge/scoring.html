@@ -89,6 +89,7 @@
     <span class="n">init_KGE_normal</span><span class="p">,</span>
     <span class="n">init_KGE_uniform</span><span class="p">,</span>
     <span class="n">init_uniform_norm</span><span class="p">,</span>
+    <span class="n">init_xavier_norm</span><span class="p">,</span>
     <span class="n">initialize_entity_embedding</span><span class="p">,</span>
     <span class="n">initialize_relation_embedding</span><span class="p">,</span>
     <span class="n">refactor_embedding_sharding</span><span class="p">,</span>
@@ -365,7 +366,7 @@
 <span class="sd">        :param relation_initializer:</span>
 <span class="sd">            Initialization function or table for relation embeddings.</span>
 <span class="sd">        :param inverse_relations:</span>
-<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">TransE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -465,7 +466,7 @@
 <span class="sd">        :param relation_initializer:</span>
 <span class="sd">            Initialization function or table for relation embeddings.</span>
 <span class="sd">        :param inverse_relations:</span>
-<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">RotatE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -576,7 +577,7 @@
 <span class="sd">            If True, L2-normalize head and tail entity embeddings before projecting,</span>
 <span class="sd">            as in :cite:p:`PairRE`. Default: True.</span>
 <span class="sd">        :param inverse_relations:</span>
-<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">PairRE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -711,7 +712,7 @@
 <span class="sd">            Offset factor for head/tail relation projections, as in TripleREv2.</span>
 <span class="sd">            Default: 0.0 (no offset).</span>
 <span class="sd">        :param inverse_relations:</span>
-<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">TripleRE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -850,7 +851,7 @@
 <span class="sd">        :param relation_initializer:</span>
 <span class="sd">            Initialization function or table for relation embeddings.</span>
 <span class="sd">        :param inverse_relations:</span>
-<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DistMult</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">)</span>
 
@@ -944,7 +945,7 @@
 <span class="sd">        :param relation_initializer:</span>
 <span class="sd">            Initialization function or table for relation embeddings.</span>
 <span class="sd">        :param inverse_relations:</span>
-<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ComplEx</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">)</span>
 
@@ -1018,6 +1019,206 @@
         <span class="p">)</span></div></div>
 
 
+<div class="viewcode-block" id="ConvE"><a class="viewcode-back" href="../../generated/besskge.scoring.ConvE.html#besskge.scoring.ConvE">[docs]</a><span class="k">class</span> <span class="nc">ConvE</span><span class="p">(</span><span class="n">MatrixDecompositionScoreFunction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ConvE scoring function :cite:p:`ConvE`.</span>
+
+<span class="sd">    Note that, differently from :cite:p:`ConvE`, the scores returned by this class</span>
+<span class="sd">    have not been passed through a final sigmoid layer, as we assume that this is</span>
+<span class="sd">    included in the loss function.</span>
+
+<span class="sd">    By design, this scoring function should be used in combination with a</span>
+<span class="sd">    negative/candidate sampler that only corrupts tails (possibly after</span>
+<span class="sd">    including all inverse triples in the dataset, see the `add_inverse_triples`</span>
+<span class="sd">    argument in :func:`besskge.sharding.PartitionedTripleSet.create_from_dataset`).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">negative_sample_sharing</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="n">sharding</span><span class="p">:</span> <span class="n">Sharding</span><span class="p">,</span>
+        <span class="n">n_relation_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">embedding_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">embedding_height</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">embedding_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">entity_initializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">init_xavier_norm</span><span class="p">,</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">zeros_</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">relation_initializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">init_xavier_norm</span><span class="p">,</span>
+        <span class="p">],</span>
+        <span class="n">inverse_relations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">input_channels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="n">output_channels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="n">kernel_height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">kernel_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="n">input_dropout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">feature_map_dropout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+        <span class="n">hidden_dropout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">,</span>
+        <span class="n">batch_normalization</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize ConvE model.</span>
+
+<span class="sd">        :param negative_sample_sharing:</span>
+<span class="sd">            see :meth:`DistanceBasedScoreFunction.__init__`</span>
+<span class="sd">        :param sharding:</span>
+<span class="sd">            Entity sharding.</span>
+<span class="sd">        :param n_relation_type:</span>
+<span class="sd">            Number of relation types in the knowledge graph.</span>
+<span class="sd">        :param embedding_size:</span>
+<span class="sd">            Size of entity and relation embeddings.</span>
+<span class="sd">        :param embedding_height:</span>
+<span class="sd">            Height of the 2D-reshaping of the concatenation of</span>
+<span class="sd">            head and relation embeddings.</span>
+<span class="sd">        :param embedding_width:</span>
+<span class="sd">            Width of the 2D-reshaping of the concatenation of</span>
+<span class="sd">            head and relation embeddings.</span>
+<span class="sd">        :param entity_initializer:</span>
+<span class="sd">            Initialization functions or table for entity embeddings.</span>
+<span class="sd">            If not passing a table, two functions are needed: the initializer</span>
+<span class="sd">            for entity embeddings and initializer for (scalar) tail biases.</span>
+<span class="sd">        :param relation_initializer:</span>
+<span class="sd">            Initialization function or table for relation embeddings.</span>
+<span class="sd">        :param inverse_relations:</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: True.</span>
+<span class="sd">        :param input_channels:</span>
+<span class="sd">            Number of input channels of the Conv2D operator. Default: 1.</span>
+<span class="sd">        :param output_channels:</span>
+<span class="sd">            Number of output channels of the Conv2D operator. Default: 32.</span>
+<span class="sd">        :param kernel_height:</span>
+<span class="sd">            Height of the Conv2D kernel. Default: 3.</span>
+<span class="sd">        :param kernel_width:</span>
+<span class="sd">            Width of the Conv2D kernel. Default: 3.</span>
+<span class="sd">        :param input_dropout:</span>
+<span class="sd">            Rate of Dropout applied before the convolution. Default: 0.2.</span>
+<span class="sd">        :param feature_map_dropout:</span>
+<span class="sd">            Rate of Dropout applied after the convolution. Default: 0.2.</span>
+<span class="sd">        :param hidden_dropout:</span>
+<span class="sd">            Rate of Dropout applied after the Linear layer. Default: 0.3.</span>
+<span class="sd">        :param batch_normalization:</span>
+<span class="sd">            If True, apply batch normalization before and after the</span>
+<span class="sd">            convolution and after the Linear layer. Default: True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ConvE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span> <span class="o">=</span> <span class="n">sharding</span>
+
+        <span class="k">if</span> <span class="n">input_channels</span> <span class="o">*</span> <span class="n">embedding_width</span> <span class="o">*</span> <span class="n">embedding_height</span> <span class="o">!=</span> <span class="n">embedding_size</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;`embedding_size` needs to be equal to&quot;</span>
+                <span class="s2">&quot; `input_channels * embedding_width * embedding_height`&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># self.entity_embedding[..., :embedding_size] entity_embeddings</span>
+        <span class="c1"># self.entity_embedding[..., -1] tail biases</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span> <span class="o">=</span> <span class="n">initialize_entity_embedding</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sharding</span><span class="p">,</span> <span class="n">entity_initializer</span><span class="p">,</span> <span class="p">[</span><span class="n">embedding_size</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span> <span class="o">=</span> <span class="n">initialize_relation_embedding</span><span class="p">(</span>
+            <span class="n">n_relation_type</span><span class="p">,</span> <span class="n">inverse_relations</span><span class="p">,</span> <span class="n">relation_initializer</span><span class="p">,</span> <span class="p">[</span><span class="n">embedding_size</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">entity_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="o">==</span> <span class="n">embedding_size</span>
+        <span class="p">),</span> <span class="p">(</span>
+            <span class="s2">&quot;ConvE requires `embedding_size + 1` embedding parameters for each entity&quot;</span>
+            <span class="s2">&quot; and `embedding_size` embedding parameters for each relation&quot;</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span> <span class="o">=</span> <span class="n">embedding_size</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">inp_channels</span> <span class="o">=</span> <span class="n">input_channels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emb_h</span> <span class="o">=</span> <span class="n">embedding_height</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">emb_w</span> <span class="o">=</span> <span class="n">embedding_width</span>
+        <span class="n">conv_layers</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">input_dropout</span><span class="p">),</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span>
+                <span class="n">in_channels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inp_channels</span><span class="p">,</span>
+                <span class="n">out_channels</span><span class="o">=</span><span class="n">output_channels</span><span class="p">,</span>
+                <span class="n">kernel_size</span><span class="o">=</span><span class="p">(</span><span class="n">kernel_height</span><span class="p">,</span> <span class="n">kernel_width</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Dropout2d</span><span class="p">(</span><span class="n">feature_map_dropout</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">fc_layers</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span>
+                <span class="n">output_channels</span>
+                <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb_h</span> <span class="o">-</span> <span class="n">kernel_height</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">emb_w</span> <span class="o">-</span> <span class="n">kernel_width</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="n">embedding_size</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">hidden_dropout</span><span class="p">),</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(),</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">batch_normalization</span><span class="p">:</span>
+            <span class="n">conv_layers</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">input_channels</span><span class="p">))</span>
+            <span class="n">conv_layers</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">output_channels</span><span class="p">))</span>
+            <span class="n">fc_layers</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm1d</span><span class="p">(</span><span class="n">embedding_size</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv_layers</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">conv_layers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc_layers</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">fc_layers</span><span class="p">)</span>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="ConvE.score_triple"><a class="viewcode-back" href="../../generated/besskge.scoring.ConvE.html#besskge.scoring.ConvE.score_triple">[docs]</a>    <span class="k">def</span> <span class="nf">score_triple</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="c1"># Discard bias for heads</span>
+        <span class="n">head_emb</span> <span class="o">=</span> <span class="n">head_emb</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">tail_emb</span><span class="p">,</span> <span class="n">tail_bias</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">tail_emb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">hr_cat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">head_emb</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inp_channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb_h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb_w</span><span class="p">),</span>
+                <span class="n">relation_emb</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inp_channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb_h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb_w</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">dim</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">hr_conv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc_layers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv_layers</span><span class="p">(</span><span class="n">hr_cat</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">start_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reduce_embedding</span><span class="p">(</span><span class="n">hr_conv</span> <span class="o">*</span> <span class="n">tail_emb</span><span class="p">)</span> <span class="o">+</span> <span class="n">tail_bias</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="ConvE.score_heads"><a class="viewcode-back" href="../../generated/besskge.scoring.ConvE.html#besskge.scoring.ConvE.score_heads">[docs]</a>    <span class="k">def</span> <span class="nf">score_heads</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;ConvE should not be used with head corruption&quot;</span><span class="p">)</span></div>
+
+    <span class="c1"># docstr-coverage: inherited</span>
+<div class="viewcode-block" id="ConvE.score_tails"><a class="viewcode-back" href="../../generated/besskge.scoring.ConvE.html#besskge.scoring.ConvE.score_tails">[docs]</a>    <span class="k">def</span> <span class="nf">score_tails</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">head_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">relation_id</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">tail_emb</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+        <span class="n">relation_emb</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">index_select</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">relation_embedding</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">relation_id</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="c1"># Discard bias for heads</span>
+        <span class="n">head_emb</span> <span class="o">=</span> <span class="n">head_emb</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">tail_emb</span><span class="p">,</span> <span class="n">tail_bias</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">tail_emb</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_size</span><span class="p">,</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative_sample_sharing</span><span class="p">:</span>
+            <span class="n">tail_bias</span> <span class="o">=</span> <span class="n">tail_bias</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tail_bias</span> <span class="o">=</span> <span class="n">tail_bias</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">hr_cat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">head_emb</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inp_channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb_h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb_w</span><span class="p">),</span>
+                <span class="n">relation_emb</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inp_channels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb_h</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">emb_w</span><span class="p">),</span>
+            <span class="p">],</span>
+            <span class="n">dim</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">hr_conv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc_layers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conv_layers</span><span class="p">(</span><span class="n">hr_cat</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">(</span><span class="n">start_dim</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">broadcasted_dot_product</span><span class="p">(</span><span class="n">hr_conv</span><span class="p">,</span> <span class="n">tail_emb</span><span class="p">)</span> <span class="o">+</span> <span class="n">tail_bias</span></div></div>
+
+
 <div class="viewcode-block" id="BoxE"><a class="viewcode-back" href="../../generated/besskge.scoring.BoxE.html#besskge.scoring.BoxE">[docs]</a><span class="k">class</span> <span class="nc">BoxE</span><span class="p">(</span><span class="n">DistanceBasedScoreFunction</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    BoxE scoring function :cite:p:`BoxE`.</span>
@@ -1074,7 +1275,7 @@
 <span class="sd">            Softening parameter for geometric normalization of box widths.</span>
 <span class="sd">            Default: 1e-6.</span>
 <span class="sd">        :param inverse_relations:</span>
-<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">BoxE</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -1332,7 +1533,7 @@
 <span class="sd">        :param offset:</span>
 <span class="sd">            Offset applied to auxiliary entity embeddings. Default: 1.0.</span>
 <span class="sd">        :param inverse_relations:</span>
-<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">InterHT</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>
@@ -1489,7 +1690,7 @@
 <span class="sd">        :param offset:</span>
 <span class="sd">            Offset applied to tilde entity embeddings. Default: 1.0.</span>
 <span class="sd">        :param inverse_relations:</span>
-<span class="sd">            If True, learn embeddings for inverse relations. Default: False</span>
+<span class="sd">            If True, learn embeddings for inverse relations. Default: False.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">TranS</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">negative_sample_sharing</span><span class="o">=</span><span class="n">negative_sample_sharing</span><span class="p">,</span> <span class="n">scoring_norm</span><span class="o">=</span><span class="n">scoring_norm</span>

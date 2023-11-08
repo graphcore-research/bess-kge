@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>besskge.scoring.PairRE &mdash; BESS-KGE  documentation</title>
+  <title>besskge.scoring.ConvE &mdash; BESS-KGE  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -18,8 +18,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="besskge.scoring.RotatE" href="besskge.scoring.RotatE.html" />
-    <link rel="prev" title="besskge.scoring.MatrixDecompositionScoreFunction" href="besskge.scoring.MatrixDecompositionScoreFunction.html" /> 
+    <link rel="next" title="besskge.scoring.DistMult" href="besskge.scoring.DistMult.html" />
+    <link rel="prev" title="besskge.scoring.ComplEx" href="besskge.scoring.ComplEx.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -56,15 +56,15 @@
 <li class="toctree-l3"><a class="reference internal" href="besskge.scoring.BaseScoreFunction.html">besskge.scoring.BaseScoreFunction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.scoring.BoxE.html">besskge.scoring.BoxE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.scoring.ComplEx.html">besskge.scoring.ComplEx</a></li>
-<li class="toctree-l3"><a class="reference internal" href="besskge.scoring.ConvE.html">besskge.scoring.ConvE</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">besskge.scoring.ConvE</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#besskge.scoring.ConvE"><code class="docutils literal notranslate"><span class="pre">ConvE</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.scoring.DistMult.html">besskge.scoring.DistMult</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.scoring.DistanceBasedScoreFunction.html">besskge.scoring.DistanceBasedScoreFunction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.scoring.InterHT.html">besskge.scoring.InterHT</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.scoring.MatrixDecompositionScoreFunction.html">besskge.scoring.MatrixDecompositionScoreFunction</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">besskge.scoring.PairRE</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.scoring.PairRE"><code class="docutils literal notranslate"><span class="pre">PairRE</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.scoring.PairRE.html">besskge.scoring.PairRE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.scoring.RotatE.html">besskge.scoring.RotatE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.scoring.TranS.html">besskge.scoring.TranS</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.scoring.TransE.html">besskge.scoring.TransE</a></li>
@@ -97,9 +97,9 @@
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../API_reference.html">BESS-KGE API Reference</a></li>
           <li class="breadcrumb-item"><a href="besskge.scoring.html">besskge.scoring</a></li>
-      <li class="breadcrumb-item active">besskge.scoring.PairRE</li>
+      <li class="breadcrumb-item active">besskge.scoring.ConvE</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/generated/besskge.scoring.PairRE.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/generated/besskge.scoring.ConvE.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -107,35 +107,54 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="besskge-scoring-pairre">
-<h1>besskge.scoring.PairRE<a class="headerlink" href="#besskge-scoring-pairre" title="Permalink to this heading"></a></h1>
+  <section id="besskge-scoring-conve">
+<h1>besskge.scoring.ConvE<a class="headerlink" href="#besskge-scoring-conve" title="Permalink to this heading"></a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="besskge.scoring.PairRE">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">PairRE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">negative_sample_sharing,</span> <span class="pre">scoring_norm,</span> <span class="pre">sharding,</span> <span class="pre">n_relation_type,</span> <span class="pre">embedding_size,</span> <span class="pre">entity_initializer=[&lt;function</span> <span class="pre">init_KGE_uniform&gt;],</span> <span class="pre">relation_initializer=[&lt;function</span> <span class="pre">init_KGE_uniform&gt;],</span> <span class="pre">normalize_entities=True,</span> <span class="pre">inverse_relations=False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#PairRE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.PairRE" title="Permalink to this definition"></a></dt>
-<dd><p>PairRE scoring function <span id="id1">[<a class="reference internal" href="../bibliography.html#id15" title="Linlin Chao, Jianshan He, Taifeng Wang, and Wei Chu. PairRE: Knowledge Graph Embeddings via Paired Relation Vectors. In Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing, ACL/IJCNLP 2021, (Volume 1: Long Papers), Virtual Event, August 1-6, 2021, 4360–4369. 2021.">CHWC21</a>]</span>.</p>
-<p>Initialize PairRE model.</p>
+<dt class="sig sig-object py" id="besskge.scoring.ConvE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">besskge.scoring.</span></span><span class="sig-name descname"><span class="pre">ConvE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">negative_sample_sharing,</span> <span class="pre">sharding,</span> <span class="pre">n_relation_type,</span> <span class="pre">embedding_size,</span> <span class="pre">embedding_height,</span> <span class="pre">embedding_width,</span> <span class="pre">entity_initializer=[&lt;function</span> <span class="pre">init_xavier_norm&gt;,</span> <span class="pre">&lt;function</span> <span class="pre">zeros_&gt;],</span> <span class="pre">relation_initializer=[&lt;function</span> <span class="pre">init_xavier_norm&gt;],</span> <span class="pre">inverse_relations=True,</span> <span class="pre">input_channels=1,</span> <span class="pre">output_channels=32,</span> <span class="pre">kernel_height=3,</span> <span class="pre">kernel_width=3,</span> <span class="pre">input_dropout=0.2,</span> <span class="pre">feature_map_dropout=0.2,</span> <span class="pre">hidden_dropout=0.3,</span> <span class="pre">batch_normalization=True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#ConvE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.ConvE" title="Permalink to this definition"></a></dt>
+<dd><p>ConvE scoring function <span id="id1">[<a class="reference internal" href="../bibliography.html#id13" title="Tim Dettmers, Minervini Pasquale, Stenetorp Pontus, and Sebastian Riedel. Convolutional 2d knowledge graph embeddings. In Proceedings of the 32th AAAI Conference on Artificial Intelligence, 1811–1818. 2018.">DPPR18</a>]</span>.</p>
+<p>Note that, differently from <span id="id2">[<a class="reference internal" href="../bibliography.html#id13" title="Tim Dettmers, Minervini Pasquale, Stenetorp Pontus, and Sebastian Riedel. Convolutional 2d knowledge graph embeddings. In Proceedings of the 32th AAAI Conference on Artificial Intelligence, 1811–1818. 2018.">DPPR18</a>]</span>, the scores returned by this class
+have not been passed through a final sigmoid layer, as we assume that this is
+included in the loss function.</p>
+<p>By design, this scoring function should be used in combination with a
+negative/candidate sampler that only corrupts tails (possibly after
+including all inverse triples in the dataset, see the <cite>add_inverse_triples</cite>
+argument in <a class="reference internal" href="besskge.sharding.PartitionedTripleSet.html#besskge.sharding.PartitionedTripleSet.create_from_dataset" title="besskge.sharding.PartitionedTripleSet.create_from_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">besskge.sharding.PartitionedTripleSet.create_from_dataset()</span></code></a>).</p>
+<p>Initialize ConvE model.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>negative_sample_sharing</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.__init__()</span></code></p></li>
-<li><p><strong>scoring_norm</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – see <code class="xref py py-meth docutils literal notranslate"><span class="pre">DistanceBasedScoreFunction.__init__()</span></code></p></li>
 <li><p><strong>sharding</strong> (<a class="reference internal" href="besskge.sharding.Sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – Entity sharding.</p></li>
 <li><p><strong>n_relation_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of relation types in the knowledge graph.</p></li>
 <li><p><strong>embedding_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Size of entity and relation embeddings.</p></li>
-<li><p><strong>entity_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization function or table for entity embeddings.</p></li>
+<li><p><strong>embedding_height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Height of the 2D-reshaping of the concatenation of
+head and relation embeddings.</p></li>
+<li><p><strong>embedding_width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Width of the 2D-reshaping of the concatenation of
+head and relation embeddings.</p></li>
+<li><p><strong>entity_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization functions or table for entity embeddings.
+If not passing a table, two functions are needed: the initializer
+for entity embeddings and initializer for (scalar) tail biases.</p></li>
 <li><p><strong>relation_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization function or table for relation embeddings.</p></li>
-<li><p><strong>normalize_entities</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, L2-normalize head and tail entity embeddings before projecting,
-as in <span id="id2">[<a class="reference internal" href="../bibliography.html#id15" title="Linlin Chao, Jianshan He, Taifeng Wang, and Wei Chu. PairRE: Knowledge Graph Embeddings via Paired Relation Vectors. In Proceedings of the 59th Annual Meeting of the Association for Computational Linguistics and the 11th International Joint Conference on Natural Language Processing, ACL/IJCNLP 2021, (Volume 1: Long Papers), Virtual Event, August 1-6, 2021, 4360–4369. 2021.">CHWC21</a>]</span>. Default: True.</p></li>
-<li><p><strong>inverse_relations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, learn embeddings for inverse relations. Default: False.</p></li>
+<li><p><strong>inverse_relations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, learn embeddings for inverse relations. Default: True.</p></li>
+<li><p><strong>input_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of input channels of the Conv2D operator. Default: 1.</p></li>
+<li><p><strong>output_channels</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Number of output channels of the Conv2D operator. Default: 32.</p></li>
+<li><p><strong>kernel_height</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Height of the Conv2D kernel. Default: 3.</p></li>
+<li><p><strong>kernel_width</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Width of the Conv2D kernel. Default: 3.</p></li>
+<li><p><strong>input_dropout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Rate of Dropout applied before the convolution. Default: 0.2.</p></li>
+<li><p><strong>feature_map_dropout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Rate of Dropout applied after the convolution. Default: 0.2.</p></li>
+<li><p><strong>hidden_dropout</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Rate of Dropout applied after the Linear layer. Default: 0.3.</p></li>
+<li><p><strong>batch_normalization</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, apply batch normalization before and after the
+convolution and after the Linear layer. Default: True.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="besskge.scoring.PairRE.broadcasted_distance">
-<span class="sig-name descname"><span class="pre">broadcasted_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.scoring.PairRE.broadcasted_distance" title="Permalink to this definition"></a></dt>
-<dd><p>Broadcasted distances of queries against sets of entities.</p>
-<p>For each query and candidate, the computes the p-distance
-of the embeddings.</p>
+<dt class="sig sig-object py" id="besskge.scoring.ConvE.broadcasted_dot_product">
+<span class="sig-name descname"><span class="pre">broadcasted_dot_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.scoring.ConvE.broadcasted_dot_product" title="Permalink to this definition"></a></dt>
+<dd><p>Broadcasted dot product of queries against sets of entities.</p>
+<p>For each query and candidate, computes the dot product of
+the embeddings.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -157,14 +176,14 @@ else (batch_size, n_neg)</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="besskge.scoring.PairRE.entity_embedding">
-<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.PairRE.entity_embedding" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="besskge.scoring.ConvE.entity_embedding">
+<span class="sig-name descname"><span class="pre">entity_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.ConvE.entity_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Entity embedding table</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="besskge.scoring.PairRE.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.scoring.PairRE.forward" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="besskge.scoring.ConvE.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.scoring.ConvE.forward" title="Permalink to this definition"></a></dt>
 <dd><p>see <a class="reference internal" href="besskge.scoring.BaseScoreFunction.html#besskge.scoring.BaseScoreFunction.score_triple" title="besskge.scoring.BaseScoreFunction.score_triple"><code class="xref py py-meth docutils literal notranslate"><span class="pre">BaseScoreFunction.score_triple()</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
@@ -181,15 +200,15 @@ else (batch_size, n_neg)</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="besskge.scoring.PairRE.negative_sample_sharing">
-<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.scoring.PairRE.negative_sample_sharing" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="besskge.scoring.ConvE.negative_sample_sharing">
+<span class="sig-name descname"><span class="pre">negative_sample_sharing</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></em><a class="headerlink" href="#besskge.scoring.ConvE.negative_sample_sharing" title="Permalink to this definition"></a></dt>
 <dd><p>Share negative entities to construct negative samples</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="besskge.scoring.PairRE.reduce_embedding">
-<span class="sig-name descname"><span class="pre">reduce_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.scoring.PairRE.reduce_embedding" title="Permalink to this definition"></a></dt>
-<dd><p>p-norm reduction along embedding dimension.</p>
+<dt class="sig sig-object py" id="besskge.scoring.ConvE.reduce_embedding">
+<span class="sig-name descname"><span class="pre">reduce_embedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.scoring.ConvE.reduce_embedding" title="Permalink to this definition"></a></dt>
+<dd><p>Sum reduction along the embedding dimension.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>v</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – shape: (<a href="#id3"><span class="problematic" id="id4">*</span></a>, embedding_size)
@@ -200,20 +219,20 @@ The tensor to reduce.</p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (<a href="#id5"><span class="problematic" id="id6">*</span></a>,)
-p-norm reduction.</p>
+Sum reduction.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="besskge.scoring.PairRE.relation_embedding">
-<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.PairRE.relation_embedding" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="besskge.scoring.ConvE.relation_embedding">
+<span class="sig-name descname"><span class="pre">relation_embedding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></em><a class="headerlink" href="#besskge.scoring.ConvE.relation_embedding" title="Permalink to this definition"></a></dt>
 <dd><p>Relation embedding table</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="besskge.scoring.PairRE.score_heads">
-<span class="sig-name descname"><span class="pre">score_heads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#PairRE.score_heads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.PairRE.score_heads" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="besskge.scoring.ConvE.score_heads">
+<span class="sig-name descname"><span class="pre">score_heads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#ConvE.score_heads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.ConvE.score_heads" title="Permalink to this definition"></a></dt>
 <dd><p>Score sets of head entities against fixed (r,t) queries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -239,8 +258,8 @@ Scores of broadcasted triples.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="besskge.scoring.PairRE.score_tails">
-<span class="sig-name descname"><span class="pre">score_tails</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#PairRE.score_tails"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.PairRE.score_tails" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="besskge.scoring.ConvE.score_tails">
+<span class="sig-name descname"><span class="pre">score_tails</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#ConvE.score_tails"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.ConvE.score_tails" title="Permalink to this definition"></a></dt>
 <dd><p>Score sets of tail entities against fixed (h,r) queries.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -266,8 +285,8 @@ Scores of broadcasted triples.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="besskge.scoring.PairRE.score_triple">
-<span class="sig-name descname"><span class="pre">score_triple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#PairRE.score_triple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.PairRE.score_triple" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="besskge.scoring.ConvE.score_triple">
+<span class="sig-name descname"><span class="pre">score_triple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">head_emb</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relation_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tail_emb</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/scoring.html#ConvE.score_triple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.scoring.ConvE.score_triple" title="Permalink to this definition"></a></dt>
 <dd><p>Score a batch of (h,r,t) triples.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -291,14 +310,14 @@ Scores of a batch of triples.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="besskge.scoring.PairRE.sharding">
-<span class="sig-name descname"><span class="pre">sharding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="besskge.sharding.Sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a></em><a class="headerlink" href="#besskge.scoring.PairRE.sharding" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="besskge.scoring.ConvE.sharding">
+<span class="sig-name descname"><span class="pre">sharding</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="besskge.sharding.Sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a></em><a class="headerlink" href="#besskge.scoring.ConvE.sharding" title="Permalink to this definition"></a></dt>
 <dd><p>Sharding of entities</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="besskge.scoring.PairRE.update_sharding">
-<span class="sig-name descname"><span class="pre">update_sharding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_sharding</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.scoring.PairRE.update_sharding" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="besskge.scoring.ConvE.update_sharding">
+<span class="sig-name descname"><span class="pre">update_sharding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_sharding</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#besskge.scoring.ConvE.update_sharding" title="Permalink to this definition"></a></dt>
 <dd><p>Change the sharding of the entity embedding table.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -318,8 +337,8 @@ Scores of a batch of triples.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="besskge.scoring.MatrixDecompositionScoreFunction.html" class="btn btn-neutral float-left" title="besskge.scoring.MatrixDecompositionScoreFunction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="besskge.scoring.RotatE.html" class="btn btn-neutral float-right" title="besskge.scoring.RotatE" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="besskge.scoring.ComplEx.html" class="btn btn-neutral float-left" title="besskge.scoring.ComplEx" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="besskge.scoring.DistMult.html" class="btn btn-neutral float-right" title="besskge.scoring.DistMult" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

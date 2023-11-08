@@ -1,0 +1,6 @@
+besskge.embedding.init\_xavier\_norm
+====================================
+
+.. currentmodule:: besskge.embedding
+
+.. autofunction:: init_xavier_norm

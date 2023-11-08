@@ -19,7 +19,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="besskge.scoring.DistanceBasedScoreFunction" href="besskge.scoring.DistanceBasedScoreFunction.html" />
-    <link rel="prev" title="besskge.scoring.ComplEx" href="besskge.scoring.ComplEx.html" /> 
+    <link rel="prev" title="besskge.scoring.ConvE" href="besskge.scoring.ConvE.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -56,6 +56,7 @@
 <li class="toctree-l3"><a class="reference internal" href="besskge.scoring.BaseScoreFunction.html">besskge.scoring.BaseScoreFunction</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.scoring.BoxE.html">besskge.scoring.BoxE</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.scoring.ComplEx.html">besskge.scoring.ComplEx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.scoring.ConvE.html">besskge.scoring.ConvE</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">besskge.scoring.DistMult</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#besskge.scoring.DistMult"><code class="docutils literal notranslate"><span class="pre">DistMult</span></code></a></li>
 </ul>
@@ -122,7 +123,7 @@
 <li><p><strong>embedding_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Size of entity and relation embeddings.</p></li>
 <li><p><strong>entity_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization function or table for entity embeddings.</p></li>
 <li><p><strong>relation_initializer</strong> (<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Union" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code></a>[<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Callable" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Callable</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/constants.html#Ellipsis" title="(in Python v3.12)"><code class="xref py py-data docutils literal notranslate"><span class="pre">...</span></code></a>, <a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>]]]) – Initialization function or table for relation embeddings.</p></li>
-<li><p><strong>inverse_relations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, learn embeddings for inverse relations. Default: False</p></li>
+<li><p><strong>inverse_relations</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – If True, learn embeddings for inverse relations. Default: False.</p></li>
 </ul>
 </dd>
 </dl>
@@ -314,7 +315,7 @@ Scores of a batch of triples.</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="besskge.scoring.ComplEx.html" class="btn btn-neutral float-left" title="besskge.scoring.ComplEx" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="besskge.scoring.ConvE.html" class="btn btn-neutral float-left" title="besskge.scoring.ConvE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="besskge.scoring.DistanceBasedScoreFunction.html" class="btn btn-neutral float-right" title="besskge.scoring.DistanceBasedScoreFunction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

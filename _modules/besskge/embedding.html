@@ -100,6 +100,24 @@
     <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">functional</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">embedding_table</span><span class="p">),</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="init_xavier_norm"><a class="viewcode-back" href="../../generated/besskge.embedding.init_xavier_norm.html#besskge.embedding.init_xavier_norm">[docs]</a><span class="k">def</span> <span class="nf">init_xavier_norm</span><span class="p">(</span><span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">gain</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Initialize embeddings according to Xavier normal scheme, with</span>
+<span class="sd">    `fan_in = 0`, `fan_out=row_size`.</span>
+
+<span class="sd">    :param embedding_table:</span>
+<span class="sd">        Tensor of embedding parameters to initialize.</span>
+<span class="sd">    :param gain:</span>
+<span class="sd">        Scaling factor for standard deviation. Default: 1.0.</span>
+
+<span class="sd">    :return:</span>
+<span class="sd">        Initialized tensor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span>
+        <span class="n">embedding_table</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="n">gain</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">2.0</span> <span class="o">/</span> <span class="n">embedding_table</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="init_KGE_uniform"><a class="viewcode-back" href="../../generated/besskge.embedding.init_KGE_uniform.html#besskge.embedding.init_KGE_uniform">[docs]</a><span class="k">def</span> <span class="nf">init_KGE_uniform</span><span class="p">(</span>
     <span class="n">embedding_table</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">divide_by_embedding_size</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>

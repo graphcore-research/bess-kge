@@ -59,6 +59,7 @@
 <li class="toctree-l3"><a class="reference internal" href="besskge.embedding.init_KGE_normal.html">besskge.embedding.init_KGE_normal</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.embedding.init_KGE_uniform.html">besskge.embedding.init_KGE_uniform</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.embedding.init_uniform_norm.html">besskge.embedding.init_uniform_norm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.embedding.init_xavier_norm.html">besskge.embedding.init_xavier_norm</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.embedding.initialize_entity_embedding.html">besskge.embedding.initialize_entity_embedding</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.embedding.initialize_relation_embedding.html">besskge.embedding.initialize_relation_embedding</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.embedding.refactor_embedding_sharding.html">besskge.embedding.refactor_embedding_sharding</a></li>
@@ -111,13 +112,16 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="besskge.embedding.init_uniform_norm.html#besskge.embedding.init_uniform_norm" title="besskge.embedding.init_uniform_norm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_uniform_norm</span></code></a>(embedding_table)</p></td>
 <td><p>Initialize embeddings according to uniform distribution and normalize so that each row has norm 1.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="besskge.embedding.initialize_entity_embedding.html#besskge.embedding.initialize_entity_embedding" title="besskge.embedding.initialize_entity_embedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize_entity_embedding</span></code></a>(sharding, ...[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="besskge.embedding.init_xavier_norm.html#besskge.embedding.init_xavier_norm" title="besskge.embedding.init_xavier_norm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_xavier_norm</span></code></a>(embedding_table[, gain])</p></td>
+<td><p>Initialize embeddings according to Xavier normal scheme, with <cite>fan_in = 0</cite>, <cite>fan_out=row_size</cite>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="besskge.embedding.initialize_entity_embedding.html#besskge.embedding.initialize_entity_embedding" title="besskge.embedding.initialize_entity_embedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize_entity_embedding</span></code></a>(sharding, ...[, ...])</p></td>
 <td><p>Initialize entity embedding table.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="besskge.embedding.initialize_relation_embedding.html#besskge.embedding.initialize_relation_embedding" title="besskge.embedding.initialize_relation_embedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize_relation_embedding</span></code></a>(...[, row_size])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="besskge.embedding.initialize_relation_embedding.html#besskge.embedding.initialize_relation_embedding" title="besskge.embedding.initialize_relation_embedding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize_relation_embedding</span></code></a>(...[, row_size])</p></td>
 <td><p>Initialize relation embedding table.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="besskge.embedding.refactor_embedding_sharding.html#besskge.embedding.refactor_embedding_sharding" title="besskge.embedding.refactor_embedding_sharding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refactor_embedding_sharding</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="besskge.embedding.refactor_embedding_sharding.html#besskge.embedding.refactor_embedding_sharding" title="besskge.embedding.refactor_embedding_sharding"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refactor_embedding_sharding</span></code></a>(...)</p></td>
 <td><p>Refactor sharded entity embedding table to pass from one entity sharding to a different one.</p></td>
 </tr>
 </tbody>
