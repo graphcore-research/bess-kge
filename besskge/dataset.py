@@ -90,6 +90,9 @@ class KGDataset:
         and relations have already been assigned. Note that, if entities have
         types, entities of the same type need to have contiguous IDs.
         Triples are randomly split in train/validation/test sets.
+        The attribute `KGDataset.original_triple_ids` stores the IDs
+        of the triples in each split wrt the original ordering in `data`.
+
         If a pre-defined train/validation/test split is wanted, the KGDataset
         class should be instantiated manually.
 
@@ -114,14 +117,16 @@ class KGDataset:
         num_valid = int(num_triples * split[1])
 
         rng = np.random.default_rng(seed=seed)
-        rng.shuffle(data, axis=0)
-
-        triples = dict()
-        triples["train"], triples["valid"], triples["test"] = np.split(
-            data, (num_train, num_train + num_valid), axis=0
+        id_shuffle = rng.permutation(np.arange(num_triples))
+        triple_ids = dict()
+        triple_ids["train"], triple_ids["valid"], triple_ids["test"] = np.split(
+            id_shuffle, (num_train, num_train + num_valid), axis=0
         )
+        triples = dict()
+        for split in ["train", "valid", "test"]:
+            triples[split] = data[triple_ids[split]]
 
-        return cls(
+        ds = cls(
             n_entity=data[:, [0, 2]].max() + 1,
             n_relation_type=data[:, 1].max() + 1,
             entity_dict=entity_dict,
@@ -129,6 +134,9 @@ class KGDataset:
             type_offsets=type_offsets,
             triples=triples,
         )
+        ds.original_triple_ids = triple_ids
+
+        return ds
 
     @classmethod
     def from_dataframe(
