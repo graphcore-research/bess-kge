@@ -34,6 +34,7 @@ ds = KGDataset(
     relation_dict=None,
     type_offsets={str(i): o for i, o in enumerate(type_offsets)},
     triples=triples,
+    original_triple_ids={k: np.arange(v.shape[0]) for k, v in triples.items()},
     neg_heads=neg_heads,
     neg_tails=neg_tails,
 )

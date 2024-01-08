@@ -36,6 +36,11 @@ class KGDataset:
     #: {part: int32[n_triple, {h,r,t}]}
     triples: Dict[str, NDArray[np.int32]]
 
+    #: IDs of the triples in KGDataset.triples wrt
+    #: the ordering in the original array/dataframe
+    #: from where the triples originate.
+    original_triple_ids: Dict[str, NDArray[np.int32]]
+
     #: Entity labels by ID; str[n_entity]
     entity_dict: Optional[List[str]] = None
 
@@ -90,6 +95,9 @@ class KGDataset:
         and relations have already been assigned. Note that, if entities have
         types, entities of the same type need to have contiguous IDs.
         Triples are randomly split in train/validation/test sets.
+        The attribute `KGDataset.original_triple_ids` stores the IDs
+        of the triples in each split wrt the original ordering in `data`.
+
         If a pre-defined train/validation/test split is wanted, the KGDataset
         class should be instantiated manually.
 
@@ -114,21 +122,27 @@ class KGDataset:
         num_valid = int(num_triples * split[1])
 
         rng = np.random.default_rng(seed=seed)
-        rng.shuffle(data, axis=0)
-
-        triples = dict()
-        triples["train"], triples["valid"], triples["test"] = np.split(
-            data, (num_train, num_train + num_valid), axis=0
+        id_shuffle = rng.permutation(np.arange(num_triples))
+        triple_ids = dict()
+        triple_ids["train"], triple_ids["valid"], triple_ids["test"] = np.split(
+            id_shuffle, (num_train, num_train + num_valid), axis=0
         )
+        triples = dict()
+        triples["train"] = data[triple_ids["train"]]
+        triples["valid"] = data[triple_ids["valid"]]
+        triples["test"] = data[triple_ids["test"]]
 
-        return cls(
+        ds = cls(
             n_entity=data[:, [0, 2]].max() + 1,
             n_relation_type=data[:, 1].max() + 1,
             entity_dict=entity_dict,
             relation_dict=relation_dict,
             type_offsets=type_offsets,
             triples=triples,
+            original_triple_ids=triple_ids,
         )
+
+        return ds
 
     @classmethod
     def from_dataframe(
@@ -219,6 +233,9 @@ class KGDataset:
                 relation_dict=relation_dict,
                 type_offsets=type_offsets,
                 triples=triples,
+                original_triple_ids={
+                    k: np.arange(v.shape[0]) for k, v in triples.items()
+                },
             )
 
     @classmethod
@@ -280,6 +297,7 @@ class KGDataset:
             relation_dict=rel_dict,
             type_offsets=type_offsets,
             triples=triples,
+            original_triple_ids={k: np.arange(v.shape[0]) for k, v in triples.items()},
             neg_heads=neg_heads,
             neg_tails=neg_tails,
         )
@@ -329,6 +347,7 @@ class KGDataset:
             relation_dict=rel_dict,
             type_offsets=None,
             triples=triples,
+            original_triple_ids={k: np.arange(v.shape[0]) for k, v in triples.items()},
             neg_heads=neg_heads,
             neg_tails=neg_tails,
         )

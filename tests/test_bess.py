@@ -79,6 +79,7 @@ def test_bess_inference(
         relation_dict=None,
         type_offsets=None,
         triples=triples,
+        original_triple_ids={k: np.arange(v.shape[0]) for k, v in triples.items()},
         neg_heads=neg_heads,
         neg_tails=neg_tails,
     )
@@ -306,6 +307,7 @@ def test_bess_topk_prediction(
         relation_dict=None,
         type_offsets=None,
         triples=triples,
+        original_triple_ids={k: np.arange(v.shape[0]) for k, v in triples.items()},
         neg_heads=neg_heads,
         neg_tails=neg_tails,
     )
