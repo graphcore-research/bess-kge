@@ -51,6 +51,7 @@ def test_all_scores_pipeline(
         relation_dict=None,
         type_offsets=None,
         triples=triples,
+        original_triple_ids={k: np.arange(v.shape[0]) for k, v in triples.items()},
     )
 
     partition_mode = "h_shard" if corruption_scheme == "t" else "t_shard"

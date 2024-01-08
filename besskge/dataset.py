@@ -36,6 +36,11 @@ class KGDataset:
     #: {part: int32[n_triple, {h,r,t}]}
     triples: Dict[str, NDArray[np.int32]]
 
+    #: IDs of the triples in KGDataset.triples wrt
+    #: the ordering in the original array/dataframe
+    #: from where the triples originate.
+    original_triple_ids: Dict[str, NDArray[np.int32]]
+
     #: Entity labels by ID; str[n_entity]
     entity_dict: Optional[List[str]] = None
 
@@ -134,8 +139,8 @@ class KGDataset:
             relation_dict=relation_dict,
             type_offsets=type_offsets,
             triples=triples,
+            original_triple_ids=triple_ids,
         )
-        ds.original_triple_ids = triple_ids  # type: ignore
 
         return ds
 
@@ -228,6 +233,9 @@ class KGDataset:
                 relation_dict=relation_dict,
                 type_offsets=type_offsets,
                 triples=triples,
+                original_triple_ids={
+                    k: np.arange(v.shape[0]) for k, v in triples.items()
+                },
             )
 
     @classmethod
@@ -289,6 +297,7 @@ class KGDataset:
             relation_dict=rel_dict,
             type_offsets=type_offsets,
             triples=triples,
+            original_triple_ids={k: np.arange(v.shape[0]) for k, v in triples.items()},
             neg_heads=neg_heads,
             neg_tails=neg_tails,
         )
@@ -338,6 +347,7 @@ class KGDataset:
             relation_dict=rel_dict,
             type_offsets=None,
             triples=triples,
+            original_triple_ids={k: np.arange(v.shape[0]) for k, v in triples.items()},
             neg_heads=neg_heads,
             neg_tails=neg_tails,
         )
