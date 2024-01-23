@@ -15,6 +15,7 @@ from besskge.embedding import (
     init_KGE_normal,
     init_KGE_uniform,
     init_uniform_norm,
+    init_uniform_rotation,
     init_xavier_norm,
     initialize_entity_embedding,
     initialize_relation_embedding,
@@ -369,7 +370,7 @@ class RotatE(DistanceBasedScoreFunction):
             init_KGE_uniform
         ],
         relation_initializer: Union[torch.Tensor, List[Callable[..., torch.Tensor]]] = [
-            init_KGE_uniform
+            init_uniform_rotation
         ],
         inverse_relations: bool = False,
     ) -> None:

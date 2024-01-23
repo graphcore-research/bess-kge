@@ -44,6 +44,22 @@ def init_xavier_norm(embedding_table: torch.Tensor, gain: float = 1.0) -> torch.
     )
 
 
+def init_uniform_rotation(embedding_table: torch.Tensor) -> torch.Tensor:
+    r"""
+    Initialize tensor with each entry being a uniformly distributed
+    phase between 0 and :math:`2 \pi`.
+    To be used for initialization of relation embedding tables
+    in RotatE scoring function.
+
+    :param embedding_table:
+        Tensor of embedding parameters to initialize.
+
+    :return:
+        Initialized tensor.
+    """
+    return torch.rand_like(embedding_table) * 2 * np.pi
+
+
 def init_KGE_uniform(
     embedding_table: torch.Tensor, b: float = 1.0, divide_by_embedding_size: bool = True
 ) -> torch.Tensor:
