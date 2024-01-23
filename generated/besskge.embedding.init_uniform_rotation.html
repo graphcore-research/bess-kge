@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>besskge.embedding.init_KGE_normal &mdash; BESS-KGE  documentation</title>
+  <title>besskge.embedding.init_uniform_rotation &mdash; BESS-KGE  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
@@ -15,11 +15,12 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="besskge.embedding.init_KGE_uniform" href="besskge.embedding.init_KGE_uniform.html" />
-    <link rel="prev" title="besskge.embedding" href="besskge.embedding.html" /> 
+    <link rel="next" title="besskge.embedding.init_xavier_norm" href="besskge.embedding.init_xavier_norm.html" />
+    <link rel="prev" title="besskge.embedding.init_uniform_norm" href="besskge.embedding.init_uniform_norm.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -56,13 +57,13 @@
 <li class="toctree-l2"><a class="reference internal" href="besskge.loss.html">besskge.loss</a></li>
 <li class="toctree-l2"><a class="reference internal" href="besskge.metric.html">besskge.metric</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="besskge.embedding.html">besskge.embedding</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">besskge.embedding.init_KGE_normal</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#besskge.embedding.init_KGE_normal"><code class="docutils literal notranslate"><span class="pre">init_KGE_normal()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="besskge.embedding.init_KGE_normal.html">besskge.embedding.init_KGE_normal</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.embedding.init_KGE_uniform.html">besskge.embedding.init_KGE_uniform</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.embedding.init_uniform_norm.html">besskge.embedding.init_uniform_norm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="besskge.embedding.init_uniform_rotation.html">besskge.embedding.init_uniform_rotation</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">besskge.embedding.init_uniform_rotation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#besskge.embedding.init_uniform_rotation"><code class="docutils literal notranslate"><span class="pre">init_uniform_rotation()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.embedding.init_xavier_norm.html">besskge.embedding.init_xavier_norm</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.embedding.initialize_entity_embedding.html">besskge.embedding.initialize_entity_embedding</a></li>
 <li class="toctree-l3"><a class="reference internal" href="besskge.embedding.initialize_relation_embedding.html">besskge.embedding.initialize_relation_embedding</a></li>
@@ -92,9 +93,9 @@
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../API_reference.html">BESS-KGE API Reference</a></li>
           <li class="breadcrumb-item"><a href="besskge.embedding.html">besskge.embedding</a></li>
-      <li class="breadcrumb-item active">besskge.embedding.init_KGE_normal</li>
+      <li class="breadcrumb-item active">besskge.embedding.init_uniform_rotation</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/generated/besskge.embedding.init_KGE_normal.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/generated/besskge.embedding.init_uniform_rotation.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -102,19 +103,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="besskge-embedding-init-kge-normal">
-<h1>besskge.embedding.init_KGE_normal<a class="headerlink" href="#besskge-embedding-init-kge-normal" title="Permalink to this heading"></a></h1>
+  <section id="besskge-embedding-init-uniform-rotation">
+<h1>besskge.embedding.init_uniform_rotation<a class="headerlink" href="#besskge-embedding-init-uniform-rotation" title="Permalink to this heading"></a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="besskge.embedding.init_KGE_normal">
-<span class="sig-prename descclassname"><span class="pre">besskge.embedding.</span></span><span class="sig-name descname"><span class="pre">init_KGE_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">std</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">divide_by_embedding_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/embedding.html#init_KGE_normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.embedding.init_KGE_normal" title="Permalink to this definition"></a></dt>
-<dd><p>Initialize embeddings according to normal distribution with mean 0.</p>
+<dt class="sig sig-object py" id="besskge.embedding.init_uniform_rotation">
+<span class="sig-prename descclassname"><span class="pre">besskge.embedding.</span></span><span class="sig-name descname"><span class="pre">init_uniform_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embedding_table</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/embedding.html#init_uniform_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.embedding.init_uniform_rotation" title="Permalink to this definition"></a></dt>
+<dd><p>Initialize tensor with each entry being a uniformly distributed
+phase between 0 and <span class="math notranslate nohighlight">\(2 \pi\)</span>.
+To be used for initialization of relation embedding tables
+in RotatE scoring function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>embedding_table</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – Tensor of embedding parameters to initialize.</p></li>
-<li><p><strong>std</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a>) – Standard deviation. Default: 1.0.</p></li>
-<li><p><strong>divide_by_embedding_size</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>) – Rescale standard deviation by <cite>1/row_size</cite>. Default: True.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>embedding_table</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a>) – Tensor of embedding parameters to initialize.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/tensors.html#torch.Tensor" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Tensor</span></code></a></p>
@@ -131,8 +131,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="besskge.embedding.html" class="btn btn-neutral float-left" title="besskge.embedding" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="besskge.embedding.init_KGE_uniform.html" class="btn btn-neutral float-right" title="besskge.embedding.init_KGE_uniform" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="besskge.embedding.init_uniform_norm.html" class="btn btn-neutral float-left" title="besskge.embedding.init_uniform_norm" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="besskge.embedding.init_xavier_norm.html" class="btn btn-neutral float-right" title="besskge.embedding.init_xavier_norm" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

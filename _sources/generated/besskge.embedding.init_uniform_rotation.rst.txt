@@ -1,0 +1,6 @@
+besskge.embedding.init\_uniform\_rotation
+=========================================
+
+.. currentmodule:: besskge.embedding
+
+.. autofunction:: init_uniform_rotation

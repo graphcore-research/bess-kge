@@ -21,6 +21,7 @@ besskge.embedding
       init_KGE_normal
       init_KGE_uniform
       init_uniform_norm
+      init_uniform_rotation
       init_xavier_norm
       initialize_entity_embedding
       initialize_relation_embedding

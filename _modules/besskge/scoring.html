@@ -89,6 +89,7 @@
     <span class="n">init_KGE_normal</span><span class="p">,</span>
     <span class="n">init_KGE_uniform</span><span class="p">,</span>
     <span class="n">init_uniform_norm</span><span class="p">,</span>
+    <span class="n">init_uniform_rotation</span><span class="p">,</span>
     <span class="n">init_xavier_norm</span><span class="p">,</span>
     <span class="n">initialize_entity_embedding</span><span class="p">,</span>
     <span class="n">initialize_relation_embedding</span><span class="p">,</span>
@@ -443,7 +444,7 @@
             <span class="n">init_KGE_uniform</span>
         <span class="p">],</span>
         <span class="n">relation_initializer</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">init_KGE_uniform</span>
+            <span class="n">init_uniform_rotation</span>
         <span class="p">],</span>
         <span class="n">inverse_relations</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
