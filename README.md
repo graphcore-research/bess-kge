@@ -3,7 +3,7 @@
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
 
 [**Installation guide**](#usage)
-| [**Tutorials**](#paperspace-notebook-tutorials)
+| [**Tutorials**](#notebook-tutorials)
 | [**Documentation**](https://graphcore-research.github.io/bess-kge/)
 
 
@@ -183,7 +183,7 @@ pip install git+https://github.com/graphcore-research/bess-kge.git
 import besskge
 ```
 
-## Paperspace notebook tutorials
+## Notebook tutorials
 
 For a walkthrough of the `besskge` library functionalities, see our Jupyter notebooks. We recommend the following sequence:
 1. [KGE training and inference on the OGBL-BioKG dataset](notebooks/1_biokg_training_inference.ipynb)
