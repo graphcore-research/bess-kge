@@ -3,7 +3,7 @@
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
 
 [**Installation guide**](#usage)
-| [**Tutorials**](#paperspace-notebook-tutorials)
+| [**Tutorials**](#notebook-tutorials)
 | [**Documentation**](https://graphcore-research.github.io/bess-kge/)
 
 
@@ -82,7 +82,7 @@ All APIs are documented in the [BESS-KGE API documentation](https://graphcore-re
 
 BESS-KGE provides built-in dataloaders for the following datasets. Notice that the use of these datasets is at own risk and Graphcore offers no warranties of any kind. It is the user's responsibility to comply with all license requirements for datasets downloaded with dataloaders in this repository.
 
-| Dataset | Builder method | Entities | Entity types | Relation types | Triples | License | 
+| Dataset | Builder method | Entities | Entity types | Relation types | Triples | License |
 | --- | --- | --- | --- | --- | --- | --- |
 | [ogbl-biokg](https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg) | [KGDataset.build_ogbl_biokg](https://graphcore-research.github.io/bess-kge/generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_ogbl_biokg) | 93,773 | 5 | 51 | 5,088,434 | CC-0 |
 | [ogbl-wikikg2](https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2) | [KGDataset.build_ogbl_wikikg2](https://graphcore-research.github.io/bess-kge/generated/besskge.dataset.KGDataset.html#besskge.dataset.KGDataset.build_ogbl_wikikg2) | 2,500,604 | 1 | 535 | 16,968,094 | CC-0 |
@@ -183,14 +183,14 @@ pip install git+https://github.com/graphcore-research/bess-kge.git
 import besskge
 ```
 
-## Paperspace notebook tutorials
+## Notebook tutorials
 
 For a walkthrough of the `besskge` library functionalities, see our Jupyter notebooks. We recommend the following sequence:
-1. [KGE training and inference on the OGBL-BioKG dataset](notebooks/1_biokg_training_inference.ipynb) [![Run on Gradient](docs/gradient-badge.svg)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-paperspace%3A3.3.0-ubuntu-20.04-20230703&machine=Free-IPU-POD4&file=%2Fnotebooks%2F1_biokg_training_inference.ipynb)
-2. [Link prediction on the YAGO3-10 dataset](notebooks/2_yago_topk_prediction.ipynb) [![Run on Gradient](docs/gradient-badge.svg)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-paperspace%3A3.3.0-ubuntu-20.04-20230703&machine=Free-IPU-POD4&file=%2Fnotebooks%2F2_yago_topk_prediction.ipynb)
-3. [FP16 weights and compute on the OGBL-WikiKG2 dataset](notebooks/3_wikikg2_fp16.ipynb) [![Run on Gradient](docs/gradient-badge.svg)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-paperspace%3A3.3.0-ubuntu-20.04-20230703&machine=Free-IPU-POD4&file=%2Fnotebooks%2F3_wikikg2_fp16.ipynb)
+1. [KGE training and inference on the OGBL-BioKG dataset](notebooks/1_biokg_training_inference.ipynb)
+2. [Link prediction on the YAGO3-10 dataset](notebooks/2_yago_topk_prediction.ipynb)
+3. [FP16 weights and compute on the OGBL-WikiKG2 dataset](notebooks/3_wikikg2_fp16.ipynb)
 
-For pointers on how to run BESS-KGE on a custom Knowledge Graph dataset, see the notebook [Using BESS-KGE with your own data](notebooks/0_custom_KG_dataset.ipynb) [![Run on Gradient](docs/gradient-badge.svg)](https://console.paperspace.com/github/graphcore-research/bess-kge?container=graphcore%2Fpytorch-paperspace%3A3.3.0-ubuntu-20.04-20230703&machine=Free-IPU-POD4&file=%2Fnotebooks%2F0_custom_KG_dataset.ipynb)
+For pointers on how to run BESS-KGE on a custom Knowledge Graph dataset, see the notebook [Using BESS-KGE with your own data](notebooks/0_custom_KG_dataset.ipynb) 
 
 ## Contributing
 

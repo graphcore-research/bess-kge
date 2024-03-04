@@ -47,11 +47,6 @@ We recommend the following sequence:
 2. `Link prediction on the YAGO3-10 dataset <https://github.com/graphcore-research/bess-kge/tree/main/notebooks/2_yago_topk_prediction.ipynb>`_.
 3. `FP16 weights and compute on the OGBL-WikiKG2 dataset <https://github.com/graphcore-research/bess-kge/tree/main/notebooks/3_wikikg2_fp16.ipynb>`_.
 
-.. |run_on_gradient| image:: ../gradient-badge.svg 
-
-Click on the |run_on_gradient| button inside the notebooks to run them **for free** on physical IPUs
-available on `Paperspace <https://www.paperspace.com/graphcore>`_.
-
 Limitations
 ------------------------
 

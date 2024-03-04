@@ -104,7 +104,7 @@ def copyright() -> None:
     """check for Graphcore copyright headers on relevant files"""
     command = (
         "find Makefile "
-        + " ".join(PYTHON_ROOTS + ["besskge/custom_ops", ".gradient/"])
+        + " ".join(PYTHON_ROOTS + ["besskge/custom_ops"])
         + " -type f -not -name *.pyc"
         " | xargs grep -L 'Copyright (c) 202. Graphcore Ltd[.] All rights reserved[.]'"
     )
