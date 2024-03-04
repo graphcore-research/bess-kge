@@ -112,14 +112,14 @@ one entity sharding to a different one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>entity_embedding</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – shape: (n_shard_old, max_ent_per_shard_old, row_size)
+<li><p><strong>entity_embedding</strong> (<a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a>) – shape: (n_shard_old, max_ent_per_shard_old, row_size)
 Entity embedding table sharded according to <cite>old_sharding</cite>.</p></li>
 <li><p><strong>old_sharding</strong> (<a class="reference internal" href="besskge.sharding.Sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – The current entity sharding.</p></li>
 <li><p><strong>new_sharding</strong> (<a class="reference internal" href="besskge.sharding.Sharding.html#besskge.sharding.Sharding" title="besskge.sharding.Sharding"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sharding</span></code></a>) – The new entity sharding.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
+<dd class="field-even"><p><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html#torch.nn.parameter.Parameter" title="(in PyTorch v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code></a></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>shape: (n_shard_new, max_ent_per_shard_new, row_size)

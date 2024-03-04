@@ -156,7 +156,7 @@ It uses asynchronous data-loading to minimize CPU-IPU I/O.</p>
 <span class="sig-name descname"><span class="pre">get_dataloader_sampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shuffle</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/batch_sampler.html#ShardedBatchSampler.get_dataloader_sampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.ShardedBatchSampler.get_dataloader_sampler" title="Permalink to this definition"></a></dt>
 <dd><p>Returns the dataloader sampler.</p>
 <p>Instantiate the appropriate <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.data.Sampler</span></code> class for the
-<a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code></a> class to be used with the
+<a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="(in PyTorch v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code></a> class to be used with the
 sharded batch sampler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -192,7 +192,7 @@ sharded batch sampler.</p>
 <dt class="sig sig-object py" id="besskge.batch_sampler.ShardedBatchSampler.worker_init_fn">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">worker_init_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">worker_id</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/besskge/batch_sampler.html#ShardedBatchSampler.worker_init_fn"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#besskge.batch_sampler.ShardedBatchSampler.worker_init_fn" title="Permalink to this definition"></a></dt>
 <dd><p>Worker initialization function to be passed to
-<a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="(in PyTorch v2.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code></a>.</p>
+<a class="reference external" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader" title="(in PyTorch v2.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">torch.utils.data.DataLoader</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>worker_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.12)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>) – Worker ID.</p>
