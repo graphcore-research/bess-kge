@@ -36,13 +36,19 @@ test_triples_t = np.random.choice(n_entity - 1, size=n_test_triple, replace=Fals
 test_triples_r = np.random.randint(n_relation_type, size=n_test_triple)
 triples = {"test": np.stack([test_triples_h, test_triples_r, test_triples_t], axis=1)}
 
+compl_candidates = np.arange(0, n_entity - 1, step=5)
+
 
 @pytest.mark.parametrize("corruption_scheme", ["h", "t"])
 @pytest.mark.parametrize(
     "filter_scores, extra_only", [(True, True), (True, False), (False, False)]
 )
+@pytest.mark.parametrize("filter_candidates", [True, False])
 def test_all_scores_pipeline(
-    corruption_scheme: str, filter_scores: bool, extra_only: bool
+    corruption_scheme: str,
+    filter_scores: bool,
+    extra_only: bool,
+    filter_candidates: bool,
 ) -> None:
     ds = KGDataset(
         n_entity=n_entity,
@@ -104,6 +110,7 @@ def test_all_scores_pipeline(
         score_fn,
         evaluation,
         filter_triples=triples_to_filter,  # type: ignore
+        candidate_ents=compl_candidates if filter_candidates else None,
         return_scores=True,
         return_topk=True,
         k=10,
@@ -136,6 +143,12 @@ def test_all_scores_pipeline(
         triple_reordered[:, 1],
         unsharded_entity_table[triple_reordered[:, 2]],
     ).flatten()
+    if filter_candidates:
+        # positive score -inf if ground truth not in candidate list
+        pos_scores[
+            ~np.in1d(triple_reordered[:, ground_truth_col], compl_candidates)
+        ] = -torch.inf
+
     # mask positive scores to compute metrics
     cpu_scores[
         torch.arange(cpu_scores.shape[0]), triple_reordered[:, ground_truth_col]
@@ -161,19 +174,36 @@ def test_all_scores_pipeline(
             assert torch.all(
                 tr_filter[1::2, 1] == triple_reordered[:, ground_truth_col] + 1
             )
+    if filter_candidates:
+        cand_mask = np.setdiff1d(np.arange(cpu_scores.shape[-1]), compl_candidates)
+        cpu_scores[:, cand_mask] = -torch.inf
 
     cpu_ranks = evaluation.ranks_from_scores(pos_scores, cpu_scores)
-    # we allow for a off-by-one rank difference on at most 1% of triples,
-    # due to rounding differences in CPU vs IPU score computations
-    assert torch.all(torch.abs(cpu_ranks - out["ranks"]) <= 1)
-    assert (cpu_ranks != out["ranks"]).sum() < n_test_triple / 100
 
     # restore positive scores
     cpu_scores[
         torch.arange(cpu_scores.shape[0]), triple_reordered[:, ground_truth_col]
     ] = pos_scores
 
+    cpu_preds = torch.topk(cpu_scores, k=pipeline.k, dim=-1).indices
+    assert torch.all(cpu_preds == out["topk_global_id"])
+
+    if filter_candidates:
+        assert np.all(np.in1d(out["topk_global_id"], compl_candidates))
+        assert np.all(np.in1d(cpu_preds, compl_candidates))
+
+        cpu_scores = cpu_scores[:, compl_candidates]
+        out["scores"] = out["scores"][:, compl_candidates]
+        # cpu_ranks = cpu_ranks[
+        #     np.in1d(triple_reordered[:, ground_truth_col], compl_candidates)
+        # ]
+        # out["ranks"] = out["ranks"][
+        #     np.in1d(triple_reordered[:, ground_truth_col], compl_candidates)
+        # ]
+
     assert_close(cpu_scores, out["scores"], atol=1e-3, rtol=1e-4)
-    assert torch.all(
-        torch.topk(cpu_scores, k=pipeline.k, dim=-1).indices == out["topk_global_id"]
-    )
+
+    # we allow for a off-by-one rank difference on at most 1% of triples,
+    # due to rounding differences in CPU vs IPU score computations
+    assert torch.all(torch.abs(cpu_ranks - out["ranks"]) <= 1)
+    assert (cpu_ranks != out["ranks"]).sum() < n_test_triple / 100
