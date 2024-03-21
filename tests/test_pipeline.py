@@ -146,7 +146,9 @@ def test_all_scores_pipeline(
     if filter_candidates:
         # positive score -inf if ground truth not in candidate list
         pos_scores[
-            ~np.in1d(triple_reordered[:, ground_truth_col], compl_candidates)
+            torch.from_numpy(
+                ~np.in1d(triple_reordered[:, ground_truth_col], compl_candidates)
+            )
         ] = -torch.inf
 
     # mask positive scores to compute metrics
