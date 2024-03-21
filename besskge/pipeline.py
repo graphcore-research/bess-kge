@@ -23,9 +23,9 @@ from besskge.utils import get_entity_filter
 class AllScoresPipeline(torch.nn.Module):
     """
     Pipeline to compute scores of (h, r, ?) / (?, r, t) queries against all entities
-    in the KG, and related prediction metrics.
-    It supports filtering out the scores of specific completions that appear in a given
-    set of triples.
+    in the KG (or a given subset of entities), and related prediction metrics.
+    It supports filtering out, for each query, the scores of specific completions that
+    appear in a given set of triples.
 
     To be used in combination with a batch sampler based on a
     "h_shard"/"t_shard"-partitioned triple set.
@@ -38,6 +38,7 @@ class AllScoresPipeline(torch.nn.Module):
         score_fn: BaseScoreFunction,
         evaluation: Optional[Evaluation] = None,
         filter_triples: Optional[List[Union[torch.Tensor, NDArray[np.int32]]]] = None,
+        candidate_ents: Optional[Union[torch.Tensor, NDArray[np.int32]]] = None,
         return_scores: bool = False,
         return_topk: bool = False,
         k: int = 10,
@@ -62,6 +63,12 @@ class AllScoresPipeline(torch.nn.Module):
             The set of all triples whose scores need to be filtered.
             The triples passed here must have GLOBAL IDs for head/tail
             entities. Default: None.
+        :param candidate_ents:
+            If specified, score queries only against a given set of entities.
+            This array needs to contain the global IDs of the
+            candidate entities to be used for completion. All other entities
+            will then be ignored when scoring queries.
+            Default: None (i.e. score queries against all entities).
         :param return_scores:
             If True, store and return scores of all queries' completions
             (with filters applied, if specified).
@@ -165,6 +172,13 @@ class AllScoresPipeline(torch.nn.Module):
                 ],
                 dim=0,
             )
+        self.candidate_mask: Optional[torch.Tensor] = None
+        if candidate_ents is not None:
+            self.candidate_mask = torch.from_numpy(
+                np.setdiff1d(
+                    np.arange(self.bess_module.sharding.n_entity), candidate_ents
+                )
+            )
 
     def forward(self) -> Dict[str, Any]:
         """
@@ -231,6 +245,10 @@ class AllScoresPipeline(torch.nn.Module):
             batch_scores_filt = batch_scores[triple_mask.flatten()][
                 :, np.unique(np.concatenate(batch_idx), return_index=True)[1]
             ][:, : self.bess_module.sharding.n_entity]
+            if self.candidate_mask is not None:
+                # Filter scores for entities that are not in
+                # the given set of canidates
+                batch_scores_filt[:, self.candidate_mask] = -torch.inf
             if ground_truth is not None:
                 # Scores of positive triples
                 true_scores = batch_scores_filt[
