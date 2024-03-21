@@ -97,9 +97,9 @@
 <div class="viewcode-block" id="AllScoresPipeline"><a class="viewcode-back" href="../../generated/besskge.pipeline.AllScoresPipeline.html#besskge.pipeline.AllScoresPipeline">[docs]</a><span class="k">class</span> <span class="nc">AllScoresPipeline</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Pipeline to compute scores of (h, r, ?) / (?, r, t) queries against all entities</span>
-<span class="sd">    in the KG, and related prediction metrics.</span>
-<span class="sd">    It supports filtering out the scores of specific completions that appear in a given</span>
-<span class="sd">    set of triples.</span>
+<span class="sd">    in the KG (or a given subset of entities), and related prediction metrics.</span>
+<span class="sd">    It supports filtering out, for each query, the scores of specific completions that</span>
+<span class="sd">    appear in a given set of triples.</span>
 
 <span class="sd">    To be used in combination with a batch sampler based on a</span>
 <span class="sd">    &quot;h_shard&quot;/&quot;t_shard&quot;-partitioned triple set.</span>
@@ -112,6 +112,7 @@
         <span class="n">score_fn</span><span class="p">:</span> <span class="n">BaseScoreFunction</span><span class="p">,</span>
         <span class="n">evaluation</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Evaluation</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">filter_triples</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">candidate_ents</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">return_scores</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">return_topk</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">k</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
@@ -136,6 +137,12 @@
 <span class="sd">            The set of all triples whose scores need to be filtered.</span>
 <span class="sd">            The triples passed here must have GLOBAL IDs for head/tail</span>
 <span class="sd">            entities. Default: None.</span>
+<span class="sd">        :param candidate_ents:</span>
+<span class="sd">            If specified, score queries only against a given set of entities.</span>
+<span class="sd">            This array needs to contain the global IDs of the</span>
+<span class="sd">            candidate entities to be used for completion. All other entities</span>
+<span class="sd">            will then be ignored when scoring queries.</span>
+<span class="sd">            Default: None (i.e. score queries against all entities).</span>
 <span class="sd">        :param return_scores:</span>
 <span class="sd">            If True, store and return scores of all queries&#39; completions</span>
 <span class="sd">            (with filters applied, if specified).</span>
@@ -239,6 +246,13 @@
                 <span class="p">],</span>
                 <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">candidate_mask</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">candidate_ents</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">candidate_mask</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">setdiff1d</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bess_module</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">n_entity</span><span class="p">),</span> <span class="n">candidate_ents</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
 
 <div class="viewcode-block" id="AllScoresPipeline.forward"><a class="viewcode-back" href="../../generated/besskge.pipeline.AllScoresPipeline.html#besskge.pipeline.AllScoresPipeline.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -305,6 +319,10 @@
             <span class="n">batch_scores_filt</span> <span class="o">=</span> <span class="n">batch_scores</span><span class="p">[</span><span class="n">triple_mask</span><span class="o">.</span><span class="n">flatten</span><span class="p">()][</span>
                 <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">batch_idx</span><span class="p">),</span> <span class="n">return_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
             <span class="p">][:,</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bess_module</span><span class="o">.</span><span class="n">sharding</span><span class="o">.</span><span class="n">n_entity</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">candidate_mask</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Filter scores for entities that are not in</span>
+                <span class="c1"># the given set of canidates</span>
+                <span class="n">batch_scores_filt</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">candidate_mask</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">inf</span>
             <span class="k">if</span> <span class="n">ground_truth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># Scores of positive triples</span>
                 <span class="n">true_scores</span> <span class="o">=</span> <span class="n">batch_scores_filt</span><span class="p">[</span>
