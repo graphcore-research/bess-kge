@@ -189,17 +189,12 @@ def test_all_scores_pipeline(
     assert torch.all(cpu_preds == out["topk_global_id"])
 
     if filter_candidates:
+        # check that all predictions are in set of candidates
         assert np.all(np.in1d(out["topk_global_id"], compl_candidates))
         assert np.all(np.in1d(cpu_preds, compl_candidates))
 
         cpu_scores = cpu_scores[:, compl_candidates]
         out["scores"] = out["scores"][:, compl_candidates]
-        # cpu_ranks = cpu_ranks[
-        #     np.in1d(triple_reordered[:, ground_truth_col], compl_candidates)
-        # ]
-        # out["ranks"] = out["ranks"][
-        #     np.in1d(triple_reordered[:, ground_truth_col], compl_candidates)
-        # ]
 
     assert_close(cpu_scores, out["scores"], atol=1e-3, rtol=1e-4)
 
